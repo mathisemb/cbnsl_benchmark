@@ -1,0 +1,2 @@
+pyAgrum
+git+https://github.com/mathisemb/otagrum/tree/cpc2_cmiic2
