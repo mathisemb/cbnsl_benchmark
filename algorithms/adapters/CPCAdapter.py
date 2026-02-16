@@ -25,10 +25,6 @@ class CPCAdapter(AlgorithmAdapter):
         self.alpha = alpha
         self.max_conditioning_set_size = max_conditioning_set_size
 
-    def name(self) -> str:
-        """Returns the algorithm name"""
-        return "CPC"
-
     def required_data_type(self) -> DataType:
         """CPC requires continuous data"""
         return DataType.CONTINUOUS

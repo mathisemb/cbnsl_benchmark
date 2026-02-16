@@ -52,6 +52,17 @@ class Dataset:
         """Number of features"""
         return self.data.shape[1]
 
+    def set_golden_structure(self, golden_structure: Structure) -> None:
+        """
+        Set the golden/reference structure for this dataset.
+
+        Parameters
+        ----------
+        golden_structure : Structure
+            The true structure to compare against
+        """
+        self.golden_structure = golden_structure
+
     def __repr__(self) -> str:
         return (
             f"Dataset(n_samples={self.n_samples}, n_features={self.n_features}, "

@@ -129,7 +129,7 @@ class StructureLearningPipeline:
             f"Cannot adapt dataset from {current_type} to {required_type}"
         )
 
-    def run(self) -> Dict[Result]:
+    def run(self) -> Dict[str, Result]:
         """
         Execute the pipeline
         
@@ -160,12 +160,28 @@ class StructureLearningPipeline:
 
             # Learn structure
             learned_structure = algorithm.learn_structure(adapted_dataset)
-            
-            self.results[algorithm.name()] = Result(
+
+            # Create result
+            result = Result(
                 algorithm_name=algorithm.name(),
                 learned_structure=learned_structure,
                 dataset=adapted_dataset
             )
+
+            # Compute metrics if golden structure is available
+            if adapted_dataset.golden_structure is not None:
+                for metric in self.metrics:
+                    try:
+                        # Extract CPDAGs from Structure objects
+                        metric_value = metric.compute(
+                            ref=adapted_dataset.golden_structure.cpdag,
+                            test=learned_structure.cpdag
+                        )
+                        result.add_metric(metric.name(), metric_value)
+                    except Exception as e:
+                        print(f"ERROR computing {metric.name()} for {algorithm.name()}: {str(e)}")
+
+            self.results[algorithm.name()] = result
 
         print(f"\n{'='*60}")
         print(f"Pipeline completed. {len(self.results)} algorithms executed.")
@@ -199,8 +215,8 @@ class StructureLearningPipeline:
             raise ImportError("pandas is required for this method")
 
         data = []
-        for result in self.results:
-            row = {"Algorithm": result.algorithm_name}
+        for algorithm_name, result in self.results.items():
+            row = {"Algorithm": algorithm_name}
             row.update(result.metrics)
             data.append(row)
 

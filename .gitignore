@@ -1,4 +1,27 @@
-references
+# ============================================
+# Project-specific ignores
+# ============================================
+
+# Benchmark results and outputs (keep structure, ignore contents)
+results/*
+!results/.gitkeep
+
+# Datasets (except examples)
+data/*
+!data/.gitkeep
+!data/synthetic/.gitkeep
+
+# Build directories
+otagrum_build/
+notears_build/
+
+# IDE-specific
+.vscode/
+.idea/
+
+# ============================================
+# Python standard ignores
+# ============================================
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -195,13 +218,6 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
-
-# Cursor
-#  Cursor is an AI-powered code editor. `.cursorignore` specifies files/directories to
-#  exclude from AI features like autocomplete and code analysis. Recommended for sensitive data
-#  refer to https://docs.cursor.com/context/ignore-files
-.cursorignore
-.cursorindexingignore
 
 # Marimo
 marimo/_static/

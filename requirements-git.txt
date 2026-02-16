@@ -1,0 +1,8 @@
+# Git-based dependencies
+# These packages are not available on PyPI or require specific versions
+
+# otagrum with CPC2 and CMIIC2 support
+git+https://github.com/mathisemb/otagrum.git@cpc2_cmiic2
+
+# NO TEARS algorithm
+git+https://github.com/xunzheng/notears.git

@@ -39,4 +39,5 @@ def test_CPC_SHD():
         print("Learned structure:", result)
 
 if __name__ == "__main__":
+    # Run with: python -m tests.integration.test_cpc_shd  
     test_CPC_SHD()

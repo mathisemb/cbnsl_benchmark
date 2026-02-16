@@ -6,6 +6,7 @@ Uses pyAgrum's built-in GraphicalBNComparator.
 
 from typing import Optional
 import pyagrum as gum
+import pyagrum.lib.bn_vs_bn as bn_vs_bn
 from metrics.MetricAdapter import MetricAdapter
 
 
@@ -50,7 +51,7 @@ class SHDMetric(MetricAdapter):
         bn_test = self._dag_to_bn(test)
 
         # Use pyAgrum's built-in comparator
-        comparator = gum.GraphicalBNComparator(bn_ref, bn_test)
+        comparator = bn_vs_bn.GraphicalBNComparator(bn_ref, bn_test)
         hamming_result = comparator.hamming()
 
         # Return structural hamming distance
@@ -77,7 +78,7 @@ class SHDMetric(MetricAdapter):
         for node_id in dag.nodes():
             name = f"X{node_id}"
             node_names[node_id] = name
-            bn.addVariable(gum.LabelizedVariable(name, name, 2))
+            bn.add(gum.LabelizedVariable(name, name, 2))
 
         # Add arcs
         for node_id in dag.nodes():
