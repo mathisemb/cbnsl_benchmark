@@ -1,2 +1,6 @@
 pyAgrum
-git+https://github.com/mathisemb/otagrum/tree/cpc2_cmiic2
+openturns
+otagrum
+git+https://github.com/mathisemb/otagrum.git@cpc2_cmiic2
+git+https://github.com/xunzheng/notears.git
+lingam
