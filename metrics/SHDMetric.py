@@ -4,7 +4,6 @@ Structural Hamming Distance (SHD) metric for comparing DAGs.
 Uses pyAgrum's built-in GraphicalBNComparator.
 """
 
-from typing import Optional
 import pyagrum as gum
 import pyagrum.lib.bn_vs_bn as bn_vs_bn
 from metrics.MetricAdapter import MetricAdapter
@@ -89,6 +88,9 @@ class SHDMetric(MetricAdapter):
 
         # Set uniform CPDs
         for node_name in bn.names():
-            bn.cpt(node_name).fillWith([0.5, 0.5])
+            cpt = bn.cpt(node_name)
+            # Fill with uniform distribution
+            uniform_value = 1.0 / cpt.variable(0).domainSize()
+            bn.cpt(node_name).fillWith(uniform_value)
 
         return bn
