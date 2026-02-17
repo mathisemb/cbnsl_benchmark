@@ -1,5 +1,5 @@
 """
-Structural Hamming Distance (SHD) metric for comparing DAGs.
+Structural Hamming Distance (SHD) metric for comparing structures.
 
 Uses pyAgrum's built-in GraphicalBNComparator.
 """
@@ -7,13 +7,14 @@ Uses pyAgrum's built-in GraphicalBNComparator.
 import pyagrum as gum
 import pyagrum.lib.bn_vs_bn as bn_vs_bn
 from metrics.MetricAdapter import MetricAdapter
+from pipeline.Structure import Structure
 
 
 class SHDMetric(MetricAdapter):
     """
     Structural Hamming Distance (SHD) metric.
-    
-    SHD compares the structure of two DAGs by counting differences in arcs.
+
+    SHD compares the structure of two CPDAGs by counting differences in arcs and edges.
     Uses pyAgrum's GraphicalBNComparator.hamming() method.
     """
 
@@ -21,33 +22,34 @@ class SHDMetric(MetricAdapter):
         """Returns 'SHD'"""
         return "SHD"
 
-    def compute(self, ref: gum.DAG, test: gum.DAG = None) -> float:
+    def compute(self, ref: Structure, test: Structure) -> float:
         """
-        Compute Structural Hamming Distance between two DAGs
-        
+        Compute Structural Hamming Distance between two structures
+
         Parameters
         ----------
-        ref : gum.DAG
-            First DAG to compare
-        test : gum.DAG, optional
-            Second DAG to compare with. If None, returns 0.0
-            
+        ref : Structure
+            Reference structure (typically ground truth)
+        test : Structure
+            Test structure to compare
+
         Returns
         -------
         float
             The SHD value (number of differences)
-            
+
         Raises
         ------
         ValueError
-            If DAGs have different node sets
+            If structures have different node sets
         """
-        if test is None:
-            return 0.0
+        # Extract CPDAGs from Structure objects
+        cpdag_ref = ref.cpdag
+        cpdag_test = test.cpdag
 
-        # Convert DAGs to BayesNets for pyAgrum's comparator
-        bn_ref = self._dag_to_bn(ref)
-        bn_test = self._dag_to_bn(test)
+        # Convert CPDAGs to BayesNets for pyAgrum's comparator
+        bn_ref = self._cpdag_to_bn(cpdag_ref)
+        bn_test = self._cpdag_to_bn(cpdag_test)
 
         # Use pyAgrum's built-in comparator
         comparator = bn_vs_bn.GraphicalBNComparator(bn_ref, bn_test)
@@ -56,15 +58,15 @@ class SHDMetric(MetricAdapter):
         # Return structural hamming distance
         return float(hamming_result.get("structural hamming", 0.0))
 
-    def _dag_to_bn(self, dag: gum.DAG) -> gum.BayesNet:
+    def _cpdag_to_bn(self, cpdag: gum.MixedGraph) -> gum.BayesNet:
         """
-        Convert a DAG to a minimal BayesNet with uniform CPDs
-        
+        Convert a CPDAG (MixedGraph) to a minimal BayesNet with uniform CPDs
+
         Parameters
         ----------
-        dag : gum.DAG
-            The DAG to convert
-            
+        cpdag : gum.MixedGraph
+            The CPDAG to convert (can contain arcs and edges)
+
         Returns
         -------
         gum.BayesNet
@@ -74,17 +76,20 @@ class SHDMetric(MetricAdapter):
 
         # Create a mapping from node IDs to names
         node_names = {}
-        for node_id in dag.nodes():
+        for node_id in cpdag.nodes():
             name = f"X{node_id}"
             node_names[node_id] = name
             bn.add(gum.LabelizedVariable(name, name, 2))
 
-        # Add arcs
-        for node_id in dag.nodes():
-            for child_id in dag.children(node_id):
+        # Add directed arcs
+        for node_id in cpdag.nodes():
+            for child_id in cpdag.children(node_id):
                 parent_name = node_names[node_id]
                 child_name = node_names[child_id]
                 bn.addArc(bn.idFromName(parent_name), bn.idFromName(child_name))
+
+        # Note: Undirected edges in CPDAG are ignored for BayesNet conversion
+        # as BayesNet only supports directed arcs
 
         # Set uniform CPDs
         for node_name in bn.names():

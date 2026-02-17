@@ -7,7 +7,6 @@ from pipeline.Dataset import Dataset
 from pipeline.Result import Result
 from algorithms.AlgorithmAdapter import AlgorithmAdapter, DataType
 from metrics.MetricAdapter import MetricAdapter
-from pipeline.Structure import Structure
 
 
 class DiscretizationStrategy:
@@ -161,6 +160,10 @@ class StructureLearningPipeline:
             # Learn structure
             learned_structure = algorithm.learn_structure(adapted_dataset)
 
+            # Display learned structure
+            print()
+            learned_structure.display(show_structure=True)
+
             # Create result
             result = Result(
                 algorithm_name=algorithm.name(),
@@ -172,10 +175,10 @@ class StructureLearningPipeline:
             if adapted_dataset.golden_structure is not None:
                 for metric in self.metrics:
                     try:
-                        # Extract CPDAGs from Structure objects
+                        # Pass Structure objects directly to metrics
                         metric_value = metric.compute(
-                            ref=adapted_dataset.golden_structure.cpdag,
-                            test=learned_structure.cpdag
+                            ref=adapted_dataset.golden_structure,
+                            test=learned_structure
                         )
                         result.add_metric(metric.name(), metric_value)
                     except Exception as e:

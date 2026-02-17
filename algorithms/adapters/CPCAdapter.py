@@ -87,13 +87,17 @@ class CPCAdapter(AlgorithmAdapter):
             The converted DAG in Structure format
         """
 
-        # from otagrum.NamedDAG to gum.BayesNet because pyAgrum's comparator works with BayesNets
+        # Convert NamedDAG to BayesNet
         bn = gum.BayesNet()
         bn.addVariables([str(node) for node in named_dag.getDAG().nodes()], 2)
         for (tail_id, head_id) in named_dag.getDAG().arcs():
             bn.addArc(tail_id, head_id)
 
-        return Structure(gum.EssentialGraph(bn))
+        # Extract CPDAG using EssentialGraph, then convert to PDAG (which is a MixedGraph)
+        essential_graph = gum.EssentialGraph(bn)
+        cpdag = essential_graph.pdag()  # PDAG inherits from MixedGraph
+
+        return Structure(cpdag)
     
     def name(self) -> str:
         """

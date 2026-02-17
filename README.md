@@ -117,3 +117,19 @@ cbnsl_benchmark/
 ├── requirements.txt     # Base dependencies
 └── requirements-git.txt # Git-based dependencies
 ```
+
+# Developing Algorithm Adapters
+
+To add a new structure learning algorithm to the benchmark, create an adapter that:
+1. Implements the `AlgorithmAdapter` interface
+2. Returns a `Structure` object containing a CPDAG (Completed Partially Directed Acyclic Graph)
+
+**Important:** The CPDAG must be a `gum.MixedGraph` (or subclass like `gum.PDAG`).
+
+See **[algorithms/ADAPTER_GUIDE.md](algorithms/ADAPTER_GUIDE.md)** for detailed instructions on:
+- How to extract a CPDAG from different DAG types (otagrum.NamedDAG, gum.DAG, etc.)
+- Common pitfalls to avoid
+- Complete examples
+
+Example adapters:
+- [CPCAdapter.py](algorithms/adapters/CPCAdapter.py) - Wraps otagrum's CPC algorithm

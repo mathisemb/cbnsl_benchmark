@@ -87,8 +87,11 @@ def test_cpc_sachs():
             print("  No metrics computed")
 
     print()
-    print("Ground Truth:")
-    print(f"  {ground_truth.cpdag.size()} nodes, {ground_truth.cpdag.sizeArcs()} edges")
+    print("=" * 70)
+    print("Ground Truth (BN18)")
+    print("=" * 70)
+    print()
+    ground_truth.display(show_structure=True)
     print()
     print("=" * 70)
     print()
