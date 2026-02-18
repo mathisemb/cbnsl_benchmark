@@ -10,25 +10,24 @@ echo ""
 
 # Check Python installation
 if ! command -v python3 &> /dev/null; then
-    echo "❌ Python 3 is not installed. Please install it first."
+    echo "[ERROR] Python 3 is not installed. Please install it first."
     exit 1
 fi
 
-echo "✓ Python found: $(python3 --version)"
+echo "[OK] Python found: $(python3 --version)"
 echo ""
 
-# Ask about virtual environment
-read -p "Create a virtual environment? (recommended) [y/N]: " create_venv
-if [[ $create_venv =~ ^[Yy]$ ]]; then
-    echo "📦 Creating virtual environment..."
-    python3 -m venv venv
-    source venv/bin/activate
-    echo "✓ Virtual environment activated"
-    echo ""
-fi
+# Create virtual environment with system site-packages
+# This gives access to system-installed packages (pyAgrum, openturns)
+# and user-installed packages (otagrum in ~/.local/)
+echo "Creating virtual environment with --system-site-packages..."
+python3 -m venv venv --system-site-packages
+source venv/bin/activate
+echo "[OK] Virtual environment activated"
+echo ""
 
 # Upgrade pip
-echo "📦 Upgrading pip..."
+echo "Upgrading pip..."
 pip install --upgrade pip
 echo ""
 
@@ -37,7 +36,7 @@ echo "============================================"
 echo "Installing base dependencies..."
 echo "============================================"
 pip install -e .
-echo "✓ Base dependencies installed"
+echo "[OK] Base dependencies installed"
 echo ""
 
 # Ask about otagrum installation method
@@ -52,32 +51,32 @@ read -p "Enter choice [1/2/3]: " otagrum_choice
 
 case $otagrum_choice in
     1)
-        echo "📦 Installing standard otagrum via conda..."
+        echo "Installing standard otagrum via conda..."
         if command -v conda &> /dev/null; then
             conda install otagrum -y
-            echo "✓ otagrum installed via conda"
+            echo "[OK] otagrum installed via conda"
         else
-            echo "❌ conda not found. Please install conda or choose option 2."
+            echo "[ERROR] conda not found. Please install conda or choose option 2."
             exit 1
         fi
         ;;
     2)
-        echo "📦 Building otagrum from source..."
+        echo "Building otagrum from source..."
 
         # Check for cmake
         if ! command -v cmake &> /dev/null; then
-            echo "❌ cmake not found. Please install cmake first:"
+            echo "[ERROR] cmake not found. Please install cmake first:"
             echo "   Ubuntu/Debian: sudo apt install cmake build-essential"
             echo "   Fedora: sudo dnf install cmake gcc-c++"
             echo "   macOS: brew install cmake"
             exit 1
         fi
 
-        echo "✓ cmake found: $(cmake --version | head -n1)"
+        echo "[OK] cmake found: $(cmake --version | head -n1)"
 
         # Clone otagrum
         if [ -d "otagrum_build" ]; then
-            echo "⚠ otagrum_build directory exists. Removing..."
+            echo "[WARN] otagrum_build directory exists. Removing..."
             rm -rf otagrum_build
         fi
 
@@ -95,7 +94,7 @@ case $otagrum_choice in
         cmake --build . --target install
 
         cd ../..
-        echo "✓ otagrum built and installed"
+        echo "[OK] otagrum built and installed"
 
         # Optional: run tests
         read -p "Run otagrum unit tests? [y/N]: " run_tests
@@ -110,53 +109,48 @@ case $otagrum_choice in
         read -p "Remove build directory? [y/N]: " cleanup
         if [[ $cleanup =~ ^[Yy]$ ]]; then
             rm -rf otagrum_build
-            echo "✓ Build directory removed"
+            echo "[OK] Build directory removed"
         fi
         ;;
     3)
-        echo "⏭ Skipping otagrum installation"
+        echo "Skipping otagrum installation"
         ;;
     *)
-        echo "❌ Invalid choice"
+        echo "[ERROR] Invalid choice"
         exit 1
         ;;
 esac
 echo ""
 
-# Install NO TEARS
+# Install NOTEARS (not on PyPI, must be installed from git)
+# LiNGAM is already installed by pip install -e . (via pyproject.toml)
 echo "============================================"
-echo "NO TEARS Installation"
+echo "NOTEARS Installation"
 echo "============================================"
-read -p "Install NO TEARS algorithm? [y/N]: " install_notears
-if [[ $install_notears =~ ^[Yy]$ ]]; then
-    echo "📦 Installing NO TEARS..."
-    pip install git+https://github.com/xunzheng/notears.git
-    echo "✓ NO TEARS installed"
-fi
+echo "Installing NOTEARS..."
+pip install git+https://github.com/xunzheng/notears.git
+echo "[OK] NOTEARS installed"
 echo ""
 
 # Optional: install dev dependencies
 read -p "Install development dependencies (pytest, black)? [y/N]: " install_dev
 if [[ $install_dev =~ ^[Yy]$ ]]; then
-    echo "📦 Installing development dependencies..."
+    echo "Installing development dependencies..."
     pip install -e ".[dev]"
-    echo "✓ Development dependencies installed"
+    echo "[OK] Development dependencies installed"
 fi
 echo ""
 
 # Final summary
 echo "============================================"
-echo "✅ Installation completed successfully!"
+echo "Installation completed successfully!"
 echo "============================================"
 echo ""
 echo "To test the installation, run:"
-echo "  python test/t_CPC_SHD.py"
+echo "  python tests/test_comparison_sachs.py"
 echo ""
-
-if [[ $create_venv =~ ^[Yy]$ ]]; then
-    echo "💡 To activate the virtual environment later:"
-    echo "  source venv/bin/activate"
-    echo ""
-fi
+echo "To activate the virtual environment later:"
+echo "  source venv/bin/activate"
+echo ""
 
 echo "For more information, see the README.md file."

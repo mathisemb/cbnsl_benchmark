@@ -95,6 +95,77 @@ assert isinstance(learned.cpdag, gum.MixedGraph)
 print(type(learned.cpdag))  # <class 'pyagrum.pyagrum.PDAG'>
 ```
 
+## Algorithmes retournant une matrice d'adjacence (NOTEARS, LiNGAM)
+
+Certains algorithmes retournent une **matrice d'adjacence pondérée** `np.ndarray` de shape `(d, d)` au lieu d'un objet graphe. Il faut alors seuiller puis construire un `BayesNet` → `EssentialGraph` → `Structure`.
+
+### NOTEARS
+
+**Repo :** https://github.com/xunzheng/notears
+**Install :** `pip install git+https://github.com/xunzheng/notears`
+
+```python
+from notears.linear import notears_linear
+
+W_est = notears_linear(X, lambda1=0.1, loss_type='l2')
+```
+
+| | |
+|---|---|
+| **Input** | `np.ndarray` de shape `(n_samples, n_variables)` — données continues |
+| **Output** | `np.ndarray` de shape `(d, d)` — matrice d'adjacence **pondérée** |
+| **Convention** | `W[i,j] != 0` ⇒ arc `i → j` |
+| **Type de sortie** | **DAG** (pas CPDAG) — l'acyclicité est imposée pendant l'optimisation |
+
+**Paramètres importants :**
+- `lambda1` : pénalité L1 (sparsité). `0.1` est un bon défaut
+- `loss_type` : `'l2'` pour données continues gaussiennes
+- `w_threshold` : seuil de pruning (défaut `0.3`) — les arcs avec `|poids| < seuil` sont mis à 0
+
+**Conversion en Structure :** construire un `BayesNet` à partir de `(W_est != 0)`, puis `EssentialGraph(bn).pdag()`.
+
+### LiNGAM
+
+**Repo :** https://github.com/cdt15/lingam
+**Install :** `pip install lingam`
+
+```python
+import lingam
+
+model = lingam.DirectLiNGAM(random_state=42)
+model.fit(X)
+B = model.adjacency_matrix_       # matrice d'adjacence pondérée
+order = model.causal_order_       # ordre causal
+```
+
+| | |
+|---|---|
+| **Input** | `np.ndarray` ou `pd.DataFrame` de shape `(n_samples, n_features)` |
+| **Output** | `np.ndarray` de shape `(d, d)` — matrice d'adjacence **pondérée** |
+| **Convention** | `B[i,j] != 0` ⇒ arc `j → i` (attention, convention inversée par rapport à NOTEARS !) |
+| **Type de sortie** | **DAG** (pas CPDAG) — l'hypothèse de non-gaussianité permet d'identifier la direction |
+
+**Variante recommandée :** `DirectLiNGAM` (plus robuste que `ICALiNGAM`)
+
+**Paramètres :**
+- `random_state` : seed
+- `measure` : `'pwling'` (défaut) ou `'kernel'`
+
+**Conversion en Structure :** seuiller `abs(B) > threshold`, construire un `BayesNet` (attention à la convention `j → i`), puis `EssentialGraph(bn).pdag()`.
+
+### Comparaison NOTEARS vs LiNGAM
+
+| | NOTEARS | LiNGAM |
+|---|---|---|
+| Approche | Optimisation continue + contrainte d'acyclicité | Modèle d'équations structurelles + non-gaussianité |
+| Input | `np.ndarray` uniquement | `np.ndarray` ou `DataFrame` |
+| Output | DAG pondéré | DAG pondéré |
+| Convention adjacence | `W[i,j]` = `i → j` | `B[i,j]` = `j → i` |
+| Seuillage | Intégré (`w_threshold=0.3`) | À faire manuellement |
+| Hypothèse | Modèle linéaire | Bruit non-gaussien |
+
+Les deux retournent un **DAG** (pas un CPDAG), donc il faut convertir via `EssentialGraph(bn).pdag()` → `Structure(pdag)` pour être cohérent avec le benchmark.
+
 ## Questions fréquentes
 
 **Q: Pourquoi ne pas utiliser directement EssentialGraph ?**

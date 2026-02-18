@@ -15,7 +15,6 @@ requires-python = ">=3.8"  # Minimum Python version
 dependencies = [
     "pyAgrum",
     "openturns",
-    "numpy",
     "lingam",
 ]
 
@@ -30,5 +29,5 @@ dev = [
 # ===== Setuptools configuration =====
 # Specifies which folders to include in the package
 [tool.setuptools.packages.find]
-include = ["pipeline*", "algorithms*", "metrics*", "discretization*", "visualization*"]
+include = ["pipeline*", "algorithms*", "metrics*", "analysis*"]
 exclude = ["tests*", "examples*", "references*", "data*", "results*", "__pycache__*"]

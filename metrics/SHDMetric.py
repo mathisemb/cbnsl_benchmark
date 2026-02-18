@@ -60,7 +60,11 @@ class SHDMetric(MetricAdapter):
 
     def _cpdag_to_bn(self, cpdag: gum.MixedGraph) -> gum.BayesNet:
         """
-        Convert a CPDAG (MixedGraph) to a minimal BayesNet with uniform CPDs
+        Convert a CPDAG (MixedGraph) to a BayesNet.
+
+        Uses MeekRules to orient undirected edges into a complete DAG.
+        GraphicalBNComparator.hamming() will then recover the CPDAG
+        via EssentialGraph before comparing.
 
         Parameters
         ----------
@@ -70,32 +74,36 @@ class SHDMetric(MetricAdapter):
         Returns
         -------
         gum.BayesNet
-            A BayesNet with the same structure (CPDs are uniform)
+            A BayesNet with the same equivalence class
         """
-        bn = gum.BayesNet()
 
-        # Create a mapping from node IDs to names
+        # Add directed arcs
+        # Note: Undirected edges in CPDAG are ignored for BayesNet conversion
+        # as BayesNet only supports directed arcs
+        
+        """"
+        Note:
+        We do not directly convert the cpdag to a BayesNet.
+        BayesNet only supports directed arcs (only addArc method).
+        To avoid losing undirected edges, we first complete the CPDAG into a DAG using Meek rules.
+        The resulting DAG will be in the same Markov equivalence class as the original CPDAG.
+        Then, SHD will compare the CPDAGs by extracting the essential graph from the DAGs.
+        Also, it's not mandatory to set CPTs to create a valid BayesNet.
+        """
+
+        # Complete the CPDAG into a DAG using Meek rules
+        meek = gum.MeekRules()
+        dag = meek.propagateToDAG(cpdag)
+
+        # Build BayesNet from the DAG
+        bn = gum.BayesNet()
         node_names = {}
-        for node_id in cpdag.nodes():
+        for node_id in dag.nodes():
             name = f"X{node_id}"
             node_names[node_id] = name
             bn.add(gum.LabelizedVariable(name, name, 2))
 
-        # Add directed arcs
-        for node_id in cpdag.nodes():
-            for child_id in cpdag.children(node_id):
-                parent_name = node_names[node_id]
-                child_name = node_names[child_id]
-                bn.addArc(bn.idFromName(parent_name), bn.idFromName(child_name))
-
-        # Note: Undirected edges in CPDAG are ignored for BayesNet conversion
-        # as BayesNet only supports directed arcs
-
-        # Set uniform CPDs
-        for node_name in bn.names():
-            cpt = bn.cpt(node_name)
-            # Fill with uniform distribution
-            uniform_value = 1.0 / cpt.variable(0).domainSize()
-            bn.cpt(node_name).fillWith(uniform_value)
+        for arc in dag.arcs():
+            bn.addArc(node_names[arc[0]], node_names[arc[1]])
 
         return bn

@@ -1,7 +1,6 @@
 import sys
 import openturns as ot
-from algorithms.AlgorithmAdapter import DataType
-from algorithms.adapters.CPCAdapter import CPCAdapter
+from algorithms.CPCAdapter import CPCAdapter
 from pipeline.Dataset import Dataset
 from pipeline.Pipeline import StructureLearningPipeline
 from metrics.SHDMetric import SHDMetric
@@ -21,7 +20,7 @@ def test_CPC_SHD():
     size = 1000
     data = generateDataForSpecificInstance(size) # ot.Sample
     np_data = np.array(data) # Convert to numpy array
-    dataset = Dataset(np_data, DataType.CONTINUOUS)
+    dataset = Dataset(np_data)
 
     # CPC
     alpha = 0.1

@@ -100,18 +100,17 @@ cbnsl_benchmark/
 │
 ├── algorithms/            # Algorithm adapters
 │   ├── AlgorithmAdapter.py    # Base adapter interface
-│   └── adapters/
-│       └── CPCAdapter.py      # CPC algorithm (✅)
+│   ├── CPCAdapter.py          # CPC/CPC2 continu (otagrum) (✅)
+│   ├── CMIICAdapter.py        # CMIIC/CMIIC2 continu (otagrum) (✅)
+│   ├── MIICAdapter.py         # MIIC discret + discrétisation (pyAgrum) (✅)
+│   └── GHCBDeuAdapter.py      # GHC+BDeu discret + discrétisation (pyAgrum) (✅)
 │
 ├── metrics/              # Evaluation metrics
 │   ├── MetricAdapter.py      # Base metric interface
 │   └── SHDMetric.py         # Structural Hamming Distance (✅)
 │
-├── discretization/       # Discretization strategies (TODO)
-│   └── __init__.py
-│
-├── visualization/        # Visualization tools (TODO)
-│   └── __init__.py
+├── analysis/             # Benchmark analysis and visualization
+│   └── BenchmarkAnalyzer.py  # Metrics vs golden, pairwise, heatmaps (✅)
 │
 ├── tests/               # Tests
 │   ├── unit/            # Unit tests (TODO)
@@ -160,23 +159,43 @@ cbnsl_benchmark/
 
 **Pourquoi pas MixedGraph ?** : Initialement typé comme `MixedGraph`, mais c'était incorrect. `EssentialGraph` est plus spécifique et précis.
 
+### Conversion CPDAG → BayesNet pour le calcul de SHD
+
+**Problème** : `GraphicalBNComparator` de pyAgrum attend des `BayesNet` en entrée, mais un `BayesNet` hérite de `DAG` qui ne supporte que des arcs dirigés (`addArc`). Or nos structures apprises sont des CPDAGs (MixedGraph) qui contiennent des arêtes non-dirigées (edges). Une conversion naïve CPDAG → BayesNet perd ces edges, ce qui fausse complètement le calcul de SHD (toutes les distances deviennent 0).
+
+**Solution** : Avant de construire le BayesNet, on complète le CPDAG en DAG complet via `gum.MeekRules().propagateToDAG(cpdag)`. Les Meek rules orientent les edges restantes de manière cohérente avec la classe d'équivalence de Markov. Ensuite, `GraphicalBNComparator.hamming()` retrouve le CPDAG original via `EssentialGraph` avant de comparer.
+
+### Discrétisation
+Pour les approches s’appliquant à des données discrètes, les performances dépendent fortement de la stratégie de discrétisation utilisée en amont deux méthodes sont explorées et une grille de bin de 1 à 10 sont testées grâce à ces méthode de discretisation :
+- **Discrétisation par quantiles** : découpe l’échelle des variables continues en classes de même effectif, garantissant une distribution uniforme des observations.
+- **Discrétisation Hartemink** : utilisée dans l’étude de Sachs, cette méthode commence par une discrétisation initiale (paramétrable dans notre pipeline), puis agrège les intervalles de manière à maximiser la conservation de l’information mutuelle conditionnelle entre les variables, préservant ainsi au mieux leurs dépendances.
+
+Pour la discrétisation par quantiles on utilise la classe DiscreteTypeProcessor de agrum.
+
 ### Design Patterns
 
 **Pattern Adapter pour Algorithmes** : Découple les implémentations externes de notre pipeline. Chaque algo (CPC, NOTEARS, LiNGAM) a son adapter implémentant l'interface `AlgorithmAdapter`.
 
 **Pattern Adapter pour Métriques** : Similaire aux algos, permet d'ajouter nouvelles métriques sans modifier la pipeline.
 
-**Pattern Strategy pour Discrétisation** : Prévu pour gérer différentes stratégies de discrétisation (uniforme, quantile, etc.) sans hard-coder dans les adapters d'algos.
+**Injection de Dépendances** : Pipeline ne crée pas les algos ou métriques, ils sont injectés via `add_algorithm()`. Augmente flexibilité et testabilité.
 
-**Injection de Dépendances** : Pipeline ne crée pas les algos ou métriques, ils sont injectés via `add_algorithm()` et `add_metric()`. Augmente flexibilité et testabilité.
+### Discrétisation intégrée aux adapters
 
-### Gestion des types de données
-
-**Adaptation automatique du Dataset** : Pipeline vérifie si le type de données requis par l'algo correspond au type du dataset. Sinon, applique stratégie de discrétisation automatiquement.
-
-**Enum DataType** : Enum simple (CONTINUOUS/DISCRETE) centralise la gestion des types et évite les vérifications basées sur strings.
+Les algorithmes discrets (MIIC, GHC+BDeu) gèrent la discrétisation en interne via `DiscreteTypeProcessor` de pyAgrum. Les paramètres (n_bins, méthode) font partie de la configuration de l'adapter. Il n'y a pas de `DataType` ni de mécanisme de conversion automatique dans la Pipeline : tous les adapters acceptent des données continues.
 
 ### Installation & Dépendances
+
+**Environnement Python** : On utilise un venv avec `--system-site-packages` pour avoir accès aux packages C++ compilés (pyAgrum, openturns, otagrum) tout en isolant les packages pip (lingam, notears).
+
+**Comment les packages sont installés :**
+- **pyAgrum, openturns** : installés via pacman (paquets Arch) → `/usr/lib/python3.x/site-packages`
+- **otagrum** : compilé depuis le fork C++ et installé via `cmake --install` avec `CMAKE_INSTALL_PREFIX=$HOME/.local` → `~/.local/lib/python3.x/site-packages`
+- **lingam, notears** : installés via `pip install` dans le venv → `venv/lib/python3.x/site-packages`
+
+**Pourquoi `--system-site-packages` ?** Manjaro (Arch) applique PEP 668 qui interdit pip d'installer hors d'un venv. Un venv standard ne voit pas les packages système (pyAgrum, openturns) ni les packages utilisateur (otagrum dans `~/.local/`). Le flag `--system-site-packages` rend ces packages visibles dans le venv, tout en permettant `pip install` normal pour les packages Python purs (lingam, notears).
+
+**Activation du venv :** `source venv/bin/activate` ou utiliser directement `venv/bin/python`.
 
 **pyproject.toml pour config package** : Standard moderne Python (PEP 621). Définit dépendances et métadonnées du package.
 
@@ -184,30 +203,12 @@ cbnsl_benchmark/
 
 **Script install.sh automatisé** : Installation interactive gérant conda vs build cmake pour otagrum, NO TEARS optionnel, etc.
 
-## Problèmes connus / TODO
-
-### Bugs à corriger
-- ⚠️ **Métriques non calculées dans Pipeline.run()** : Les métriques sont ajoutées au pipeline mais jamais calculées. Besoin d'appeler `metric.compute()` dans la boucle run.
-- ⚠️ **Pas de logging** : Utilise actuellement des `print()`. Devrait utiliser le module `logging` Python pour niveaux de log et configuration appropriés.
-
-### Fonctionnalités à implémenter
-- [ ] Algorithmes restants : CMIIC, CPC2, CMIIC2, NOTEARS, LiNGAM
+## Fonctionnalités à implémenter
+- [ ] Algorithmes restants : NOTEARS, LiNGAM, Discrétisation Hartemink
 - [ ] Métriques restantes : F1-Score, TPR
-- [ ] Stratégies de discrétisation et intégration
-- [ ] Module de visualisation (heatmaps)
-- [ ] Tests unitaires pour tous les composants
-- [ ] Intégration dataset réel (Sachs protein dataset)
-- [ ] Comparaison avec structure golden et benchmarking
+- [ ] Grille de bins (1-10) pour les algorithmes avec discrétisation
 - [ ] Export des résultats (CSV, JSON)
 - [ ] Mesure du temps d'exécution
-- [ ] Exécution parallèle des algorithmes
-
-### Améliorations architecturales
-- [ ] Ajouter logging structuré partout
-- [ ] Amélioration gestion d'erreurs (actuellement try/except basique)
-- [ ] Complétion des type hints (manquent à certains endroits)
-- [ ] Génération documentation (Sphinx)
-- [ ] Pipeline CI/CD (GitHub Actions)
 
 ## Conventions de code
 - Code et commentaires en anglais

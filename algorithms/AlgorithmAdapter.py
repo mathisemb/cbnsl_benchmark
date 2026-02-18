@@ -1,13 +1,12 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from enum import Enum
+from typing import TYPE_CHECKING
 
 from pipeline.Structure import Structure
 
-
-class DataType(Enum):
-    """Enum for data types supported by algorithms"""
-    CONTINUOUS = "continuous"
-    DISCRETE = "discrete"
+if TYPE_CHECKING:
+    from pipeline.Dataset import Dataset
 
 
 class AlgorithmAdapter(ABC):
@@ -26,7 +25,7 @@ class AlgorithmAdapter(ABC):
     def name(self) -> str:
         """
         Returns the name of the algorithm
-        
+
         Returns
         -------
         str
@@ -35,27 +34,15 @@ class AlgorithmAdapter(ABC):
         pass
 
     @abstractmethod
-    def required_data_type(self) -> DataType:
-        """
-        Returns the data type required by this algorithm
-        
-        Returns
-        -------
-        DataType
-            CONTINUOUS or DISCRETE
-        """
-        pass
-
-    @abstractmethod
-    def learn_structure(self, dataset) -> Structure:
+    def learn_structure(self, dataset: Dataset) -> Structure:
         """
         Learn the Bayesian Network structure from the dataset
-        
+
         Parameters
         ----------
         dataset : Dataset
             The dataset to learn from
-            
+
         Returns
         -------
         Structure

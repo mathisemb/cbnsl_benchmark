@@ -6,7 +6,7 @@ the Structural Hamming Distance against the golden structure.
 """
 
 import pyagrum as gum
-from algorithms.adapters.CPCAdapter import CPCAdapter
+from algorithms.CPCAdapter import CPCAdapter
 from pipeline.Pipeline import StructureLearningPipeline
 from metrics.SHDMetric import SHDMetric
 from data.generators import create_simple_cbn, generate_from_cbn

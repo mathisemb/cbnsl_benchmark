@@ -1,4 +1,0 @@
-pyAgrum
-openturns
-otagrum
-lingam

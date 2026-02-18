@@ -10,8 +10,8 @@ from pipeline.Structure import Structure
 class Result:
     """
     Stores the result of running an algorithm on a dataset.
-    
-    Contains the learned structure, dataset used, and all computed metrics.
+
+    Contains the learned structure, dataset metadata, and all computed metrics.
     """
 
     def __init__(
@@ -22,19 +22,23 @@ class Result:
     ):
         """
         Initialize a result
-        
+
         Parameters
         ----------
         algorithm_name : str
             Name of the algorithm that produced this result
         learned_structure : Structure
-            The learned structure (DAG)
+            The learned structure
         dataset : Dataset
-            The dataset used for learning
+            The dataset used for learning (only metadata is stored)
         """
         self.algorithm_name = algorithm_name
         self.learned_structure = learned_structure
-        self.dataset = dataset
+
+        # Store only dataset metadata to save memory
+        self.dataset_name = dataset.name
+        self.dataset_n_samples = dataset.n_samples
+        self.dataset_n_features = dataset.n_features
         self.metrics: Dict[str, float] = {}
 
     def add_metric(self, metric_name: str, value: float) -> None:
@@ -50,26 +54,10 @@ class Result:
         """
         self.metrics[metric_name] = value
 
-    def get_metric(self, metric_name: str) -> Optional[float]:
-        """
-        Get a metric value
-        
-        Parameters
-        ----------
-        metric_name : str
-            Name of the metric
-            
-        Returns
-        -------
-        float or None
-            The metric value if present, None otherwise
-        """
-        return self.metrics.get(metric_name)
-
     def __str__(self):
         output  = f"Result for {self.algorithm_name}:\n"
         output += f"  Learned Structure: {self.learned_structure}\n"
-        output += f"  Dataset: {self.dataset}\n"
+        output += f"  Dataset: {self.dataset_name} ({self.dataset_n_samples} samples, {self.dataset_n_features} features)\n"
         output += "  Metrics:\n"
         for metric, value in self.metrics.items():
             output += f"    {metric}: {value:.4f}\n"

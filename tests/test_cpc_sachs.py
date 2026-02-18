@@ -14,12 +14,12 @@ import numpy as np
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from algorithms.AlgorithmAdapter import DataType
-from algorithms.adapters.CPCAdapter import CPCAdapter
+from algorithms.CPCAdapter import CPCAdapter
 from pipeline.Dataset import Dataset
 from pipeline.Pipeline import StructureLearningPipeline
 from metrics.SHDMetric import SHDMetric
 from data.sachs.load_ground_truth import load_sachs_ground_truth
+from analysis.BenchmarkAnalyzer import BenchmarkAnalyzer
 
 
 def test_cpc_sachs():
@@ -33,7 +33,7 @@ def test_cpc_sachs():
     # 1. Load Sachs observational dataset
     print("1. Loading Sachs observational dataset...")
     data_path = project_root / "data" / "sachs" / "sachs_observational.csv"
-    sachs_data = pd.read_csv(data_path, sep="\t")
+    sachs_data = pd.read_csv(data_path, sep="\t") # panda to read the columns names
     print(f"   Dataset shape: {sachs_data.shape}")
     print(f"   Variables: {', '.join(sachs_data.columns)}")
     print()
@@ -46,22 +46,26 @@ def test_cpc_sachs():
 
     # Convert to numpy and create Dataset with ground truth
     np_data = sachs_data.to_numpy()
-    dataset = Dataset(np_data, DataType.CONTINUOUS, golden_structure=ground_truth)
+    dataset = Dataset(
+        np_data,
+        golden_structure=ground_truth,
+        name="sachs_observational",
+        feature_names=list(sachs_data.columns)
+    )
 
     # 3. Configure CPC algorithm
     print("3. Configuring CPC algorithm...")
     cpc = CPCAdapter(alpha=0.05, max_conditioning_set_size=3)
     print(f"   Algorithm: {cpc.name()}")
-    print(f"   Alpha: 0.05")
+    print(f"   Alpha: {cpc.alpha}")
     print(f"   Max conditioning set size: 3")
     print()
 
-    # 4. Create pipeline with metrics
-    print("4. Creating pipeline with metrics...")
+    # 4. Create pipeline
+    print("4. Creating pipeline...")
     pipeline = StructureLearningPipeline(dataset)
     pipeline.add_algorithm(cpc)
-    pipeline.add_metric(SHDMetric())
-    print("   Pipeline ready (metrics will compare against ground truth)")
+    print("   Pipeline ready")
     print()
 
     # 5. Run benchmark
@@ -69,14 +73,20 @@ def test_cpc_sachs():
     results = pipeline.run()
     print()
 
-    # 6. Display results
+    # 6. Compute metrics using BenchmarkAnalyzer
+    print("6. Computing metrics...")
+    analyzer = BenchmarkAnalyzer(results, golden_structure=ground_truth)
+    analyzer.compute_vs_golden([SHDMetric()])
+    print()
+
+    # 7. Display results
     print("=" * 70)
     print("RESULTS")
     print("=" * 70)
     print()
 
-    for algo_name, result in results.items():
-        print(f"Algorithm: {algo_name}")
+    for result in results:
+        print(f"Algorithm: {result.algorithm_name}")
         print(f"  Learned structure: {result.learned_structure.cpdag.size()} nodes, {result.learned_structure.cpdag.sizeArcs()} edges")
 
         if result.metrics:
