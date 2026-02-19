@@ -165,6 +165,44 @@ cbnsl_benchmark/
 
 **Solution** : Avant de construire le BayesNet, on complète le CPDAG en DAG complet via `gum.MeekRules().propagateToDAG(cpdag)`. Les Meek rules orientent les edges restantes de manière cohérente avec la classe d'équivalence de Markov. Ensuite, `GraphicalBNComparator.hamming()` retrouve le CPDAG original via `EssentialGraph` avant de comparer.
 
+**Détail du calcul SHD par `hamming()`** : Pour chaque paire de variables, la méthode compare ce qui existe dans les deux CPDAGs et incrémente les compteurs :
+
+| Ref | Test | pure hamming | structural hamming |
+|---|---|---|---|
+| `A→B` | `A→B` | 0 | 0 |
+| `A→B` | `B→A` ou `A—B` | 0 | +1 (mauvaise orientation) |
+| `A→B` | rien | +1 | +1 (arc manquant) |
+| `A—B` | `A→B` ou `B→A` | 0 | +1 (orienté alors que non-dirigé) |
+| `A—B` | `A—B` | 0 | 0 |
+| `A—B` | rien | +1 | +1 (edge manquant) |
+| rien | quelque chose | +1 | +1 (en trop) |
+
+Notre code utilise `structural hamming` qui compte : arcs manquants + arcs en trop + arcs mal orientés.
+
+**Note** : on pourrait aussi décider de compter 2 erreurs pour les orientations dans le mauvais sens ou les arcs orientés là où il ne devrait rien y avoir.
+
+### Pourquoi F1-Score et TPR sont implémentés à la main
+
+Pour le SHD, on utilise `GraphicalBNComparator.hamming()` de pyAgrum qui reconvertit internement les BayesNets en CPDAGs avant de comparer. Pour le F1-Score et le TPR (recall), deux options existaient dans pyAgrum :
+
+1. **`GraphicalBNComparator.scores()`** (`bn_vs_bn.py`) : compare les **DAGs** directement (`existsArc` sur le BayesNet). Problème : la complétion du CPDAG en DAG via MeekRules est arbitraire au sein de la classe d'équivalence de Markov. Contrairement à `hamming()` qui reconvertit en CPDAG en interne, `scores()` ne le fait pas. Le F1/recall dépendrait donc du DAG choisi par MeekRules, pas du CPDAG réel.
+
+2. **`gum.StructuralComparator`** (binding C++) : compare correctement des PDAG en prenant en compte arcs et edges. Mais le binding SWIG dispatche `MixedGraph` vers la surcharge `UndiGraph` (héritage multiple : `MixedGraph(UndiGraph, DiGraph)`), ce qui fait qu'il ne voit que les edges et ignore les arcs. Vérifié expérimentalement : passer deux `MixedGraph` avec uniquement des arcs donne `precision=nan, recall=nan`. Seuls les objets `gum.PDAG` fonctionnent correctement, mais on ne peut pas utiliser PDAG car un CPDAG peut contenir des cycles non-dirigés (ex : A — B — C — A, triangle sans v-structure) que PDAG refuserait.
+
+**Solution retenue** : implémenter F1 et TPR directement sur `MixedGraph`, en reprenant la stratégie de comptage de `StructuralComparator` (la logique C++ est correcte, c'est le binding SWIG qui pose problème). Pour chaque paire de nœuds non ordonnée, on classifie la relation en 10 catégories :
+
+| ref \ test | `→` (arc) | `—` (edge) | `X` (rien) |
+|---|---|---|---|
+| **`→`** | `true_arc` (TP) / `misoriented_arc` (FP) | `wrong_edge_arc` (FP) | `wrong_none_arc` (FN) |
+| **`—`** | `wrong_arc_edge` (FP) | `true_edge` (TP) | `wrong_none_edge` (FN) |
+| **`X`** | `wrong_arc_none` (FP) | `wrong_edge_none` (FP) | `true_none` (—) |
+
+Voir https://gitlab.com/agrumery/aGrUM/-/blob/master/src/agrum/BN/algorithms/structuralComparator.h.
+
+**Choix de la stratégie de comptage** : la distinction clé concerne les liens mal orientés ou de mauvais type (arc vs edge). `StructuralComparator` les compte comme FP uniquement (le lien existe dans test mais est incorrect), pas comme FN (le lien de ref n'est pas "absent" dans test, il est juste mal représenté). L'alternative (compter aussi comme FN) double-pénaliserait ces erreurs. On considère qu'un arc mal orienté ou un arc au lieu d'une edge est moins grave qu'un lien complètement absent, d'où le choix de ne compter qu'un FP.
+
+Puis : recall (= TPR) = TP / (TP + FN), precision = TP / (TP + FP), F1 = 2·precision·recall/(precision+recall).
+
 ### Discrétisation
 Pour les approches s’appliquant à des données discrètes, les performances dépendent fortement de la stratégie de discrétisation utilisée en amont deux méthodes sont explorées et une grille de bin de 1 à 10 sont testées grâce à ces méthode de discretisation :
 - **Discrétisation par quantiles** : découpe l’échelle des variables continues en classes de même effectif, garantissant une distribution uniforme des observations.

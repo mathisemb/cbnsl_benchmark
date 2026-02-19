@@ -23,6 +23,8 @@ from algorithms.LiNGAMAdapter import LiNGAMAdapter
 from pipeline.Dataset import Dataset
 from pipeline.Pipeline import StructureLearningPipeline
 from metrics.SHDMetric import SHDMetric
+from metrics.F1ScoreMetric import F1ScoreMetric
+from metrics.TPRMetric import TPRMetric
 from data.sachs.load_ground_truth import load_sachs_ground_truth
 from analysis.BenchmarkAnalyzer import BenchmarkAnalyzer
 
@@ -97,7 +99,7 @@ def test_comparison_sachs():
     # 6. Compute metrics using BenchmarkAnalyzer
     print("6. Computing metrics...")
     analyzer = BenchmarkAnalyzer(results, golden_structure=ground_truth)
-    analyzer.compute_vs_golden([SHDMetric()])
+    analyzer.compute_vs_golden([SHDMetric(), F1ScoreMetric(), TPRMetric()])
     print()
 
     # 7. Display results summary
@@ -109,7 +111,7 @@ def test_comparison_sachs():
     # Create comparison table
     print("Comparison vs Ground Truth (BN18):")
     print("-" * 70)
-    print(f"{'Algorithm':<20} {'Nodes':<10} {'Edges':<10} {'SHD':<10}")
+    print(f"{'Algorithm':<20} {'Nodes':<10} {'Edges':<10} {'SHD':<10} {'F1':<10} {'TPR':<10}")
     print("-" * 70)
 
     for result in results:
@@ -117,8 +119,12 @@ def test_comparison_sachs():
         n_nodes = result.learned_structure.cpdag.size()
         n_edges = result.learned_structure.cpdag.sizeArcs()
         shd = result.metrics.get('SHD', 'N/A')
+        f1 = result.metrics.get('F1-Score', 'N/A')
+        tpr = result.metrics.get('TPR', 'N/A')
         shd_str = f"{shd:.1f}" if isinstance(shd, (int, float)) else shd
-        print(f"{algo_name:<20} {n_nodes:<10} {n_edges:<10} {shd_str:<10}")
+        f1_str = f"{f1:.3f}" if isinstance(f1, (int, float)) else f1
+        tpr_str = f"{tpr:.3f}" if isinstance(tpr, (int, float)) else tpr
+        print(f"{algo_name:<20} {n_nodes:<10} {n_edges:<10} {shd_str:<10} {f1_str:<10} {tpr_str:<10}")
 
     print("-" * 70)
     print()
