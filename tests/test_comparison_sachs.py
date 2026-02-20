@@ -74,7 +74,9 @@ def test_comparison_sachs():
         CMIICAdapter(alpha=alpha, version=1),
         CMIICAdapter(alpha=alpha, version=2),
         MIICAdapter(n_bins=n_bins),
+        MIICAdapter(n_bins=n_bins, discretization_method="hartemink"),
         GHCBDeuAdapter(n_bins=n_bins),
+        GHCBDeuAdapter(n_bins=n_bins, discretization_method="hartemink"),
         NOTEARSAdapter(lambda1=0.1),
         LiNGAMAdapter(),
     ]

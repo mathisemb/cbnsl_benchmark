@@ -10,6 +10,7 @@ from pyagrum.lib.discreteTypeProcessor import DiscreteTypeProcessor
 from algorithms.AlgorithmAdapter import AlgorithmAdapter
 from pipeline.Structure import Structure
 from pipeline.Dataset import Dataset
+from preprocessing.hartemink import hartemink_discretize
 
 
 class MIICAdapter(AlgorithmAdapter):
@@ -50,13 +51,15 @@ class MIICAdapter(AlgorithmAdapter):
         """
         df = dataset.to_dataframe()
 
-        # Discretize using DiscreteTypeProcessor
-        dtp = DiscreteTypeProcessor()
-        dtp.setDiscretizationParameters(None, self.discretization_method, self.n_bins)
-        template = dtp.discretizedTemplate(df)
-
-        # Learn structure with MIIC
-        learner = gum.BNLearner(df, template)
+        # Discretize
+        if self.discretization_method == "hartemink":
+            discretized_df = hartemink_discretize(df, n_bins=self.n_bins)
+            learner = gum.BNLearner(discretized_df)
+        else:
+            dtp = DiscreteTypeProcessor()
+            dtp.setDiscretizationParameters(None, self.discretization_method, self.n_bins)
+            template = dtp.discretizedTemplate(df)
+            learner = gum.BNLearner(df, template)
         learner.useMIIC()
         learner.setVerbosity(False)
 

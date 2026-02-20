@@ -67,8 +67,8 @@ def test_grid_search_sachs():
         (CPCAdapter, {"alpha": [0.001, 0.01, 0.05, 0.10], "max_conditioning_set_size": [2, 3, 4, 5]}, {"version": 2}),
         (CMIICAdapter, {"alpha": [0.001, 0.01, 0.05, 0.10]}, {"version": 1}),
         (CMIICAdapter, {"alpha": [0.001, 0.01, 0.05, 0.10]}, {"version": 2}),
-        (MIICAdapter, {"n_bins": [2, 3, 4, 5, 6], "discretization_method": ["quantile", "uniform", "kmeans"]}, {}),
-        (GHCBDeuAdapter, {"n_bins": [2, 3, 4, 5, 6], "discretization_method": ["quantile", "uniform", "kmeans"]}, {}),
+        (MIICAdapter, {"n_bins": [2, 3, 4, 5, 6], "discretization_method": ["quantile", "hartemink"]}, {}),
+        (GHCBDeuAdapter, {"n_bins": [2, 3, 4, 5, 6], "discretization_method": ["quantile", "hartemink"]}, {}),
         (NOTEARSAdapter, {"lambda1": [0.01, 0.05, 0.1, 0.2, 0.5], "w_threshold": [0.1, 0.2, 0.3, 0.5]}, {}),
         (LiNGAMAdapter, {"measure": ["pwling"], "threshold": [0.001, 0.005, 0.01, 0.05]}, {}),
     ]
