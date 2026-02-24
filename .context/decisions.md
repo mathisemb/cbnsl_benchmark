@@ -1,8 +1,8 @@
-# Résumé du projet
+# Résumé du développement du projet
 
-Ce dossier .context/ contient la documentation pour l'assistance IA.
+Ce fichier contient les justifications de certains choix de développement
 
-Le but de ce projet est de faire une pipeline python qui permet de comparer différents algorithmes d’apprentissage de structure dans des réseaux bayésiens continus. La pipeline prend au moins un dataset en entrée (et plus tard aussi un golden BN de référence), exécute tous les algorithmes et comparer leurs résultats. Ce n’est qu’un travail d’orchestration. La difficulté est que les algorithmes sont implémentés dans des dépots différents et qu’il faut tout standardiser. Aussi il faut que le code puisse accepter l’ajout d’un nouvel algorithme écrit dans un autre langage.
+Le but de ce projet est de faire une pipeline python qui permet de comparer différents algorithmes d’apprentissage de structure dans des réseaux bayésiens continus. La pipeline prend au moins un dataset en entrée (et plus tard aussi un golden BN de référence), exécute tous les algorithmes et compare leurs résultats. Ce n’est qu’un travail d’orchestration. La difficulté est que les algorithmes sont implémentés dans des dépots différents et qu’il faut tout standardiser. 
 
 Dans un premier temps les algorithmes à comparer sont les suivants :
 
@@ -15,7 +15,7 @@ Dans un premier temps les algorithmes à comparer sont les suivants :
 - Discrétisation + MIIC
 - Discrétisation + GHC avec score BDeu
 
-Remarque : étant donné que CPC2 et CMIIC2 sont présentes uniquement dans la branche cpc2_cmiic2 de mon fork https://github.com/mathisemb/otagrum/tree/cpc2_cmiic2 d’otagrum, et que CPC et CMIIC sont également présents dedans, il peut être utile de seulement importer cette branche de mon fork et non la vraie librairie otagrum. Peut être que c’est possible avec pip install git+url_depot.
+Remarque : étant donné que CPC2 et CMIIC2 sont présentes uniquement dans la branche cpc2_cmiic2 de mon fork https://github.com/mathisemb/otagrum/tree/cpc2_cmiic2 d’otagrum, et que CPC et CMIIC sont également présents dedans, il peut être utile de seulement importer cette branche de mon fork et non la vraie librairie otagrum.
 
 Ensuite les résultas sont résumés dans des heatmaps. Une heatmap par métrique. Les métriques utilisées seront dans un premier temps :
 
@@ -25,10 +25,10 @@ Ensuite les résultas sont résumés dans des heatmaps. Une heatmap par métriqu
 
 # Découpage de l'exécution
 
-1. Génération de données synthétique à partir d'un CBN connu (optionnel)
+1. Dataset existant ou génération de données synthétique à partir d'un CBN connu
 2. Exécution des algorithmes sur le dataset
 3. Calcul des métriques
-4. Présentation des résultats (heatmaps, exports)
+4. Visualisation des résultats
 
 # Principes et choix de développement
 
@@ -36,128 +36,89 @@ Le code doit être maintenable et évolutif en respectant les conventions Python
 
 **Contraintes** :
 - Les algorithmes et métriques proviennent de dépôts différents → couche *adapter* pour les encapsuler sans les modifier
-- La pipeline ne connaît pas les algos/métriques concrètes → orchestration pure, couplage minimal
+- La pipeline ne connaît pas les algos/métriques concrètes → orchestration pure
 - Ajout dynamique → créer un nouveau fichier suffit, sans modifier le reste
 - Golden BN optionnel → fonctionne avec données simulées ou réelles
-- Gestion centralisée des types de données → adaptations automatiques (discrétisation si nécessaire)
 - Évaluation et visualisation séparées → modifications possibles sans toucher la pipeline
-- Architecture extensible → rapide à implémenter, compatible avec futures extensions
 
----
+# Objectif initial
 
-# Les objectifs
-
-- lire tous les dépots, comprendre et faire un résumé des inputs/ouputs de chaque algorithme.
+- lire tous les dépots, comprendre les inputs/ouputs de chaque algorithme.
 - à partir de l’info des inputs/outputs des algorithmes, faire la meilleure classe adapter possible.
 - idem pour les métriques.
 - proposer des classes pour gérer les algos et les métriques en justifiant les choix.
 - proposer une structure de fichiers en justifiant les choix.
 - coder une première version de celles ci.
-- télécharger, regarder et comprendre le dataset https://pubmed.ncbi.nlm.nih.gov/15845847/.
+- télécharger et comprendre le dataset https://pubmed.ncbi.nlm.nih.gov/15845847/.
 - à partir des informations de ce dataset, écrire une classe Dataset qui pourra adapter n’importe quel dataset pour qu’il soit utilisé par la pipeline.
 - coder un premier exemple avec CPC, F1-Score et le dataset https://pubmed.ncbi.nlm.nih.gov/15845847/.
 - continuer avec les autres algos.
 
----
-
 # État actuel de l'implémentation
-
-## Composants implémentés
-
-### Pipeline principal (✅ Fait)
-- **Pipeline.py** : Orchestration principale avec la classe `StructureLearningPipeline`
-- **Dataset.py** : Wrapper de données avec gestion des types (continu/discret)
-- **Result.py** : Stockage des résultats avec dictionnaire de métriques
-- **Structure.py** : Représentation du CPDAG avec `gum.EssentialGraph`
-
-### Algorithmes (🔄 En cours)
-- **AlgorithmAdapter.py** : Classe abstraite de base pour tous les algorithmes
-- **CPCAdapter.py** : Algorithme CPC continu depuis otagrum (✅ implémenté)
-- Autres : TODO (CMIIC, CPC2, CMIIC2, NOTEARS, LiNGAM, discrétisation + MIIC/GHC)
-
-### Métriques (🔄 En cours)
-- **MetricAdapter.py** : Classe abstraite de base pour toutes les métriques
-- **SHDMetric.py** : Structural Hamming Distance (✅ implémenté)
-- Autres : TODO (F1-Score, TPR)
-
-### Autres modules
-- **discretization/** : TODO (stratégies de conversion continu→discret)
-- **visualization/** : TODO (heatmaps et visualisation des résultats)
-
-### Tests & Exemples
-- **tests/integration/test_cpc_shd.py** : Test d'intégration basique avec CPC + SHD
-- **examples/basic_usage.py** : Exemple d'utilisation complet avec données synthétiques
 
 ## Structure actuelle du projet
 
 ```
 cbnsl_benchmark/
-├── pipeline/              # Core pipeline components
-│   ├── Pipeline.py        # Main orchestration
-│   ├── Dataset.py         # Dataset wrapper
-│   ├── Result.py          # Result storage
-│   └── Structure.py       # Structure representation (CPDAG)
-│
-├── algorithms/            # Algorithm adapters
-│   ├── AlgorithmAdapter.py    # Base adapter interface
-│   ├── CPCAdapter.py          # CPC/CPC2 continu (otagrum) (✅)
-│   ├── CMIICAdapter.py        # CMIIC/CMIIC2 continu (otagrum) (✅)
-│   ├── MIICAdapter.py         # MIIC discret + discrétisation (pyAgrum) (✅)
-│   └── GHCBDeuAdapter.py      # GHC+BDeu discret + discrétisation (pyAgrum) (✅)
-│
-├── metrics/              # Evaluation metrics
-│   ├── MetricAdapter.py      # Base metric interface
-│   └── SHDMetric.py         # Structural Hamming Distance (✅)
-│
-├── analysis/             # Benchmark analysis and visualization
-│   └── BenchmarkAnalyzer.py  # Metrics vs golden, pairwise, heatmaps (✅)
-│
-├── tests/               # Tests
-│   ├── unit/            # Unit tests (TODO)
-│   ├── integration/     # Integration tests
-│   │   └── test_cpc_shd.py
-│   └── fixtures/        # Test data (TODO)
-│
-├── examples/            # Usage examples
-│   └── basic_usage.py
-│
-├── data/                # Datasets
-│   └── synthetic/       # Synthetic datasets
-│
-├── results/             # Benchmark outputs (gitignored)
-│
-├── .context/            # Contexte IA (pas dans le package)
-│   ├── architecture.md  # Ce fichier
-│   └── useful_links.md  # Liens vers code/docs externes
-│
-├── install.sh           # Script d'installation automatique
-├── pyproject.toml       # Configuration du package
-├── requirements.txt     # Dépendances de base
-└── requirements-git.txt # Dépendances Git
+├── .context/                  # Documentation pour le dev
+│   ├── decisions.md           # Décisions de développement (ce fichier)
+│   └── useful_links.md        # Liens vers code/docs des dépendances
+├── .gitignore
+├── algorithms/                # Adapters d'algorithmes d'apprentissage de structure
+│   ├── AlgorithmAdapter.py    # Classe abstraite de base
+│   ├── CPCAdapter.py          # Un adapter par algorithme
+│   └── ...
+├── analysis/                  # Analyse et visualisation des résultats
+│   ├── BenchmarkAnalyzer.py   # Heatmaps, comparaisons vs golden
+│   ├── GridSearch.py          # Grid search sur paramètres (n_bins, etc.)
+│   └── ParetoSelector.py      # Sélection Pareto-optimale
+├── data/                      # Datasets (gitignored)
+├── metrics/                   # Métriques de comparaison de structures
+│   ├── MetricAdapter.py       # Classe abstraite de base
+│   ├── F1ScoreMetric.py       # Une métrique par fichier
+│   └── ...
+├── notebooks/                 # Expérimentations
+│   └── benchmark_sachs.ipynb  # Benchmark principal sur données Sachs
+├── pipeline/                  # Composants core de la pipeline
+│   ├── Dataset.py             # Wrapper de données
+│   ├── Pipeline.py            # Orchestration principale
+│   ├── Result.py              # Stockage des résultats
+│   └── Structure.py           # Représentation du CPDAG (MixedGraph)
+├── preprocessing/             # Prétraitement des données
+│   └── hartemink.py           # Discrétisation Hartemink
+├── tests/                     # Tests
+│   ├── test_cpc_shd.py        # Un test par scénario
+│   └── ...
+├── install.sh                 # Script d'installation automatique
+├── pyproject.toml             # Configuration du package
+└── README.md
 ```
 
 ## Décisions architecturales (état actuel)
 
 ### Organisation du projet
 
-**tests/ (pluriel, pas test/)** : Suit la convention Python. Subdivisé en unit/, integration/ et fixtures/ pour une meilleure organisation.
+**tests/** : tous les tests mélangés.
 
-**Séparation examples/ et tests/** : Distinction claire entre exemples d'utilisation et tests. Les exemples montrent comment utiliser la lib, les tests vérifient la correction.
+**Séparation notebooks/ et tests/** : Distinction claire entre exemples dans des notebooks et les tests. Les exemples montrent comment utiliser la lib, les tests vérifient la correction.
 
-**data/ pour datasets, results/ pour outputs** : Garde le code propre. Les deux sont gitignorés (sauf structure) pour éviter de versionner de gros fichiers.
+**data/ pour datasets** : Gitignoré pour éviter de versionner de gros fichiers.
 
 **Dataset dans pipeline/ (pas dans data/)** : `Dataset` est une abstraction avec logique (wrapper + métadonnées), pas des données brutes. Appartient aux autres abstractions core comme `Result` et `Structure`.
 
-**.context/ pour contexte IA** : Contient documentation architecture et liens externes. Pas partie du package, seulement pour dev/assistance IA.
+**.context/** : Contient documentation architecture et liens externes. Pas partie du package, seulement pour dev/assistance IA.
 
 ### Système de types & Représentations
 
-**Structure.cpdag typé comme `gum.EssentialGraph`** :
-- PyAgrum utilise `EssentialGraph` comme représentation interne d'un CPDAG
-- On garde le nom conceptuel "cpdag" (ça représente un CPDAG) mais avec des type hints honnêtes
-- La méthode `.pdag()` convertit vers représentation PDAG pour l'affichage
+**Types de graphes pyAgrum** :
+- **DAG** : graphe orienté acyclique (structure pure sans probabilités)
+- **DAGmodel** : classe C++ interne pour modèles graphiques basés sur un DAG (non accessible directement en Python)
+- **BayesNet** : réseau bayésien (chaîne d'héritage : `BayesNet → IBayesNet → DAGmodel → GraphicalModel`)
+- **MixedGraph** : classe de base pour graphes avec arcs orientés ET arêtes non orientées
+- **PDAG** : hérite de MixedGraph, représente un CPDAG
+- **EssentialGraph** : classe utilitaire pour calculer le CPDAG à partir d'un **DAGmodel** (donc BayesNet, mais pas DAG)
 
-**Pourquoi pas MixedGraph ?** : Initialement typé comme `MixedGraph`, mais c'était incorrect. `EssentialGraph` est plus spécifique et précis.
+**Structure.cpdag typé comme `gum.MixedGraph`** : `MixedGraph` est le type le plus général de pyAgrum supportant à la fois arcs dirigés et edges non-dirigés, ce qui correspond exactement à un CPDAG. `EssentialGraph` avait été envisagé mais il sert à *extraire* un CPDAG depuis un DAG, pas à le stocker. `PDAG` refuserait les cycles non-dirigés (ex : triangle sans v-structure). `MixedGraph` est donc le seul type adapté pour représenter un CPDAG arbitraire.
 
 ### Conversion CPDAG → BayesNet pour le calcul de SHD
 
@@ -189,7 +150,7 @@ Pour le SHD, on utilise `GraphicalBNComparator.hamming()` de pyAgrum qui reconve
 
 2. **`gum.StructuralComparator`** (binding C++) : compare correctement des PDAG en prenant en compte arcs et edges. Mais le binding SWIG dispatche `MixedGraph` vers la surcharge `UndiGraph` (héritage multiple : `MixedGraph(UndiGraph, DiGraph)`), ce qui fait qu'il ne voit que les edges et ignore les arcs. Vérifié expérimentalement : passer deux `MixedGraph` avec uniquement des arcs donne `precision=nan, recall=nan`. Seuls les objets `gum.PDAG` fonctionnent correctement, mais on ne peut pas utiliser PDAG car un CPDAG peut contenir des cycles non-dirigés (ex : A — B — C — A, triangle sans v-structure) que PDAG refuserait.
 
-**Solution retenue** : implémenter F1 et TPR directement sur `MixedGraph`, en reprenant la stratégie de comptage de `StructuralComparator` (la logique C++ est correcte, c'est le binding SWIG qui pose problème). Pour chaque paire de nœuds non ordonnée, on classifie la relation en 10 catégories :
+**Solution retenue** : implémenter F1 et TPR directement sur `MixedGraph`, en reprenant la stratégie de comptage de `StructuralComparator`. Pour chaque paire de nœuds non ordonnée, on classifie la relation en 10 catégories :
 
 | ref \ test | `→` (arc) | `—` (edge) | `X` (rien) |
 |---|---|---|---|
@@ -205,10 +166,20 @@ Puis : recall (= TPR) = TP / (TP + FN), precision = TP / (TP + FP), F1 = 2·prec
 
 ### Discrétisation
 Pour les approches s’appliquant à des données discrètes, les performances dépendent fortement de la stratégie de discrétisation utilisée en amont deux méthodes sont explorées et une grille de bin de 1 à 10 sont testées grâce à ces méthode de discretisation :
-- **Discrétisation par quantiles** : découpe l’échelle des variables continues en classes de même effectif, garantissant une distribution uniforme des observations.
+- **Discrétisation par quantiles** : découpe l’échelle des variables continues en classes de même effectif.
 - **Discrétisation Hartemink** : utilisée dans l’étude de Sachs, cette méthode commence par une discrétisation initiale (paramétrable dans notre pipeline), puis agrège les intervalles de manière à maximiser la conservation de l’information mutuelle conditionnelle entre les variables, préservant ainsi au mieux leurs dépendances.
 
 Pour la discrétisation par quantiles on utilise la classe DiscreteTypeProcessor de agrum.
+
+Pour la discrétisation d'Hartemink, on doit l'écrire car il n'existe pas de version disponible de celle ci en Python.
+
+### Conversion vers Structure dans les adapters
+
+**Pipeline de conversion standard (otagrum)** : `NamedDAG` → `BayesNet` → `EssentialGraph(bn)` → `.pdag()` (MixedGraph) → `Structure(cpdag)`.
+
+**Algorithmes retournant une matrice d'adjacence (NOTEARS, LiNGAM)** : ces algorithmes retournent un `np.ndarray` de shape `(d, d)` pondéré. On seuille puis on construit `BayesNet` → `EssentialGraph` → `Structure`.
+- NOTEARS : `W[i,j] != 0` ⇒ arc `i → j`. Seuil `w_threshold` (défaut `0.3`).
+- LiNGAM : `B[i,j] != 0` ⇒ arc `j → i` (convention inversée par rapport à NOTEARS).
 
 ### Design Patterns
 
@@ -220,36 +191,29 @@ Pour la discrétisation par quantiles on utilise la classe DiscreteTypeProcessor
 
 ### Discrétisation intégrée aux adapters
 
-Les algorithmes discrets (MIIC, GHC+BDeu) gèrent la discrétisation en interne via `DiscreteTypeProcessor` de pyAgrum. Les paramètres (n_bins, méthode) font partie de la configuration de l'adapter. Il n'y a pas de `DataType` ni de mécanisme de conversion automatique dans la Pipeline : tous les adapters acceptent des données continues.
+Les algorithmes discrets (MIIC, GHC+BDeu) gèrent la discrétisation en interne via `DiscreteTypeProcessor` de pyAgrum, ou Hartemink. Les paramètres (n_bins, méthode) font partie de la configuration de l'adapter. Il n'y a pas de `DataType` ni de mécanisme de conversion automatique dans la Pipeline : tous les adapters acceptent des données continues.
 
 ### Installation & Dépendances
 
 **Environnement Python** : On utilise un venv avec `--system-site-packages` pour avoir accès aux packages C++ compilés (pyAgrum, openturns, otagrum) tout en isolant les packages pip (lingam, notears).
 
-**Comment les packages sont installés :**
+**Comment les packages sont installés (pour Manjaro) :**
 - **pyAgrum, openturns** : installés via pacman (paquets Arch) → `/usr/lib/python3.x/site-packages`
 - **otagrum** : compilé depuis le fork C++ et installé via `cmake --install` avec `CMAKE_INSTALL_PREFIX=$HOME/.local` → `~/.local/lib/python3.x/site-packages`
 - **lingam, notears** : installés via `pip install` dans le venv → `venv/lib/python3.x/site-packages`
 
 **Pourquoi `--system-site-packages` ?** Manjaro (Arch) applique PEP 668 qui interdit pip d'installer hors d'un venv. Un venv standard ne voit pas les packages système (pyAgrum, openturns) ni les packages utilisateur (otagrum dans `~/.local/`). Le flag `--system-site-packages` rend ces packages visibles dans le venv, tout en permettant `pip install` normal pour les packages Python purs (lingam, notears).
 
-**Activation du venv :** `source venv/bin/activate` ou utiliser directement `venv/bin/python`.
-
-**pyproject.toml pour config package** : Standard moderne Python (PEP 621). Définit dépendances et métadonnées du package.
-
-**requirements-git.txt séparé** : Certaines dépendances (otagrum avec CPC2/CMIIC2, notears) viennent de dépôts Git, pas PyPI.
+**pyproject.toml pour config package** : Standard moderne Python. Définit dépendances et métadonnées du package.
 
 **Script install.sh automatisé** : Installation interactive gérant conda vs build cmake pour otagrum, NO TEARS optionnel, etc.
 
 ## Fonctionnalités à implémenter
-- [ ] Algorithmes restants : NOTEARS, LiNGAM, Discrétisation Hartemink
-- [ ] Métriques restantes : F1-Score, TPR
-- [ ] Grille de bins (1-10) pour les algorithmes avec discrétisation
-- [ ] Export des résultats (CSV, JSON)
-- [ ] Mesure du temps d'exécution
+- [ ] Faire des tests unitaires propres ?
+- [ ] Export des résultats (CSV, JSON) ?
+- [ ] Mesure du temps d'exécution ?
 
 ## Conventions de code
 - Code et commentaires en anglais
 - Type hints systématiques
 - Docstrings au format Google
-- Pas d'emojis sauf demande explicite

@@ -49,11 +49,6 @@ class CPCAdapter(AlgorithmAdapter):
             The learned structure (CPDAG)
         """
 
-        try:
-            import otagrum
-        except ImportError:
-            raise ImportError("otagrum is required for CPC.")
-
         # Set max conditioning set size
         max_cond_set = self.max_conditioning_set_size
         if max_cond_set is None:

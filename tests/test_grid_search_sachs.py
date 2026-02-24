@@ -8,7 +8,6 @@ the best parameters found for each, plus Pareto front (SHD vs F1).
 import sys
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 
 project_root = Path(__file__).parent.parent

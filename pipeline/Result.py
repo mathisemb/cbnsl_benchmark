@@ -2,8 +2,7 @@
 Result class for storing pipeline output.
 """
 
-from typing import Dict, Optional
-import pyagrum as gum
+from typing import Dict
 from pipeline.Dataset import Dataset
 from pipeline.Structure import Structure
 

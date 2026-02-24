@@ -6,10 +6,8 @@
 results/*
 !results/.gitkeep
 
-# Datasets (except examples)
-data/*
-!data/.gitkeep
-!data/synthetic/.gitkeep
+# Datasets: version Python code, ignore downloaded data
+data/sachs/
 
 # Build directories
 otagrum_build/

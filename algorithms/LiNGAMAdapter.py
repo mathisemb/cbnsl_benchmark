@@ -6,7 +6,6 @@ Uses lingam.DirectLiNGAM to learn a DAG from continuous data
 matrix to a CPDAG via EssentialGraph.
 """
 
-import numpy as np
 import pyagrum as gum
 import lingam
 from algorithms.AlgorithmAdapter import AlgorithmAdapter

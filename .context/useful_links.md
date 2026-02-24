@@ -1,4 +1,4 @@
-# Useful Links for AI Context
+# Useful links for dependencies source code
 
 This file contains links to external code, documentation, and papers that are relevant to the project.
 
@@ -53,10 +53,11 @@ This file contains links to external code, documentation, and papers that are re
 
 ## PyAgrum
 
-- [Documentation principale](https://pyagrum.gitlab.io/reference/)
-- [Dossier des graphes](https://gitlab.com/agrumery/aGrUM/-/tree/master/src/agrum/base/graphs)
+[Documentation principale](https://pyagrum.gitlab.io/reference/)
 
 ### Les classes représentant des graphes
+
+[Dossier des graphes](https://gitlab.com/agrumery/aGrUM/-/tree/master/src/agrum/base/graphs)
 
 - **MixedGraph**
   - [Header](https://gitlab.com/agrumery/aGrUM/-/blob/master/src/agrum/base/graphs/mixedGraph.h)

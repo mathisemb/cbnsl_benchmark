@@ -11,9 +11,6 @@ class Structure:
     Contains the CPDAG learned by the algorithm. The CPDAG should be a
     gum.MixedGraph (or subclass like gum.PDAG) representing the canonical
     form of the learned DAG.
-
-    For algorithm adapters: see algorithms/ADAPTER_GUIDE.md for how to
-    extract a CPDAG from different DAG types.
     """
 
     def __init__(

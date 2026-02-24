@@ -8,7 +8,6 @@ the learned structure against the known ground truth.
 import sys
 from pathlib import Path
 import pandas as pd
-import numpy as np
 
 # Add project root to path
 project_root = Path(__file__).parent.parent

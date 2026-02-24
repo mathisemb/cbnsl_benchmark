@@ -72,7 +72,7 @@ def hartemink_discretize(
         Discretized data with string labels (``"0"``, ``"1"``, ...).
     """
     if initial_bins is None:
-        initial_bins = n_bins * 3
+        initial_bins = n_bins * 3 # arbitrary default: enough headroom for meaningful merges
     if initial_bins <= n_bins:
         raise ValueError(
             f"initial_bins ({initial_bins}) must be strictly greater than n_bins ({n_bins})"
@@ -84,9 +84,9 @@ def hartemink_discretize(
     # ------------------------------------------------------------------
     # Step 1: initial discretization (integer labels)
     # ------------------------------------------------------------------
-    bin_labels = np.empty((len(df), n_vars), dtype=np.int32)  # (n_samples, n_vars)
+    bin_labels = np.empty((len(df), n_vars), dtype=np.int32) # will store the bin labels for each variable
 
-    for j, col in enumerate(columns):
+    for j, col in enumerate(columns): # for each variable, initial marginal discretization
         values = df[col].values
         if initial_method == "quantile":
             _, edges = pd.qcut(values, initial_bins, retbins=True, duplicates="drop")
@@ -97,6 +97,10 @@ def hartemink_discretize(
                 f"initial_method must be 'quantile' or 'uniform', got '{initial_method}'"
             )
         bin_labels[:, j] = np.digitize(values, edges[1:-1], right=False)
+        # edges[1:-1] because np.digitize with right=False assigns bin i to values in [edges[i-1], edges[i])
+        # values < edges[1] get bin 0
+        # ...
+        # values >= edges[-2] get bin initial_bins-1
 
     # ------------------------------------------------------------------
     # Step 2: iterative merging
@@ -106,19 +110,20 @@ def hartemink_discretize(
     while np.any(n_bins_per_var > n_bins):
         for j in range(n_vars):
             if n_bins_per_var[j] <= n_bins:
-                continue
+                continue # jump to the next iteration
 
             col_bins = bin_labels[:, j]
-            adjacent_bins = np.sort(np.unique(col_bins))
+            sorted_bins = np.sort(np.unique(col_bins))
+            nb_adjacent_pairs = len(sorted_bins) - 1
 
-            best_mi = -np.inf
+            best_mi = -np.inf # which consective bins have the highest sum of MI
             best_pair = None
 
-            for k in range(len(adjacent_bins) - 1):
-                bin_lo, bin_hi = adjacent_bins[k], adjacent_bins[k + 1]
+            for k in range(nb_adjacent_pairs):
+                bin_lo, bin_hi = sorted_bins[k], sorted_bins[k + 1]
 
-                merged = col_bins.copy()  # try merging bin_hi into bin_lo
-                merged[merged == bin_hi] = bin_lo
+                merged = col_bins.copy()
+                merged[merged == bin_hi] = bin_lo # every observation of Xj labeled bin_hi is temporarily labeled bin_lo
 
                 total_mi = 0.0  # sum of MI(merged_var_j, var_other) over all other vars
                 for other_j in range(n_vars):
@@ -131,13 +136,16 @@ def hartemink_discretize(
 
             if best_pair is not None:
                 bin_lo, bin_hi = best_pair
-                bin_labels[:, j][bin_labels[:, j] == bin_hi] = bin_lo
+                bin_labels[:, j][bin_labels[:, j] == bin_hi] = bin_lo # every observation of Xj labeled bin_hi is definitely labeled bin_lo
                 n_bins_per_var[j] -= 1
 
     # ------------------------------------------------------------------
     # Step 3: relabel to consecutive string labels for pyAgrum
     # ------------------------------------------------------------------
-    result = pd.DataFrame(index=df.index, columns=columns)
+    # For example if the final bin labels for a variable are [0, 2, 5]
+    # we want to relabel them to ["0", "1", "2"] for pyAgrum
+
+    result = pd.DataFrame(index=df.index, columns=columns) # empty DataFrame to store the final string labels
     for j, col in enumerate(columns):
         unique_sorted = np.sort(np.unique(bin_labels[:, j]))
         label_map = {v: str(i) for i, v in enumerate(unique_sorted)}

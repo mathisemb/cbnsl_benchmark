@@ -76,10 +76,6 @@ class SHDMetric(MetricAdapter):
         gum.BayesNet
             A BayesNet with the same equivalence class
         """
-
-        # Add directed arcs
-        # Note: Undirected edges in CPDAG are ignored for BayesNet conversion
-        # as BayesNet only supports directed arcs
         
         """"
         Note:

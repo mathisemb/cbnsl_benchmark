@@ -63,8 +63,7 @@ class MIICAdapter(AlgorithmAdapter):
         learner.useMIIC()
         learner.setVerbosity(False)
 
-        # MIIC is constraint-based: learnPDAG() returns the CPDAG directly
-        pdag = learner.learnPDAG()
+        pdag = learner.learnPDAG() # learnPDAG() returns the CPDAG directly (miic is constraint-based)
         return Structure(pdag)
 
     def name(self) -> str:

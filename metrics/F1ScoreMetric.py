@@ -11,8 +11,6 @@ Uses the same counting strategy as aGrUM's StructuralComparator for PDAGs:
 A misoriented arc or a type mismatch (arc vs edge) counts as FP only, not FN.
 """
 
-from itertools import combinations
-
 import pyagrum as gum
 from metrics.MetricAdapter import MetricAdapter
 from pipeline.Structure import Structure
@@ -21,7 +19,10 @@ from pipeline.Structure import Structure
 def count_tp_fp_fn(ref_cpdag: gum.MixedGraph, test_cpdag: gum.MixedGraph) -> tuple:
     """Count TP, FP, FN for structural comparison of two CPDAGs.
 
-    Follows StructuralComparator's PDAG strategy: for each unordered pair
+    Follows StructuralComparator's PDAG strategy:
+    https://gitlab.com/agrumery/aGrUM/-/blob/master/src/agrum/BN/algorithms/structuralComparator.cpp#L127
+    https://gitlab.com/agrumery/aGrUM/-/blob/master/src/agrum/BN/algorithms/structuralComparator.cpp#L231
+    for each unordered pair
     of nodes, classifies the relationship into one of 10 categories, then:
     - TP = true_arc + true_edge
     - FP = misoriented_arc + wrong_edge_arc + wrong_arc_edge
@@ -84,8 +85,7 @@ def count_tp_fp_fn(ref_cpdag: gum.MixedGraph, test_cpdag: gum.MixedGraph) -> tup
             wrong_edge_none += 1
 
     tp = true_arc + true_edge
-    fp = (misoriented_arc + wrong_edge_arc + wrong_arc_edge
-          + wrong_arc_none + wrong_edge_none)
+    fp = misoriented_arc + wrong_edge_arc + wrong_arc_edge + wrong_arc_none + wrong_edge_none
     fn = wrong_none_arc + wrong_none_edge
 
     return tp, fp, fn

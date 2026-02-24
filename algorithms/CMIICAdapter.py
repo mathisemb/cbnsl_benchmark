@@ -54,11 +54,6 @@ class CMIICAdapter(AlgorithmAdapter):
             The learned structure (CPDAG)
         """
 
-        try:
-            import otagrum
-        except ImportError:
-            raise ImportError("otagrum is required for CMIIC.")
-
         # Create learner based on version (only takes data in constructor)
         if self.version == 1:
             learner = otagrum.ContinuousMIIC(dataset.data)

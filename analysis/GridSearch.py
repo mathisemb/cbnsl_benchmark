@@ -161,6 +161,8 @@ class GridSearch:
             return None
 
         lower_is_better = self.objectives.get(metric_name, True)
+        # we return the GridSearchResult r of the list of GridSearchResult valid_results that has
+        # the best score r.scores[metric_name] for the metric_name
         if lower_is_better:
             return min(valid_results, key=lambda r: r.scores[metric_name])
         else:
