@@ -71,6 +71,19 @@ class CMIICAdapter(AlgorithmAdapter):
 
         return self._NamedDAG_to_Structure(otagrum_dag)
 
+    def learn_dag(self, dataset: Dataset) -> gum.DAG:
+        if self.version == 1:
+            learner = otagrum.ContinuousMIIC(dataset.data)
+        elif self.version == 2:
+            learner = otagrum.ContinuousMIIC2(dataset.data)
+        else:
+            raise ValueError(f"Unsupported CMIIC version: {self.version}")
+
+        learner.setAlpha(self.alpha)
+        learner.setVerbosity(False)
+        named_dag = learner.learnDAG()
+        return named_dag.getDAG()
+
     def _NamedDAG_to_Structure(self, named_dag: otagrum.NamedDAG) -> Structure:
         """
         Convert otagrum DAG to Structure

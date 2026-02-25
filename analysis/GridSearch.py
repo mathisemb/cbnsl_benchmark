@@ -11,7 +11,7 @@ import pandas as pd
 from algorithms.AlgorithmAdapter import AlgorithmAdapter
 from metrics.MetricAdapter import MetricAdapter
 from pipeline.Dataset import Dataset
-from pipeline.Structure import Structure
+from pipeline.Structure import Structure, dag_to_structure
 
 
 @dataclass
@@ -59,6 +59,8 @@ class GridSearch:
         metrics: List[MetricAdapter],
         fixed_params: Optional[Dict[str, Any]] = None,
         objectives: Optional[Dict[str, bool]] = None,
+        verbose: bool = True,
+        learn_method: str = "learn_structure",
     ):
         self.algorithm_class = algorithm_class
         self.param_grid = param_grid
@@ -67,11 +69,13 @@ class GridSearch:
         self.metrics = metrics
         self.fixed_params = fixed_params or {}
         self.objectives = objectives or {m.name(): True for m in metrics}
+        self.verbose = verbose
+        self.learn_method = learn_method
 
         self.results: List[GridSearchResult] = []
         self._is_fitted: bool = False
 
-    def run(self) -> "GridSearch":
+    def run(self, _pbar=None) -> "GridSearch":
         """Execute the grid search over all parameter combinations.
 
         For each combination:
@@ -79,6 +83,11 @@ class GridSearch:
         2. Run learn_structure() on the dataset.
         3. Compute all metrics vs the golden structure.
         4. Record the result (or the error if it failed).
+
+        Args:
+            _pbar: Optional tqdm progress bar (inner level) managed by
+                run_grid_searches. When provided, each combination updates
+                this bar instead of printing text.
 
         Returns:
             Self, for method chaining.
@@ -90,26 +99,35 @@ class GridSearch:
 
         metric_names = [m.name() for m in self.metrics]
 
-        print(f"\n{'='*60}")
-        print(f"Grid Search: {self.algorithm_class.__name__}")
-        if self.fixed_params:
-            fixed_str = ", ".join(f"{k}={v}" for k, v in self.fixed_params.items())
-            print(f"  Fixed params: {fixed_str}")
-        print(f"  Metrics: {', '.join(metric_names)}")
-        print(f"  Parameter combinations: {n_combinations}")
-        print(f"{'='*60}\n")
+        if self.verbose:
+            print(f"\n{'='*60}")
+            print(f"Grid Search: {self.algorithm_class.__name__}")
+            if self.fixed_params:
+                fixed_str = ", ".join(f"{k}={v}" for k, v in self.fixed_params.items())
+                print(f"  Fixed params: {fixed_str}")
+            print(f"  Metrics: {', '.join(metric_names)}")
+            print(f"  Parameter combinations: {n_combinations}")
+            print(f"{'='*60}\n")
 
         self.results = []
 
         for i, combo in enumerate(combinations, 1):
-            params = dict(zip(param_names, combo))
+            params = {
+                k: round(v, 3) if isinstance(v, float) else v
+                for k, v in zip(param_names, combo)
+            }
             params_str = ", ".join(f"{k}={v}" for k, v in params.items())
-            print(f"  [{i}/{n_combinations}] {params_str} ... ", end="", flush=True)
+            if self.verbose:
+                print(f"  [{i}/{n_combinations}] {params_str} ... ", end="", flush=True)
 
             try:
                 all_params = {**self.fixed_params, **params}
                 algorithm = self.algorithm_class(**all_params)
-                learned_structure = algorithm.learn_structure(self.dataset)
+                result_obj = getattr(algorithm, self.learn_method)(self.dataset)
+                if self.learn_method == "learn_dag":
+                    learned_structure = dag_to_structure(result_obj)
+                else:
+                    learned_structure = result_obj
 
                 scores = {}
                 for metric in self.metrics:
@@ -119,26 +137,31 @@ class GridSearch:
                     )
 
                 result = GridSearchResult(params=params, scores=scores)
-                scores_str = ", ".join(f"{k}={v:.4f}" for k, v in scores.items())
-                print(scores_str)
+                if self.verbose:
+                    scores_str = ", ".join(f"{k}={v:.4f}" for k, v in scores.items())
+                    print(scores_str)
             except Exception as e:
                 result = GridSearchResult(params=params, error=str(e))
-                print(f"FAILED - {e}")
+                if self.verbose:
+                    print(f"FAILED - {e}")
 
             self.results.append(result)
+            if _pbar is not None:
+                _pbar.update(1)
 
         self._is_fitted = True
 
-        for metric_name in metric_names:
-            best = self.best_result(metric_name)
-            if best is not None:
-                print(f"\n  Best {metric_name}: {best.scores[metric_name]:.4f}")
-                print(f"    params: {best.params}")
+        if self.verbose:
+            for metric_name in metric_names:
+                best = self.best_result(metric_name)
+                if best is not None:
+                    print(f"\n  Best {metric_name}: {best.scores[metric_name]:.4f}")
+                    print(f"    params: {best.params}")
 
-        if all(self.best_result(m) is None for m in metric_names):
-            print("\n  WARNING: All parameter combinations failed.")
+            if all(self.best_result(m) is None for m in metric_names):
+                print("\n  WARNING: All parameter combinations failed.")
 
-        print(f"\n{'='*60}\n")
+            print(f"\n{'='*60}\n")
         return self
 
     def best_result(self, metric_name: str) -> Optional[GridSearchResult]:

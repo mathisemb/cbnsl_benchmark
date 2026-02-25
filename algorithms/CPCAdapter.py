@@ -69,6 +69,22 @@ class CPCAdapter(AlgorithmAdapter):
 
         return self._NamedDAG_to_Structure(otagrum_dag)
 
+    def learn_dag(self, dataset: Dataset) -> gum.DAG:
+        max_cond_set = self.max_conditioning_set_size
+        if max_cond_set is None:
+            max_cond_set = dataset.data.shape[1] - 1
+
+        if self.version == 1:
+            learner = otagrum.ContinuousPC(dataset.data, max_cond_set, self.alpha)
+        elif self.version == 2:
+            learner = otagrum.ContinuousPC2(dataset.data, max_cond_set, self.alpha)
+        else:
+            raise ValueError(f"Unsupported CPC version: {self.version}")
+
+        learner.setVerbosity(False)
+        named_dag = learner.learnDAG()
+        return named_dag.getDAG()
+
     def _NamedDAG_to_Structure(self, named_dag: otagrum.NamedDAG) -> Structure:
         """
         Convert otagrum DAG to Structure

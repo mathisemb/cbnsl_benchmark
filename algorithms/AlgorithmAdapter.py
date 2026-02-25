@@ -3,6 +3,8 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
+import pyagrum as gum
+
 from pipeline.Structure import Structure
 
 if TYPE_CHECKING:
@@ -47,5 +49,22 @@ class AlgorithmAdapter(ABC):
         -------
         Structure
             The learned structure (CPDAG)
+        """
+        pass
+
+    @abstractmethod
+    def learn_dag(self, dataset: Dataset) -> gum.DAG:
+        """
+        Learn the DAG from the dataset (before CPDAG conversion).
+
+        Parameters
+        ----------
+        dataset : Dataset
+            The dataset to learn from
+
+        Returns
+        -------
+        gum.DAG
+            The learned DAG
         """
         pass

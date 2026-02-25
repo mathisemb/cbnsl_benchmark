@@ -21,7 +21,7 @@ class MIICAdapter(AlgorithmAdapter):
     then learns the structure with BNLearner.useMIIC().
     """
 
-    def __init__(self, n_bins: int = 3, discretization_method: str = "quantile"):
+    def __init__(self, n_bins: int = 3, discretization_method: str = "quantile", initial_bins: int | None = None):
         """
         Initialize the MIIC adapter
 
@@ -31,9 +31,12 @@ class MIICAdapter(AlgorithmAdapter):
             Number of bins for discretization (default: 3)
         discretization_method : str, optional
             Discretization method: 'quantile', 'uniform', or 'kmeans' (default: 'quantile')
+        initial_bins : int, optional
+            Number of initial bins before merging (Hartemink only, default: n_bins * 3)
         """
         self.n_bins = n_bins
         self.discretization_method = discretization_method
+        self.initial_bins = initial_bins
 
     def learn_structure(self, dataset: Dataset) -> Structure:
         """
@@ -53,7 +56,7 @@ class MIICAdapter(AlgorithmAdapter):
 
         # Discretize
         if self.discretization_method == "hartemink":
-            discretized_df = hartemink_discretize(df, n_bins=self.n_bins)
+            discretized_df = hartemink_discretize(df, n_bins=self.n_bins, initial_bins=self.initial_bins)
             learner = gum.BNLearner(discretized_df)
         else:
             dtp = DiscreteTypeProcessor()
@@ -65,6 +68,23 @@ class MIICAdapter(AlgorithmAdapter):
 
         pdag = learner.learnPDAG() # learnPDAG() returns the CPDAG directly (miic is constraint-based)
         return Structure(pdag)
+
+    def learn_dag(self, dataset: Dataset) -> gum.DAG:
+        df = dataset.to_dataframe()
+
+        if self.discretization_method == "hartemink":
+            discretized_df = hartemink_discretize(df, n_bins=self.n_bins, initial_bins=self.initial_bins)
+            learner = gum.BNLearner(discretized_df)
+        else:
+            dtp = DiscreteTypeProcessor()
+            dtp.setDiscretizationParameters(None, self.discretization_method, self.n_bins)
+            template = dtp.discretizedTemplate(df)
+            learner = gum.BNLearner(df, template)
+        learner.useMIIC()
+        learner.setVerbosity(False)
+
+        bn = learner.learnBN()
+        return bn.dag()
 
     def name(self) -> str:
         return f"MIIC_{self.discretization_method}_{self.n_bins}bins"

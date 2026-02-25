@@ -1,8 +1,19 @@
 """
-Structure class for storing the learned structure (CPDAG).
+Structure class for storing the learned structure (CPDAG or DAG).
 """
 
 import pyagrum as gum
+
+
+def dag_to_structure(dag: gum.DAG) -> "Structure":
+    """Convert a gum.DAG to a Structure by wrapping it in a MixedGraph."""
+    mg = gum.MixedGraph()
+    for node_id in dag.nodes():
+        mg.addNodeWithId(node_id)
+    for tail, head in dag.arcs():
+        mg.addArc(tail, head)
+    return Structure(mg)
+
 
 class Structure:
     """

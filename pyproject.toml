@@ -16,6 +16,7 @@ dependencies = [
     "pyAgrum",
     "openturns",
     "lingam",
+    "tqdm",
 ]
 
 # ===== Optional dependencies =====

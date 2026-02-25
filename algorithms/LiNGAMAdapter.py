@@ -80,5 +80,25 @@ class LiNGAMAdapter(AlgorithmAdapter):
         pdag = gum.EssentialGraph(bn).pdag()
         return Structure(pdag)
 
+    def learn_dag(self, dataset: Dataset) -> gum.DAG:
+        X = dataset.data
+
+        model = lingam.DirectLiNGAM(random_state=self.random_state,
+                                    measure=self.measure)
+        model.fit(X)
+        B = model.adjacency_matrix_
+
+        dag = gum.DAG()
+        d = B.shape[0]
+        for i in range(d):
+            dag.addNodeWithId(i)
+
+        for i in range(d):
+            for j in range(d):
+                if abs(B[i, j]) > self.threshold:
+                    dag.addArc(j, i)
+
+        return dag
+
     def name(self) -> str:
         return "DirectLiNGAM"

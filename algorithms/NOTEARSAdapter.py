@@ -6,11 +6,13 @@ then converts the weighted adjacency matrix to a CPDAG via EssentialGraph.
 """
 
 import numpy as np
+import pandas as pd
 import pyagrum as gum
 from notears.linear import notears_linear
 from algorithms.AlgorithmAdapter import AlgorithmAdapter
 from pipeline.Structure import Structure
 from pipeline.Dataset import Dataset
+from preprocessing.hartemink import hartemink_discretize
 
 
 class NOTEARSAdapter(AlgorithmAdapter):
@@ -77,6 +79,24 @@ class NOTEARSAdapter(AlgorithmAdapter):
         # Convert DAG to CPDAG via EssentialGraph
         pdag = gum.EssentialGraph(bn).pdag()
         return Structure(pdag)
+
+    def learn_dag(self, dataset: Dataset) -> gum.DAG:
+        X = dataset.data
+
+        W_est = notears_linear(X, lambda1=self.lambda1, loss_type=self.loss_type,
+                               w_threshold=self.w_threshold)
+
+        dag = gum.DAG()
+        d = W_est.shape[0]
+        for i in range(d):
+            dag.addNodeWithId(i)
+
+        for i in range(d):
+            for j in range(d):
+                if W_est[i, j] != 0:
+                    dag.addArc(i, j)
+
+        return dag
 
     def name(self) -> str:
         return f"NOTEARS_l1={self.lambda1}"

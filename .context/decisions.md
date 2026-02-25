@@ -72,7 +72,7 @@ cbnsl_benchmark/
 │   ├── BenchmarkAnalyzer.py   # Heatmaps, comparaisons vs golden
 │   ├── GridSearch.py          # Grid search sur paramètres (n_bins, etc.)
 │   └── ParetoSelector.py      # Sélection Pareto-optimale
-├── data/                      # Datasets (gitignored)
+├── data/                      # Datasets
 ├── metrics/                   # Métriques de comparaison de structures
 │   ├── MetricAdapter.py       # Classe abstraite de base
 │   ├── F1ScoreMetric.py       # Une métrique par fichier
