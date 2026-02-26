@@ -34,9 +34,9 @@ class CPCAdapter(AlgorithmAdapter):
         if self.version not in [1, 2]:
             raise ValueError(f"Unsupported CPC version: {self.version}. Must be 1 or 2.")
 
-    def learn_structure(self, dataset: Dataset) -> Structure:
+    def learn_dag(self, dataset: Dataset) -> gum.DAG:
         """
-        Learn Bayesian Network structure using CPC algorithm
+        Learn DAG using CPC algorithm.
 
         Parameters
         ----------
@@ -45,11 +45,9 @@ class CPCAdapter(AlgorithmAdapter):
 
         Returns
         -------
-        Structure
-            The learned structure (CPDAG)
+        gum.DAG
+            The learned DAG
         """
-
-        # Set max conditioning set size
         max_cond_set = self.max_conditioning_set_size
         if max_cond_set is None:
             max_cond_set = dataset.data.shape[1] - 1
@@ -63,54 +61,34 @@ class CPCAdapter(AlgorithmAdapter):
             raise ValueError(f"Unsupported CPC version: {self.version}")
 
         learner.setVerbosity(False)
-
-        # Learn the DAG
-        otagrum_dag = learner.learnDAG()
-
-        return self._NamedDAG_to_Structure(otagrum_dag)
-
-    def learn_dag(self, dataset: Dataset) -> gum.DAG:
-        max_cond_set = self.max_conditioning_set_size
-        if max_cond_set is None:
-            max_cond_set = dataset.data.shape[1] - 1
-
-        if self.version == 1:
-            learner = otagrum.ContinuousPC(dataset.data, max_cond_set, self.alpha)
-        elif self.version == 2:
-            learner = otagrum.ContinuousPC2(dataset.data, max_cond_set, self.alpha)
-        else:
-            raise ValueError(f"Unsupported CPC version: {self.version}")
-
-        learner.setVerbosity(False)
         named_dag = learner.learnDAG()
         return named_dag.getDAG()
 
-    def _NamedDAG_to_Structure(self, named_dag: otagrum.NamedDAG) -> Structure:
+    def learn_structure(self, dataset: Dataset) -> Structure:
         """
-        Convert otagrum DAG to Structure
-        
+        Learn Bayesian Network structure using CPC algorithm.
+
         Parameters
         ----------
-        named_dag : otagrum.NamedDAG
-            The learned DAG from otagrum
-            
+        dataset : Dataset
+            The dataset to learn from
+
         Returns
         -------
         Structure
-            The converted DAG in Structure format
+            The learned structure (CPDAG)
         """
+        dag = self.learn_dag(dataset)
 
-        # Convert NamedDAG to BayesNet
+        # Convert DAG to BayesNet (needed by EssentialGraph)
         bn = gum.BayesNet()
-        bn.addVariables([str(node) for node in named_dag.getDAG().nodes()], 2)
-        for (tail_id, head_id) in named_dag.getDAG().arcs():
-            bn.addArc(tail_id, head_id)
+        bn.addVariables([str(node) for node in dag.nodes()], 2)
+        for tail, head in dag.arcs():
+            bn.addArc(tail, head)
 
-        # Extract CPDAG using EssentialGraph, then convert to PDAG (which is a MixedGraph)
-        essential_graph = gum.EssentialGraph(bn)
-        cpdag = essential_graph.pdag()  # PDAG inherits from MixedGraph
-
-        return Structure(cpdag)
+        # Convert DAG to CPDAG via EssentialGraph
+        pdag = gum.EssentialGraph(bn).pdag()
+        return Structure(pdag)
     
     def name(self) -> str:
         """

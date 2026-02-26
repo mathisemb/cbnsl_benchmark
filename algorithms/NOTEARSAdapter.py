@@ -42,9 +42,12 @@ class NOTEARSAdapter(AlgorithmAdapter):
         self.loss_type = loss_type
         self.w_threshold = w_threshold
 
-    def learn_structure(self, dataset: Dataset) -> Structure:
+    def learn_dag(self, dataset: Dataset) -> gum.DAG:
         """
-        Learn structure using NOTEARS.
+        Learn DAG using NOTEARS.
+
+        Runs notears_linear and converts the weighted adjacency matrix
+        to a gum.DAG. Convention: W[i, j] != 0 means i -> j.
 
         Parameters
         ----------
@@ -53,34 +56,9 @@ class NOTEARSAdapter(AlgorithmAdapter):
 
         Returns
         -------
-        Structure
-            The learned structure (CPDAG)
+        gum.DAG
+            The learned DAG
         """
-        X = dataset.data
-
-        # Run NOTEARS: returns weighted adjacency matrix (d, d)
-        # Convention: W[i, j] != 0 means i -> j
-        W_est = notears_linear(X, lambda1=self.lambda1, loss_type=self.loss_type,
-                               w_threshold=self.w_threshold)
-
-        # Build BayesNet from binary adjacency matrix
-        bn = gum.BayesNet()
-        d = W_est.shape[0]
-        for i in range(d):
-            name = dataset.feature_names[i]
-            bn.add(gum.LabelizedVariable(name, name, 2))
-
-        for i in range(d):
-            for j in range(d):
-                if W_est[i, j] != 0:  # i -> j
-                    bn.addArc(bn.idFromName(dataset.feature_names[i]),
-                              bn.idFromName(dataset.feature_names[j]))
-
-        # Convert DAG to CPDAG via EssentialGraph
-        pdag = gum.EssentialGraph(bn).pdag()
-        return Structure(pdag)
-
-    def learn_dag(self, dataset: Dataset) -> gum.DAG:
         X = dataset.data
 
         W_est = notears_linear(X, lambda1=self.lambda1, loss_type=self.loss_type,
@@ -97,6 +75,35 @@ class NOTEARSAdapter(AlgorithmAdapter):
                     dag.addArc(i, j)
 
         return dag
+
+    def learn_structure(self, dataset: Dataset) -> Structure:
+        """
+        Learn structure using NOTEARS.
+
+        Calls learn_dag() then converts the DAG to CPDAG via EssentialGraph.
+
+        Parameters
+        ----------
+        dataset : Dataset
+            The dataset to learn from
+
+        Returns
+        -------
+        Structure
+            The learned structure (CPDAG)
+        """
+        dag = self.learn_dag(dataset)
+
+        # Convert DAG to BayesNet (needed by EssentialGraph)
+        bn = gum.BayesNet()
+        for node_id in dag.nodes():
+            name = dataset.feature_names[node_id]
+            bn.add(gum.LabelizedVariable(name, name, 2))
+        for tail, head in dag.arcs():
+            bn.addArc(tail, head)
+
+        pdag = gum.EssentialGraph(bn).pdag()
+        return Structure(pdag)
 
     def name(self) -> str:
         return f"NOTEARS_l1={self.lambda1}"

@@ -9,6 +9,8 @@ results/*
 # Datasets: version Python code, ignore downloaded data
 data/sachs/
 
+agrum_types/
+
 # Build directories
 otagrum_build/
 notears_build/

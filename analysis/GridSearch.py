@@ -125,7 +125,7 @@ class GridSearch:
                 algorithm = self.algorithm_class(**all_params)
                 result_obj = getattr(algorithm, self.learn_method)(self.dataset)
                 if self.learn_method == "learn_dag":
-                    learned_structure = dag_to_structure(result_obj)
+                    learned_structure = dag_to_structure(result_obj) # because metrics expect a Structure object, not a DAG
                 else:
                     learned_structure = result_obj
 

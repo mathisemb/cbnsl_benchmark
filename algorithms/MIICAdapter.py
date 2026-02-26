@@ -38,9 +38,49 @@ class MIICAdapter(AlgorithmAdapter):
         self.discretization_method = discretization_method
         self.initial_bins = initial_bins
 
+    def _make_learner(self, dataset: Dataset) -> gum.BNLearner:
+        """Discretize data and create a BNLearner configured with MIIC."""
+        df = dataset.to_dataframe()
+
+        if self.discretization_method == "hartemink":
+            discretized_df = hartemink_discretize(df, n_bins=self.n_bins, initial_bins=self.initial_bins)
+            learner = gum.BNLearner(discretized_df)
+        else:
+            dtp = DiscreteTypeProcessor()
+            dtp.setDiscretizationParameters(None, self.discretization_method, self.n_bins)
+            template = dtp.discretizedTemplate(df)
+            learner = gum.BNLearner(df, template)
+        learner.useMIIC()
+        learner.setVerbosity(False)
+        return learner
+
+    def learn_dag(self, dataset: Dataset) -> gum.DAG:
+        """
+        Learn DAG using discrete MIIC.
+
+        Uses learnBN() which completes all edge orientations
+        (via meekRules_.propagateToDAG) to produce a full DAG.
+
+        Parameters
+        ----------
+        dataset : Dataset
+            The dataset to learn from
+
+        Returns
+        -------
+        gum.DAG
+            The learned DAG
+        """
+        learner = self._make_learner(dataset)
+        bn = learner.learnBN()
+        return bn.dag()
+
     def learn_structure(self, dataset: Dataset) -> Structure:
         """
-        Learn Bayesian Network structure using discrete MIIC
+        Learn Bayesian Network structure using discrete MIIC.
+
+        Uses learnPDAG() which returns the CPDAG directly
+        (via meekRules_.propagateToCPDAG after v-structure detection).
 
         Parameters
         ----------
@@ -52,39 +92,13 @@ class MIICAdapter(AlgorithmAdapter):
         Structure
             The learned structure (CPDAG)
         """
-        df = dataset.to_dataframe()
-
-        # Discretize
-        if self.discretization_method == "hartemink":
-            discretized_df = hartemink_discretize(df, n_bins=self.n_bins, initial_bins=self.initial_bins)
-            learner = gum.BNLearner(discretized_df)
-        else:
-            dtp = DiscreteTypeProcessor()
-            dtp.setDiscretizationParameters(None, self.discretization_method, self.n_bins)
-            template = dtp.discretizedTemplate(df)
-            learner = gum.BNLearner(df, template)
-        learner.useMIIC()
-        learner.setVerbosity(False)
-
-        pdag = learner.learnPDAG() # learnPDAG() returns the CPDAG directly (miic is constraint-based)
-        return Structure(pdag)
-
-    def learn_dag(self, dataset: Dataset) -> gum.DAG:
-        df = dataset.to_dataframe()
-
-        if self.discretization_method == "hartemink":
-            discretized_df = hartemink_discretize(df, n_bins=self.n_bins, initial_bins=self.initial_bins)
-            learner = gum.BNLearner(discretized_df)
-        else:
-            dtp = DiscreteTypeProcessor()
-            dtp.setDiscretizationParameters(None, self.discretization_method, self.n_bins)
-            template = dtp.discretizedTemplate(df)
-            learner = gum.BNLearner(df, template)
-        learner.useMIIC()
-        learner.setVerbosity(False)
-
-        bn = learner.learnBN()
-        return bn.dag()
+        learner = self._make_learner(dataset)
+        cpdag = learner.learnPDAG()
+        # Note: learnPDAG() returns the CPDAG...
+        # See: https://gitlab.com/agrumery/aGrUM/-/blob/master/src/agrum/BN/learning/Miic.cpp#L178
+        # https://gitlab.com/agrumery/aGrUM/-/blob/master/src/agrum/base/graphs/algorithms/MeekRules.cpp#L66
+        # https://gitlab.com/agrumery/aGrUM/-/blob/master/src/agrum/base/graphs/algorithms/MeekRules.cpp#L177
+        return Structure(cpdag)
 
     def name(self) -> str:
         return f"MIIC_{self.discretization_method}_{self.n_bins}bins"

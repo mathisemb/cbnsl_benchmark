@@ -6,7 +6,9 @@ import pyagrum as gum
 
 
 def dag_to_structure(dag: gum.DAG) -> "Structure":
-    """Convert a gum.DAG to a Structure by wrapping it in a MixedGraph."""
+    """Convert a gum.DAG to a Structure by wrapping it in a MixedGraph.
+    Because metrics expect a Structure object, not a DAG.
+    """
     mg = gum.MixedGraph()
     for node_id in dag.nodes():
         mg.addNodeWithId(node_id)

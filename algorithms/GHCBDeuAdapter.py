@@ -38,9 +38,49 @@ class GHCBDeuAdapter(AlgorithmAdapter):
         self.discretization_method = discretization_method
         self.initial_bins = initial_bins
 
+    def _make_learner(self, dataset: Dataset) -> gum.BNLearner:
+        """Discretize data and create a BNLearner configured with GHC + BDeu."""
+        df = dataset.to_dataframe()
+
+        if self.discretization_method == "hartemink":
+            discretized_df = hartemink_discretize(df, n_bins=self.n_bins, initial_bins=self.initial_bins)
+            learner = gum.BNLearner(discretized_df)
+        else:
+            dtp = DiscreteTypeProcessor()
+            dtp.setDiscretizationParameters(None, self.discretization_method, self.n_bins)
+            template = dtp.discretizedTemplate(df)
+            learner = gum.BNLearner(df, template)
+        learner.useGreedyHillClimbing()
+        learner.useScoreBDeu()
+        learner.setVerbosity(False)
+        return learner
+
+    def learn_dag(self, dataset: Dataset) -> gum.DAG:
+        """
+        Learn DAG using Greedy Hill Climbing + BDeu.
+
+        GHC is score-based and directly produces a BN (DAG).
+
+        Parameters
+        ----------
+        dataset : Dataset
+            The dataset to learn from
+
+        Returns
+        -------
+        gum.DAG
+            The learned DAG
+        """
+        learner = self._make_learner(dataset)
+        bn = learner.learnBN()
+        return bn.dag()
+
     def learn_structure(self, dataset: Dataset) -> Structure:
         """
-        Learn Bayesian Network structure using Greedy Hill Climbing + BDeu
+        Learn Bayesian Network structure using Greedy Hill Climbing + BDeu.
+
+        GHC is score-based: learnPDAG() is not supported,
+        so we use learnBN() then extract the CPDAG via EssentialGraph.
 
         Parameters
         ----------
@@ -52,44 +92,10 @@ class GHCBDeuAdapter(AlgorithmAdapter):
         Structure
             The learned structure (CPDAG)
         """
-        df = dataset.to_dataframe()
-
-        # Discretize
-        if self.discretization_method == "hartemink":
-            discretized_df = hartemink_discretize(df, n_bins=self.n_bins, initial_bins=self.initial_bins)
-            learner = gum.BNLearner(discretized_df)
-        else:
-            dtp = DiscreteTypeProcessor()
-            dtp.setDiscretizationParameters(None, self.discretization_method, self.n_bins)
-            template = dtp.discretizedTemplate(df)
-            learner = gum.BNLearner(df, template)
-        learner.useGreedyHillClimbing()
-        learner.useScoreBDeu()
-        learner.setVerbosity(False)
-
-        # GHC is score-based: learnPDAG() is not supported,
-        # so we use learnBN() then extract the CPDAG via EssentialGraph
+        learner = self._make_learner(dataset)
         bn = learner.learnBN()
         pdag = gum.EssentialGraph(bn).pdag()
         return Structure(pdag)
-
-    def learn_dag(self, dataset: Dataset) -> gum.DAG:
-        df = dataset.to_dataframe()
-
-        if self.discretization_method == "hartemink":
-            discretized_df = hartemink_discretize(df, n_bins=self.n_bins, initial_bins=self.initial_bins)
-            learner = gum.BNLearner(discretized_df)
-        else:
-            dtp = DiscreteTypeProcessor()
-            dtp.setDiscretizationParameters(None, self.discretization_method, self.n_bins)
-            template = dtp.discretizedTemplate(df)
-            learner = gum.BNLearner(df, template)
-        learner.useGreedyHillClimbing()
-        learner.useScoreBDeu()
-        learner.setVerbosity(False)
-
-        bn = learner.learnBN()
-        return bn.dag()
 
     def name(self) -> str:
         return f"GHC_BDeu_{self.discretization_method}_{self.n_bins}bins"

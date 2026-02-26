@@ -39,9 +39,9 @@ class CMIICAdapter(AlgorithmAdapter):
         if self.version not in [1, 2]:
             raise ValueError(f"Unsupported CMIIC version: {self.version}. Must be 1 or 2.")
 
-    def learn_structure(self, dataset: Dataset) -> Structure:
+    def learn_dag(self, dataset: Dataset) -> gum.DAG:
         """
-        Learn Bayesian Network structure using CMIIC algorithm
+        Learn DAG using CMIIC algorithm.
 
         Parameters
         ----------
@@ -50,10 +50,9 @@ class CMIICAdapter(AlgorithmAdapter):
 
         Returns
         -------
-        Structure
-            The learned structure (CPDAG)
+        gum.DAG
+            The learned DAG
         """
-
         # Create learner based on version (only takes data in constructor)
         if self.version == 1:
             learner = otagrum.ContinuousMIIC(dataset.data)
@@ -65,50 +64,34 @@ class CMIICAdapter(AlgorithmAdapter):
         # Configure alpha via setter (CMIIC uses setter, not constructor parameter)
         learner.setAlpha(self.alpha)
         learner.setVerbosity(False)
-
-        # Learn the DAG
-        otagrum_dag = learner.learnDAG()
-
-        return self._NamedDAG_to_Structure(otagrum_dag)
-
-    def learn_dag(self, dataset: Dataset) -> gum.DAG:
-        if self.version == 1:
-            learner = otagrum.ContinuousMIIC(dataset.data)
-        elif self.version == 2:
-            learner = otagrum.ContinuousMIIC2(dataset.data)
-        else:
-            raise ValueError(f"Unsupported CMIIC version: {self.version}")
-
-        learner.setAlpha(self.alpha)
-        learner.setVerbosity(False)
         named_dag = learner.learnDAG()
         return named_dag.getDAG()
 
-    def _NamedDAG_to_Structure(self, named_dag: otagrum.NamedDAG) -> Structure:
+    def learn_structure(self, dataset: Dataset) -> Structure:
         """
-        Convert otagrum DAG to Structure
+        Learn Bayesian Network structure using CMIIC algorithm.
 
         Parameters
         ----------
-        named_dag : otagrum.NamedDAG
-            The learned DAG from otagrum
+        dataset : Dataset
+            The dataset to learn from
 
         Returns
         -------
         Structure
-            The converted DAG in Structure format
+            The learned structure (CPDAG)
         """
-        # Convert NamedDAG to BayesNet
+        dag = self.learn_dag(dataset)
+
+        # Convert DAG to BayesNet (needed by EssentialGraph)
         bn = gum.BayesNet()
-        bn.addVariables([str(node) for node in named_dag.getDAG().nodes()], 2)
-        for (tail_id, head_id) in named_dag.getDAG().arcs():
-            bn.addArc(tail_id, head_id)
+        bn.addVariables([str(node) for node in dag.nodes()], 2)
+        for tail, head in dag.arcs():
+            bn.addArc(tail, head)
 
-        # Extract CPDAG using EssentialGraph, then convert to PDAG (which is a MixedGraph)
-        essential_graph = gum.EssentialGraph(bn)
-        cpdag = essential_graph.pdag()  # PDAG inherits from MixedGraph
-
-        return Structure(cpdag)
+        # Convert DAG to CPDAG via EssentialGraph
+        pdag = gum.EssentialGraph(bn).pdag()
+        return Structure(pdag)
 
     def name(self) -> str:
         """

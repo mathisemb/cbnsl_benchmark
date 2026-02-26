@@ -39,9 +39,11 @@ class LiNGAMAdapter(AlgorithmAdapter):
         self.measure = measure
         self.threshold = threshold
 
-    def learn_structure(self, dataset: Dataset) -> Structure:
+    def learn_dag(self, dataset: Dataset) -> gum.DAG:
         """
-        Learn structure using DirectLiNGAM.
+        Learn DAG using DirectLiNGAM.
+
+        Adjacency matrix convention: B[i, j] != 0 means j -> i.
 
         Parameters
         ----------
@@ -50,37 +52,9 @@ class LiNGAMAdapter(AlgorithmAdapter):
 
         Returns
         -------
-        Structure
-            The learned structure (CPDAG)
+        gum.DAG
+            The learned DAG
         """
-        X = dataset.data
-
-        # Run DirectLiNGAM
-        model = lingam.DirectLiNGAM(random_state=self.random_state,
-                                    measure=self.measure)
-        model.fit(X)
-
-        # Adjacency matrix: B[i, j] != 0 means j -> i
-        B = model.adjacency_matrix_
-
-        # Build BayesNet from thresholded adjacency matrix
-        bn = gum.BayesNet()
-        d = B.shape[0]
-        for i in range(d):
-            name = dataset.feature_names[i]
-            bn.add(gum.LabelizedVariable(name, name, 2))
-
-        for i in range(d):
-            for j in range(d):
-                if abs(B[i, j]) > self.threshold:  # j -> i
-                    bn.addArc(bn.idFromName(dataset.feature_names[j]),
-                              bn.idFromName(dataset.feature_names[i]))
-
-        # Convert DAG to CPDAG via EssentialGraph
-        pdag = gum.EssentialGraph(bn).pdag()
-        return Structure(pdag)
-
-    def learn_dag(self, dataset: Dataset) -> gum.DAG:
         X = dataset.data
 
         model = lingam.DirectLiNGAM(random_state=self.random_state,
@@ -95,10 +69,39 @@ class LiNGAMAdapter(AlgorithmAdapter):
 
         for i in range(d):
             for j in range(d):
-                if abs(B[i, j]) > self.threshold:
+                if abs(B[i, j]) > self.threshold:  # j -> i
                     dag.addArc(j, i)
 
         return dag
+
+    def learn_structure(self, dataset: Dataset) -> Structure:
+        """
+        Learn structure using DirectLiNGAM.
+
+        Calls learn_dag() then converts the DAG to CPDAG via EssentialGraph.
+
+        Parameters
+        ----------
+        dataset : Dataset
+            The dataset to learn from
+
+        Returns
+        -------
+        Structure
+            The learned structure (CPDAG)
+        """
+        dag = self.learn_dag(dataset)
+
+        # Convert DAG to BayesNet (needed by EssentialGraph)
+        bn = gum.BayesNet()
+        for node_id in dag.nodes():
+            name = dataset.feature_names[node_id]
+            bn.add(gum.LabelizedVariable(name, name, 2))
+        for tail, head in dag.arcs():
+            bn.addArc(tail, head)
+
+        pdag = gum.EssentialGraph(bn).pdag()
+        return Structure(pdag)
 
     def name(self) -> str:
         return "DirectLiNGAM"
