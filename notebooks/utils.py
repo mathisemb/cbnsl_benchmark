@@ -12,6 +12,7 @@ from tqdm.auto import tqdm
 from analysis.GridSearch import GridSearch
 from analysis.ParetoSelector import pareto_front, best_pareto
 from pipeline.Structure import dag_to_structure
+from preprocessing.hartemink import hartemink_discretize_multi
 
 
 # ---------------------------------------------------------------------------
@@ -56,9 +57,44 @@ def _count_combinations(param_grid):
     return len(list(itertools.product(*param_grid.values())))
 
 
+def _precompute_hartemink(algo_configs, dataset):
+    """Scan algo_configs for hartemink sub-grids and precompute discretizations.
+
+    Returns a dict mapping (n_bins, initial_bins) -> discretized DataFrame.
+    """
+    df = dataset.to_dataframe()
+    # Collect all (initial_bins, [n_bins_list]) groups
+    groups = {}  # initial_bins -> set of n_bins
+    for _name, _cls, param_grid, fixed_params in algo_configs:
+        grids = param_grid if isinstance(param_grid, list) else [param_grid]
+        for grid in grids:
+            methods = grid.get("discretization_method", [fixed_params.get("discretization_method")])
+            if "hartemink" not in methods:
+                continue
+            n_bins_list = grid.get("n_bins", [fixed_params.get("n_bins", 3)])
+            initial_bins_list = grid.get("initial_bins", [fixed_params.get("initial_bins")])
+            for ib in initial_bins_list:
+                groups.setdefault(ib, set()).update(n_bins_list)
+
+    if not groups:
+        return {}
+
+    precomputed = {}
+    for initial_bins, n_bins_set in groups.items():
+        target_bins = sorted(n_bins_set)
+        results = hartemink_discretize_multi(df, target_bins, initial_bins=initial_bins)
+        for nb, disc_df in results.items():
+            precomputed[(nb, initial_bins)] = disc_df
+
+    return precomputed
+
+
 def run_grid_searches(algo_configs, dataset, ground_truth, metrics, objectives,
                       verbose=True, learn_method="learn_structure"):
     """Run grid search for all algorithm configurations.
+
+    Automatically precomputes Hartemink discretizations shared across
+    algorithms and parameter combinations to avoid redundant computation.
 
     Args:
         algo_configs: List of (name, algo_class, param_grid, fixed_params) tuples.
@@ -72,6 +108,9 @@ def run_grid_searches(algo_configs, dataset, ground_truth, metrics, objectives,
     Returns:
         Dict mapping algo name -> GridSearch instance (fitted).
     """
+    # Precompute all Hartemink discretizations once
+    hartemink_precomputed = _precompute_hartemink(algo_configs, dataset)
+
     grid_searches = {}
     use_bars = not verbose
 
@@ -96,6 +135,7 @@ def run_grid_searches(algo_configs, dataset, ground_truth, metrics, objectives,
                     objectives=objectives,
                     verbose=verbose,
                     learn_method=learn_method,
+                    hartemink_precomputed=hartemink_precomputed,
                 )
                 sub_gs.run(_pbar=pbar)
                 all_results.extend(sub_gs.results)
@@ -109,6 +149,7 @@ def run_grid_searches(algo_configs, dataset, ground_truth, metrics, objectives,
                 objectives=objectives,
                 verbose=verbose,
                 learn_method=learn_method,
+                hartemink_precomputed=hartemink_precomputed,
             )
             gs.results = all_results
             gs._is_fitted = True
@@ -123,6 +164,7 @@ def run_grid_searches(algo_configs, dataset, ground_truth, metrics, objectives,
                 objectives=objectives,
                 verbose=verbose,
                 learn_method=learn_method,
+                hartemink_precomputed=hartemink_precomputed,
             )
             gs.run(_pbar=pbar)
 
@@ -300,14 +342,25 @@ def plot_comparison_scatter(selection, algo_names, rank_by):
 # Re-run best profiles
 # ---------------------------------------------------------------------------
 
-def run_best_profiles(selection, algo_configs_map, dataset, learn_method="learn_structure"):
-    """Re-run the best profile for each algo and return learned structures."""
+def run_best_profiles(selection, algo_configs_map, dataset, learn_method="learn_structure",
+                      hartemink_precomputed=None):
+    """Re-run the best profile for each algo and return learned structures.
+
+    Args:
+        hartemink_precomputed: Optional dict mapping (n_bins, initial_bins) -> discretized DataFrame.
+            If provided, injects discretized_df into hartemink adapters to avoid recomputation.
+    """
     structures = {}
     for name, r in selection.items():
         if r is None:
             continue
         algo_class, fixed_params = algo_configs_map[name]
         all_params = {**fixed_params, **r.params}
+        # Inject pre-discretized data if available
+        if hartemink_precomputed and all_params.get("discretization_method") == "hartemink":
+            key = (all_params.get("n_bins"), all_params.get("initial_bins"))
+            if key in hartemink_precomputed:
+                all_params["discretized_df"] = hartemink_precomputed[key]
         algo = algo_class(**all_params)
         result_obj = getattr(algo, learn_method)(dataset)
         if learn_method == "learn_dag":

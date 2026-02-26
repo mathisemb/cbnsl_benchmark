@@ -24,7 +24,8 @@ class NOTEARSDiscreteAdapter(AlgorithmAdapter):
 
     def __init__(self, lambda1: float = 0.1, w_threshold: float = 0.3,
                  n_bins: int = 3, discretization_method: str = "quantile",
-                 initial_bins: int | None = None):
+                 initial_bins: int | None = None,
+                 discretized_df: pd.DataFrame | None = None):
         """
         Parameters
         ----------
@@ -38,12 +39,15 @@ class NOTEARSDiscreteAdapter(AlgorithmAdapter):
             Method: 'quantile' or 'hartemink' (default: 'quantile').
         initial_bins : int | None, optional
             Initial bins before merging (Hartemink only, default: n_bins * 3).
+        discretized_df : pd.DataFrame, optional
+            Pre-discretized data. If provided, skips internal discretization.
         """
         self.lambda1 = lambda1
         self.w_threshold = w_threshold
         self.n_bins = n_bins
         self.discretization_method = discretization_method
         self.initial_bins = initial_bins
+        self._discretized_df = discretized_df
 
     def learn_dag(self, dataset: Dataset) -> gum.DAG:
         """
@@ -59,14 +63,16 @@ class NOTEARSDiscreteAdapter(AlgorithmAdapter):
         gum.DAG
             The learned DAG
         """
-        df = dataset.to_dataframe()
-
-        if self.discretization_method == "hartemink":
+        if self._discretized_df is not None:
+            X = self._discretized_df.values.astype(float)
+        elif self.discretization_method == "hartemink":
+            df = dataset.to_dataframe()
             discretized_df = hartemink_discretize(
                 df, n_bins=self.n_bins, initial_bins=self.initial_bins
             )
             X = discretized_df.values.astype(float)
         elif self.discretization_method == "quantile":
+            df = dataset.to_dataframe()
             X = df.apply(
                 lambda col: pd.qcut(col, self.n_bins, labels=False, duplicates="drop")
             ).values.astype(float)

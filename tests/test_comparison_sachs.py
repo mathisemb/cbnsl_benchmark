@@ -26,6 +26,7 @@ from metrics.F1ScoreMetric import F1ScoreMetric
 from metrics.TPRMetric import TPRMetric
 from data.sachs.load_ground_truth import load_sachs_ground_truth
 from analysis.BenchmarkAnalyzer import BenchmarkAnalyzer
+from preprocessing.hartemink import hartemink_discretize
 
 
 def test_comparison_sachs():
@@ -67,15 +68,18 @@ def test_comparison_sachs():
 
     n_bins = 3
 
+    # Precompute Hartemink discretization once for both adapters that use it
+    hartemink_df = hartemink_discretize(sachs_data, n_bins=n_bins)
+
     algorithms = [
         CPCAdapter(alpha=alpha, max_conditioning_set_size=max_cond_set, version=1),
         CPCAdapter(alpha=alpha, max_conditioning_set_size=max_cond_set, version=2),
         CMIICAdapter(alpha=alpha, version=1),
         CMIICAdapter(alpha=alpha, version=2),
         MIICAdapter(n_bins=n_bins),
-        MIICAdapter(n_bins=n_bins, discretization_method="hartemink"),
+        MIICAdapter(n_bins=n_bins, discretization_method="hartemink", discretized_df=hartemink_df),
         GHCBDeuAdapter(n_bins=n_bins),
-        GHCBDeuAdapter(n_bins=n_bins, discretization_method="hartemink"),
+        GHCBDeuAdapter(n_bins=n_bins, discretization_method="hartemink", discretized_df=hartemink_df),
         NOTEARSAdapter(lambda1=0.1),
         LiNGAMAdapter(),
     ]

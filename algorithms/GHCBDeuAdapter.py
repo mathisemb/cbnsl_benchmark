@@ -5,6 +5,7 @@ Uses BNLearner with useGreedyHillClimbing() + useScoreBDeu()
 after discretizing continuous data via DiscreteTypeProcessor.
 """
 
+import pandas as pd
 import pyagrum as gum
 from pyagrum.lib.discreteTypeProcessor import DiscreteTypeProcessor
 from algorithms.AlgorithmAdapter import AlgorithmAdapter
@@ -21,7 +22,8 @@ class GHCBDeuAdapter(AlgorithmAdapter):
     then learns the structure with BNLearner.useGreedyHillClimbing() + useScoreBDeu().
     """
 
-    def __init__(self, n_bins: int = 3, discretization_method: str = "quantile", initial_bins: int | None = None):
+    def __init__(self, n_bins: int = 3, discretization_method: str = "quantile",
+                 initial_bins: int | None = None, discretized_df: pd.DataFrame | None = None):
         """
         Initialize the GHC+BDeu adapter
 
@@ -33,19 +35,24 @@ class GHCBDeuAdapter(AlgorithmAdapter):
             Discretization method: 'quantile', 'uniform', or 'kmeans' (default: 'quantile')
         initial_bins : int, optional
             Number of initial bins before merging (Hartemink only, default: n_bins * 3)
+        discretized_df : pd.DataFrame, optional
+            Pre-discretized data. If provided, skips internal discretization.
         """
         self.n_bins = n_bins
         self.discretization_method = discretization_method
         self.initial_bins = initial_bins
+        self._discretized_df = discretized_df
 
     def _make_learner(self, dataset: Dataset) -> gum.BNLearner:
         """Discretize data and create a BNLearner configured with GHC + BDeu."""
-        df = dataset.to_dataframe()
-
-        if self.discretization_method == "hartemink":
+        if self._discretized_df is not None:
+            learner = gum.BNLearner(self._discretized_df)
+        elif self.discretization_method == "hartemink":
+            df = dataset.to_dataframe()
             discretized_df = hartemink_discretize(df, n_bins=self.n_bins, initial_bins=self.initial_bins)
             learner = gum.BNLearner(discretized_df)
         else:
+            df = dataset.to_dataframe()
             dtp = DiscreteTypeProcessor()
             dtp.setDiscretizationParameters(None, self.discretization_method, self.n_bins)
             template = dtp.discretizedTemplate(df)

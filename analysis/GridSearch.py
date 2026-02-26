@@ -61,6 +61,7 @@ class GridSearch:
         objectives: Optional[Dict[str, bool]] = None,
         verbose: bool = True,
         learn_method: str = "learn_structure",
+        hartemink_precomputed: Optional[Dict] = None,
     ):
         self.algorithm_class = algorithm_class
         self.param_grid = param_grid
@@ -71,6 +72,7 @@ class GridSearch:
         self.objectives = objectives or {m.name(): True for m in metrics}
         self.verbose = verbose
         self.learn_method = learn_method
+        self._hartemink_precomputed = hartemink_precomputed or {}
 
         self.results: List[GridSearchResult] = []
         self._is_fitted: bool = False
@@ -122,6 +124,11 @@ class GridSearch:
 
             try:
                 all_params = {**self.fixed_params, **params}
+                # Inject pre-discretized data if available for this (n_bins, initial_bins) combo
+                if self._hartemink_precomputed and all_params.get("discretization_method") == "hartemink":
+                    key = (all_params.get("n_bins"), all_params.get("initial_bins"))
+                    if key in self._hartemink_precomputed:
+                        all_params["discretized_df"] = self._hartemink_precomputed[key]
                 algorithm = self.algorithm_class(**all_params)
                 result_obj = getattr(algorithm, self.learn_method)(self.dataset)
                 if self.learn_method == "learn_dag":
