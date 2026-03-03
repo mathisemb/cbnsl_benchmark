@@ -21,6 +21,10 @@ class LiNGAMAdapter(AlgorithmAdapter):
     then converts to CPDAG via EssentialGraph.
     """
 
+    DEFAULT_PARAM_GRID = {
+        "threshold": [0.1, 0.5, 0.75, 1.0, 1.25, 1.5],
+    }
+
     def __init__(self, random_state: int = 42, measure: str = "pwling",
                  threshold: float = 0.01):
         """
@@ -94,9 +98,7 @@ class LiNGAMAdapter(AlgorithmAdapter):
 
         # Convert DAG to BayesNet (needed by EssentialGraph)
         bn = gum.BayesNet()
-        for node_id in dag.nodes():
-            name = dataset.feature_names[node_id]
-            bn.add(gum.LabelizedVariable(name, name, 2))
+        bn.addVariables([str(node) for node in dag.nodes()], 2)
         for tail, head in dag.arcs():
             bn.addArc(tail, head)
 

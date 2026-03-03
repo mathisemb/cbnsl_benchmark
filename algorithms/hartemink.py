@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 
 
-def _mutual_information(x: np.ndarray, y: np.ndarray) -> float:
+def _mutual_information_naive(x: np.ndarray, y: np.ndarray) -> float:
     """Compute mutual information between two discrete integer arrays.
 
     Uses the empirical joint distribution from a contingency table.
@@ -113,7 +113,7 @@ def hartemink_discretize_multi(
     min_target = min(target_bins)
 
     if initial_bins is None:
-        initial_bins = max_target * 3 # arbitrary default: enough headroom for meaningful merges
+        initial_bins = max_target * 3
     if initial_bins <= max_target:
         raise ValueError(
             f"initial_bins ({initial_bins}) must be strictly greater "
@@ -126,9 +126,9 @@ def hartemink_discretize_multi(
     # ------------------------------------------------------------------
     # Step 1: initial discretization (integer labels)
     # ------------------------------------------------------------------
-    bin_labels = np.empty((len(df), n_vars), dtype=np.int32) # will store the bin labels for each variable
+    bin_labels = np.empty((len(df), n_vars), dtype=np.int32)
 
-    for j, col in enumerate(columns): # for each variable, initial marginal discretization
+    for j, col in enumerate(columns):
         values = df[col].values
         if initial_method == "quantile":
             _, edges = pd.qcut(values, initial_bins, retbins=True, duplicates="drop")
@@ -139,67 +139,64 @@ def hartemink_discretize_multi(
                 f"initial_method must be 'quantile' or 'uniform', got '{initial_method}'"
             )
         bin_labels[:, j] = np.digitize(values, edges[1:-1], right=False)
-        # edges[1:-1] because np.digitize with right=False assigns bin i to values in [edges[i-1], edges[i])
-        # values < edges[1] get bin 0
-        # ...
-        # values >= edges[-2] get bin initial_bins-1
 
     # ------------------------------------------------------------------
     # Step 2: iterative merging with snapshots
     # ------------------------------------------------------------------
-    n_bins_per_var = np.array([len(np.unique(bin_labels[:, j])) for j in range(n_vars)])
+    n_bins_per_var = np.array(
+        [len(np.unique(bin_labels[:, j])) for j in range(n_vars)]
+    )
 
-    # Process targets from largest to smallest so we can snapshot along the way
     sorted_targets = sorted(set(target_bins), reverse=True)
     snapshots = {}
 
-    # Optional progress bar: total merges = sum of excess bins across all variables
-    total_merges = int(n_bins_per_var.sum() - n_vars * min(sorted_targets))
+    total_merges = int(n_bins_per_var.sum() - n_vars * min_target)
     pbar = None
     if progress:
         from tqdm.auto import tqdm
+
         pbar = tqdm(total=total_merges, desc="Hartemink merging", leave=True)
 
     for target in sorted_targets:
-        # Merge until all variables have at most 'target' bins
         while np.any(n_bins_per_var > target):
             for j in range(n_vars):
                 if n_bins_per_var[j] <= target:
-                    continue # jump to the next iteration
+                    continue
 
                 col_bins = bin_labels[:, j]
                 sorted_bins = np.sort(np.unique(col_bins))
                 nb_adjacent_pairs = len(sorted_bins) - 1
 
-                best_mi = -np.inf # which consecutive bins have the highest sum of MI
+                best_mi = -np.inf
                 best_pair = None
 
                 for k in range(nb_adjacent_pairs):
                     bin_lo, bin_hi = sorted_bins[k], sorted_bins[k + 1]
 
                     merged = col_bins.copy()
-                    merged[merged == bin_hi] = bin_lo # every observation of Xj labeled bin_hi is temporarily labeled bin_lo
+                    merged[merged == bin_hi] = bin_lo
 
-                    total_mi = 0.0  # sum of MI(merged_var_j, var_other) over all other vars
+                    total_mi = 0.0
                     for other_j in range(n_vars):
                         if other_j != j:
-                            total_mi += _mutual_information(merged, bin_labels[:, other_j])
+                            total_mi += _mutual_information_naive(
+                                merged, bin_labels[:, other_j]
+                            )
 
-                    if total_mi > best_mi:  # keep the merge that preserves the most MI
+                    if total_mi > best_mi:
                         best_mi = total_mi
                         best_pair = (bin_lo, bin_hi)
 
                 if best_pair is not None:
                     bin_lo, bin_hi = best_pair
-                    bin_labels[:, j][bin_labels[:, j] == bin_hi] = bin_lo # every observation of Xj labeled bin_hi is definitely labeled bin_lo
+                    bin_labels[:, j][bin_labels[:, j] == bin_hi] = bin_lo
                     n_bins_per_var[j] -= 1
                     if pbar is not None:
                         pbar.update(1)
 
-        # ------------------------------------------------------------------
-        # Snapshot: relabel to consecutive string labels for pyAgrum
-        # ------------------------------------------------------------------
-        snapshots[target] = _relabel_to_dataframe(bin_labels.copy(), columns, df.index)
+        snapshots[target] = _relabel_to_dataframe(
+            bin_labels.copy(), columns, df.index
+        )
 
     if pbar is not None:
         pbar.close()
@@ -212,6 +209,7 @@ def hartemink_discretize(
     n_bins: int,
     initial_bins: int | None = None,
     initial_method: str = "quantile",
+    progress: bool = True,
 ) -> pd.DataFrame:
     """Hartemink information-preserving discretization.
 
@@ -236,6 +234,9 @@ def hartemink_discretize(
         Discretized data with string labels (``"0"``, ``"1"``, ...).
     """
     return hartemink_discretize_multi(
-        df, target_bins=[n_bins], initial_bins=initial_bins,
+        df,
+        target_bins=[n_bins],
+        initial_bins=initial_bins,
         initial_method=initial_method,
+        progress=progress,
     )[n_bins]

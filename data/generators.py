@@ -59,7 +59,7 @@ def generate_from_cbn(
     golden_structure = Structure(essential_graph.pdag())
 
     # Create Dataset with golden structure
-    dataset = Dataset(data, golden_structure=golden_structure)
+    dataset = Dataset(data)
 
     return dataset, golden_structure
 

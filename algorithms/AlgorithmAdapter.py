@@ -21,7 +21,13 @@ class AlgorithmAdapter(ABC):
     All algorithms return a Structure object containing a CPDAG (Completed
     Partially Directed Acyclic Graph), regardless of the underlying library
     used internally. This provides a unified interface for structure comparison.
+
+    Subclasses can define DEFAULT_PARAM_GRID and DEFAULT_FIXED_PARAMS
+    for use with GridSearchRunner.
     """
+
+    DEFAULT_PARAM_GRID: dict = {}
+    DEFAULT_FIXED_PARAMS: dict = {}
 
     @abstractmethod
     def name(self) -> str:

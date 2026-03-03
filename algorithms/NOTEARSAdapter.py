@@ -6,13 +6,11 @@ then converts the weighted adjacency matrix to a CPDAG via EssentialGraph.
 """
 
 import numpy as np
-import pandas as pd
 import pyagrum as gum
 from notears.linear import notears_linear
 from algorithms.AlgorithmAdapter import AlgorithmAdapter
 from pipeline.Structure import Structure
 from pipeline.Dataset import Dataset
-from preprocessing.hartemink import hartemink_discretize
 
 
 class NOTEARSAdapter(AlgorithmAdapter):
@@ -24,8 +22,14 @@ class NOTEARSAdapter(AlgorithmAdapter):
     then converts to CPDAG via EssentialGraph.
     """
 
+    DEFAULT_PARAM_GRID = {
+        "lambda1": [0.0, 0.05, 0.1, 0.3, 0.5],
+        "w_threshold": [0.0, 0.1, 0.3, 0.5, 0.7],
+    }
+
     def __init__(self, lambda1: float = 0.1, loss_type: str = "l2",
-                 w_threshold: float = 0.3):
+                 w_threshold: float = 0.3,
+                 W_est: np.ndarray | None = None):
         """
         Initialize the NOTEARS adapter.
 
@@ -37,10 +41,16 @@ class NOTEARSAdapter(AlgorithmAdapter):
             Loss type: 'l2' for continuous, 'logistic' for binary (default: 'l2')
         w_threshold : float, optional
             Threshold for pruning weak edges (default: 0.3)
+        W_est : np.ndarray, optional
+            Pre-computed weight matrix from notears_linear. If provided,
+            skips the expensive L-BFGS optimization and only applies
+            w_threshold. Used by GridSearch to avoid redundant optimizations
+            when only w_threshold varies.
         """
         self.lambda1 = lambda1
         self.loss_type = loss_type
         self.w_threshold = w_threshold
+        self._W_est_precomputed = W_est
 
     def learn_dag(self, dataset: Dataset) -> gum.DAG:
         """
@@ -59,10 +69,18 @@ class NOTEARSAdapter(AlgorithmAdapter):
         gum.DAG
             The learned DAG
         """
-        X = dataset.data
-
-        W_est = notears_linear(X, lambda1=self.lambda1, loss_type=self.loss_type,
-                               w_threshold=self.w_threshold)
+        if self._W_est_precomputed is not None:
+            # Reuse pre-computed W matrix (optimization already done)
+            W_est = self._W_est_precomputed.copy()
+            W_est[np.abs(W_est) < self.w_threshold] = 0
+        else:
+            # Run full L-BFGS optimization with w_threshold=0 so we can
+            # cache the raw weight matrix for other threshold values
+            X = dataset.data
+            W_est = notears_linear(X, lambda1=self.lambda1,
+                                   loss_type=self.loss_type, w_threshold=0)
+            self._W_est_raw = W_est.copy()
+            W_est[np.abs(W_est) < self.w_threshold] = 0
 
         dag = gum.DAG()
         d = W_est.shape[0]

@@ -208,6 +208,26 @@ Les algorithmes discrets (MIIC, GHC+BDeu) gèrent la discrétisation en interne 
 
 **Script install.sh automatisé** : Installation interactive gérant conda vs build cmake pour otagrum, NO TEARS optionnel, etc.
 
+### Pré-calcul Hartemink dans le grid search
+
+La discrétisation Hartemink est coûteuse (boucle itérative de merges avec calcul de MI pairwise entre toutes les variables). Dans le grid search, plusieurs algorithmes (MIIC, GHC+BDeu, NOTEARS Discrete) peuvent utiliser Hartemink avec les mêmes paramètres `(n_bins, initial_bins)`. Sans cache, chaque combinaison d'hyperparamètres relancerait la discrétisation depuis zéro.
+
+**Solution** : `GridSearch._precompute_hartemink()` scanne toutes les grilles enregistrées avant le grid search pour identifier les couples `(n_bins, initial_bins)` requis. Il appelle `hartemink_discretize_multi()` une seule fois par groupe `initial_bins`, qui fait le merge depuis `initial_bins` jusqu'à `min(target_bins)` en sauvant un snapshot à chaque `n_bins` demandé. Les DataFrames pré-discrétisés sont ensuite injectés dans les adaptateurs via le paramètre `discretized_df`.
+
+**Pourquoi `hartemink_discretize_multi` et pas `hartemink_discretize` en boucle ?** La discrétisation Hartemink est incrémentale : pour passer de 20 bins à 3 bins, on passe par 19, 18, ..., 4, 3. Demander `n_bins=[3, 5, 8]` avec `hartemink_discretize_multi` fait un seul passage de 20 → 3 en sauvant des snapshots à 8, 5 et 3. Appeler `hartemink_discretize` trois fois referait trois fois le chemin complet.
+
+### Cache des matrices W de NOTEARS dans le grid search
+
+Le paramètre `w_threshold` de NOTEARS n'est qu'un seuillage final (`W[|W| < t] = 0`) appliqué **après** l'optimisation L-BFGS. L'optimisation coûteuse ne dépend que de `lambda1` (et des paramètres de discrétisation pour NOTEARS Discrete). Pourtant, le grid search testait chaque combinaison `(lambda1, w_threshold)` en relançant l'optimisation depuis zéro.
+
+**Solution** : cache lazy des matrices W brutes dans `GridSearch._run_grid`. Même pattern que le cache Hartemink :
+- Les adaptateurs NOTEARS acceptent un paramètre `W_est` (matrice pré-calculée). Si fourni, ils sautent `notears_linear` et appliquent seulement le seuil.
+- Le grid search détecte la présence de `w_threshold` dans la grille. Pour chaque combo de paramètres (hors `w_threshold`), il cache la matrice W brute via `algo._W_est_raw` et la réinjecte pour les autres valeurs de seuil.
+
+**Impact** :
+- NOTEARSAdapter : 25 appels → 5 optimisations (~5x)
+- NOTEARSDiscreteAdapter : 250 appels → 50 optimisations (~5x)
+
 ## Fonctionnalités à implémenter
 - [ ] Faire des tests unitaires propres ?
 - [ ] Export des résultats (CSV, JSON) ?

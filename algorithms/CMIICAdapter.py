@@ -14,6 +14,10 @@ class CMIICAdapter(AlgorithmAdapter):
     Supports both CMIIC (version 1) and CMIIC2 (version 2).
     """
 
+    DEFAULT_PARAM_GRID = {
+        "alpha": [0.01, 0.05, 0.10],
+    }
+
     def __init__(self, alpha: float = 0.05, version: int = 1):
         """
         Initialize the CMIIC adapter

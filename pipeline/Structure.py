@@ -5,16 +5,16 @@ Structure class for storing the learned structure (CPDAG or DAG).
 import pyagrum as gum
 
 
-def dag_to_structure(dag: gum.DAG) -> "Structure":
-    """Convert a gum.DAG to a Structure by wrapping it in a MixedGraph.
+def dag_as_a_structure(dag: gum.DAG) -> "Structure":
+    """Represent a gum.DAG as a Structure (possible because a DAG is a special case of a PDAG).
     Because metrics expect a Structure object, not a DAG.
     """
-    mg = gum.MixedGraph()
+    pdag = gum.PDAG()
     for node_id in dag.nodes():
-        mg.addNodeWithId(node_id)
+        pdag.addNodeWithId(node_id)
     for tail, head in dag.arcs():
-        mg.addArc(tail, head)
-    return Structure(mg)
+        pdag.addArc(tail, head)
+    return Structure(pdag)
 
 
 class Structure:
@@ -22,29 +22,24 @@ class Structure:
     Stores the structure of the learned CPDAG.
 
     Contains the CPDAG learned by the algorithm. The CPDAG should be a
-    gum.MixedGraph (or subclass like gum.PDAG) representing the canonical
-    form of the learned DAG.
+    gum.PDAG representing the canonical form of the learned DAG.
     """
 
     def __init__(
         self,
-        cpdag: gum.MixedGraph
+        cpdag: gum.PDAG
     ):
         """
         Initialize a structure
-        
+
         Parameters
         ----------
-        cpdag : gum.MixedGraph
+        cpdag : gum.PDAG
             The learned CPDAG.
         """
         self.cpdag = cpdag
-    
+
     def __str__(self):
-        # Note: For PDAG, calling pdag() returns itself
-        # For EssentialGraph (legacy), it converts to PDAG
-        if hasattr(self.cpdag, 'pdag'):
-            return self.cpdag.pdag().__str__()
         return str(self.cpdag)
 
     def __repr__(self) -> str:

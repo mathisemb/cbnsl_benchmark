@@ -11,7 +11,7 @@ from pyagrum.lib.discreteTypeProcessor import DiscreteTypeProcessor
 from algorithms.AlgorithmAdapter import AlgorithmAdapter
 from pipeline.Structure import Structure
 from pipeline.Dataset import Dataset
-from preprocessing.hartemink import hartemink_discretize
+from algorithms.hartemink import hartemink_discretize
 
 
 class MIICAdapter(AlgorithmAdapter):
@@ -22,8 +22,14 @@ class MIICAdapter(AlgorithmAdapter):
     then learns the structure with BNLearner.useMIIC().
     """
 
+    DEFAULT_PARAM_GRID = [
+        {"n_bins": [2, 4, 6, 8, 10], "discretization_method": ["quantile"]},
+        {"n_bins": [2, 4, 6, 8, 10], "discretization_method": ["hartemink"], "initial_bins": [20]},
+    ]
+
     def __init__(self, n_bins: int = 3, discretization_method: str = "quantile",
-                 initial_bins: int | None = None, discretized_df: pd.DataFrame | None = None):
+                 initial_bins: int | None = None,
+                 discretized_df: pd.DataFrame | None = None):
         """
         Initialize the MIIC adapter
 
@@ -32,7 +38,7 @@ class MIICAdapter(AlgorithmAdapter):
         n_bins : int, optional
             Number of bins for discretization (default: 3)
         discretization_method : str, optional
-            Discretization method: 'quantile', 'uniform', or 'kmeans' (default: 'quantile')
+            Discretization method: 'quantile' or 'hartemink' (default: 'quantile')
         initial_bins : int, optional
             Number of initial bins before merging (Hartemink only, default: n_bins * 3)
         discretized_df : pd.DataFrame, optional

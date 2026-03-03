@@ -11,15 +11,14 @@ import pandas as pd
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from preprocessing.hartemink import hartemink_discretize, hartemink_discretize_multi, _mutual_information
-
+from algorithms.hartemink import hartemink_discretize, hartemink_discretize_multi, _mutual_information_naive
 
 def test_mutual_information_independent():
     """MI of independent variables should be close to 0."""
     rng = np.random.default_rng(42)
     x = rng.integers(0, 3, size=10000)
     y = rng.integers(0, 3, size=10000)
-    mi = _mutual_information(x, y)
+    mi = _mutual_information_naive(x, y)
     assert mi < 0.01, f"MI of independent vars should be ~0, got {mi}"
 
 
@@ -39,7 +38,6 @@ def test_multi_matches_individual():
 
     # Multi call
     multi = hartemink_discretize_multi(df, target_bins=[3, 5], initial_bins=initial_bins)
-
     assert set(multi.keys()) == {3, 5}, f"Expected keys {{3, 5}}, got {set(multi.keys())}"
     assert (r3 == multi[3]).all().all(), "n_bins=3: multi result differs from individual call"
     assert (r5 == multi[5]).all().all(), "n_bins=5: multi result differs from individual call"

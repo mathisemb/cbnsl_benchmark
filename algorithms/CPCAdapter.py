@@ -14,6 +14,11 @@ class CPCAdapter(AlgorithmAdapter):
     Supports both CPC (version 1) and CPC2 (version 2).
     """
 
+    DEFAULT_PARAM_GRID = {
+        "alpha": [0.01, 0.05, 0.10],
+        "max_conditioning_set_size": list(range(2, 9)),
+    }
+
     def __init__(self, alpha: float = 0.05, max_conditioning_set_size: int = None, version: int = 1):
         """
         Initialize the CPC adapter

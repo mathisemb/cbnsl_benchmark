@@ -51,16 +51,16 @@ class SHDMetric(MetricAdapter):
         bn_ref = self._cpdag_to_bn(cpdag_ref)
         bn_test = self._cpdag_to_bn(cpdag_test)
 
-        # Use pyAgrum's built-in comparator
+        # Use pyAgrum's built-in comparator which manipulates essential graphs internally
         comparator = bn_vs_bn.GraphicalBNComparator(bn_ref, bn_test)
         hamming_result = comparator.hamming()
 
         # Return structural hamming distance
         return float(hamming_result.get("structural hamming", 0.0))
 
-    def _cpdag_to_bn(self, cpdag: gum.MixedGraph) -> gum.BayesNet:
+    def _cpdag_to_bn(self, cpdag: gum.PDAG) -> gum.BayesNet:
         """
-        Convert a CPDAG (MixedGraph) to a BayesNet.
+        Convert a CPDAG (PDAG) to a BayesNet.
 
         Uses MeekRules to orient undirected edges into a complete DAG.
         GraphicalBNComparator.hamming() will then recover the CPDAG
@@ -68,7 +68,7 @@ class SHDMetric(MetricAdapter):
 
         Parameters
         ----------
-        cpdag : gum.MixedGraph
+        cpdag : gum.PDAG
             The CPDAG to convert (can contain arcs and edges)
 
         Returns

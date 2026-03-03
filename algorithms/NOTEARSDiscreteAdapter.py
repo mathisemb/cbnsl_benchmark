@@ -11,7 +11,7 @@ from notears.linear import notears_linear
 from algorithms.AlgorithmAdapter import AlgorithmAdapter
 from pipeline.Structure import Structure
 from pipeline.Dataset import Dataset
-from preprocessing.hartemink import hartemink_discretize
+from algorithms.hartemink import hartemink_discretize
 
 
 class NOTEARSDiscreteAdapter(AlgorithmAdapter):
@@ -22,10 +22,27 @@ class NOTEARSDiscreteAdapter(AlgorithmAdapter):
     notears_linear with l2 loss on the integer-valued matrix.
     """
 
+    DEFAULT_PARAM_GRID = [
+        {
+            "lambda1": [0.0, 0.05, 0.1, 0.3, 0.5],
+            "w_threshold": [0.0, 0.1, 0.3, 0.5, 0.7],
+            "n_bins": [2, 4, 6, 8, 10],
+            "discretization_method": ["quantile"],
+        },
+        {
+            "lambda1": [0.0, 0.05, 0.1, 0.3, 0.5],
+            "w_threshold": [0.0, 0.1, 0.3, 0.5, 0.7],
+            "n_bins": [2, 4, 6, 8, 10],
+            "discretization_method": ["hartemink"],
+            "initial_bins": [20],
+        },
+    ]
+
     def __init__(self, lambda1: float = 0.1, w_threshold: float = 0.3,
                  n_bins: int = 3, discretization_method: str = "quantile",
                  initial_bins: int | None = None,
-                 discretized_df: pd.DataFrame | None = None):
+                 discretized_df: pd.DataFrame | None = None,
+                 W_est: np.ndarray | None = None):
         """
         Parameters
         ----------
@@ -41,6 +58,11 @@ class NOTEARSDiscreteAdapter(AlgorithmAdapter):
             Initial bins before merging (Hartemink only, default: n_bins * 3).
         discretized_df : pd.DataFrame, optional
             Pre-discretized data. If provided, skips internal discretization.
+        W_est : np.ndarray, optional
+            Pre-computed weight matrix from notears_linear. If provided,
+            skips both discretization and L-BFGS optimization, only applies
+            w_threshold. Used by GridSearch to avoid redundant optimizations
+            when only w_threshold varies.
         """
         self.lambda1 = lambda1
         self.w_threshold = w_threshold
@@ -48,6 +70,7 @@ class NOTEARSDiscreteAdapter(AlgorithmAdapter):
         self.discretization_method = discretization_method
         self.initial_bins = initial_bins
         self._discretized_df = discretized_df
+        self._W_est_precomputed = W_est
 
     def learn_dag(self, dataset: Dataset) -> gum.DAG:
         """
@@ -63,29 +86,40 @@ class NOTEARSDiscreteAdapter(AlgorithmAdapter):
         gum.DAG
             The learned DAG
         """
-        if self._discretized_df is not None:
-            X = self._discretized_df.values.astype(float)
-        elif self.discretization_method == "hartemink":
-            df = dataset.to_dataframe()
-            discretized_df = hartemink_discretize(
-                df, n_bins=self.n_bins, initial_bins=self.initial_bins
-            )
-            X = discretized_df.values.astype(float)
-        elif self.discretization_method == "quantile":
-            df = dataset.to_dataframe()
-            X = df.apply(
-                lambda col: pd.qcut(col, self.n_bins, labels=False, duplicates="drop")
-            ).values.astype(float)
+        if self._W_est_precomputed is not None:
+            # Reuse pre-computed W matrix (optimization already done)
+            W_est = self._W_est_precomputed.copy()
+            W_est[np.abs(W_est) < self.w_threshold] = 0
         else:
-            raise ValueError(
-                f"Unknown discretization method: {self.discretization_method}. "
-                "Supported: 'quantile', 'hartemink'."
-            )
+            # Discretize data
+            if self._discretized_df is not None:
+                X = self._discretized_df.values.astype(float)
+            elif self.discretization_method == "hartemink":
+                df = dataset.to_dataframe()
+                discretized_df = hartemink_discretize(
+                    df, n_bins=self.n_bins, initial_bins=self.initial_bins
+                )
+                X = discretized_df.values.astype(float)
+            elif self.discretization_method == "quantile":
+                df = dataset.to_dataframe()
+                X = df.apply(
+                    lambda col: pd.qcut(col, self.n_bins, labels=False,
+                                        duplicates="drop")
+                ).values.astype(float)
+            else:
+                raise ValueError(
+                    f"Unknown discretization method: "
+                    f"{self.discretization_method}. "
+                    "Supported: 'quantile', 'hartemink'."
+                )
 
-        W_est = notears_linear(
-            X, lambda1=self.lambda1, loss_type="l2",
-            w_threshold=self.w_threshold,
-        )
+            # Run full L-BFGS optimization with w_threshold=0 so we can
+            # cache the raw weight matrix for other threshold values
+            W_est = notears_linear(
+                X, lambda1=self.lambda1, loss_type="l2", w_threshold=0,
+            )
+            self._W_est_raw = W_est.copy()
+            W_est[np.abs(W_est) < self.w_threshold] = 0
 
         dag = gum.DAG()
         d = W_est.shape[0]
