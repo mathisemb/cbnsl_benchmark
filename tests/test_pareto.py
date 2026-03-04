@@ -1,5 +1,7 @@
 """
 Tests for the generic Pareto front function.
+
+To run: python -m pytest tests/test_pareto.py
 """
 
 from pipeline.GridSearch import pareto_front

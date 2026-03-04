@@ -6,6 +6,7 @@ Uses lingam.DirectLiNGAM to learn a DAG from continuous data
 matrix to a CPDAG via EssentialGraph.
 """
 
+import numpy as np
 import pyagrum as gum
 import lingam
 from algorithms.AlgorithmAdapter import AlgorithmAdapter
@@ -22,11 +23,12 @@ class LiNGAMAdapter(AlgorithmAdapter):
     """
 
     DEFAULT_PARAM_GRID = {
-        "threshold": [0.1, 0.5, 0.75, 1.0, 1.25, 1.5],
+        "threshold_lingam": [0.1, 0.5, 0.75, 1.0, 1.25, 1.5],
     }
 
     def __init__(self, random_state: int = 42, measure: str = "pwling",
-                 threshold: float = 0.01):
+                 threshold_lingam: float = 0.1,
+                 W_est: np.ndarray | None = None):
         """
         Initialize the DirectLiNGAM adapter.
 
@@ -36,12 +38,18 @@ class LiNGAMAdapter(AlgorithmAdapter):
             Random seed for reproducibility (default: 42)
         measure : str, optional
             Independence measure: 'pwling' or 'kernel' (default: 'pwling')
-        threshold : float, optional
+        threshold_lingam : float, optional
             Threshold for pruning weak edges in the adjacency matrix (default: 0.01)
+        W_est : np.ndarray, optional
+            Pre-computed adjacency matrix from DirectLiNGAM. If provided,
+            skips the expensive fit() and only applies threshold_lingam.
+            Used by GridSearch to avoid redundant fits when only
+            threshold_lingam varies.
         """
         self.random_state = random_state
         self.measure = measure
-        self.threshold = threshold
+        self.threshold_lingam = threshold_lingam
+        self._W_est_precomputed = W_est
 
     def learn_dag(self, dataset: Dataset) -> gum.DAG:
         """
@@ -59,12 +67,15 @@ class LiNGAMAdapter(AlgorithmAdapter):
         gum.DAG
             The learned DAG
         """
-        X = dataset.data
-
-        model = lingam.DirectLiNGAM(random_state=self.random_state,
-                                    measure=self.measure)
-        model.fit(X)
-        B = model.adjacency_matrix_
+        if self._W_est_precomputed is not None:
+            B = self._W_est_precomputed.copy()
+        else:
+            X = dataset.data
+            model = lingam.DirectLiNGAM(random_state=self.random_state,
+                                        measure=self.measure)
+            model.fit(X)
+            B = model.adjacency_matrix_
+            self._W_est_raw = B.copy()
 
         dag = gum.DAG()
         d = B.shape[0]
@@ -73,7 +84,7 @@ class LiNGAMAdapter(AlgorithmAdapter):
 
         for i in range(d):
             for j in range(d):
-                if abs(B[i, j]) > self.threshold:  # j -> i
+                if abs(B[i, j]) > self.threshold_lingam:  # j -> i
                     dag.addArc(j, i)
 
         return dag

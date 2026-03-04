@@ -233,6 +233,13 @@ Le paramètre `w_threshold` de NOTEARS n'est qu'un seuillage final (`W[|W| < t] 
 - [ ] Export des résultats (CSV, JSON) ?
 - [ ] Mesure du temps d'exécution ?
 
+## Commandes utiles
+
+```bash
+# Lancer tous les tests
+python -m pytest tests/ -v
+```
+
 ## Conventions de code
 - Code et commentaires en anglais
 - Type hints systématiques

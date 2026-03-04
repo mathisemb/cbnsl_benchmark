@@ -187,8 +187,8 @@ class Benchmark:
         Example::
 
             bench.run_fixed({
-                "LiNGAM": {"threshold": 0.2},
-                "NOTEARS": {"lambda1": 0.15, "w_threshold": 0.3},
+                "LiNGAM": {"threshold_lingam": 0.2},
+                "NOTEARS": {"lambda1": 0.15, "w_threshold_notears": 0.3},
             })
         """
         self._gs = None

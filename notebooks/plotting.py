@@ -14,14 +14,14 @@ from pipeline.GridSearch import pareto_front
 
 def cpdag_to_dot(structure, feature_names=None):
     """Convert a Structure's CPDAG to a labeled dot string."""
-    mg = structure.cpdag
+    cpdag = structure.cpdag
     lines = ["digraph {"]
-    for node_id in sorted(mg.nodes()):
+    for node_id in sorted(cpdag.nodes()):
         label = feature_names[node_id] if feature_names else str(node_id)
         lines.append(f'  {node_id} [label="{label}"];')
-    for tail, head in mg.arcs():
+    for tail, head in cpdag.arcs():
         lines.append(f"  {tail} -> {head};")
-    for n1, n2 in mg.edges():
+    for n1, n2 in cpdag.edges():
         lines.append(f"  {n1} -> {n2} [dir=none];")
     lines.append("}")
     return "\n".join(lines)
@@ -49,7 +49,7 @@ def _compact_disc_label(row):
 
 
 def _plot_best_over_discretizations(df, name, metric_names):
-    """Heatmap of lambda1 x w_threshold showing the best score across discretizations.
+    """Heatmap of lambda1 x w_threshold_notears showing the best score across discretizations.
 
     Each cell is annotated with the score and the compact discretization label
     (e.g. Q3, H4) that achieved it.
@@ -61,19 +61,19 @@ def _plot_best_over_discretizations(df, name, metric_names):
     lower_better = {"SHD": True, "F1-Score": False, "TPR": False}
 
     fig, axes = plt.subplots(1, len(metric_names), figsize=(18, 5))
-    fig.suptitle(f"{name} : best over discretizations (lambda1 x w_threshold)",
+    fig.suptitle(f"{name} : best over discretizations (lambda1 x w_threshold_notears)",
                  fontsize=13, fontweight="bold")
 
     for ax, mn in zip(axes, metric_names):
         ascending = lower_better.get(mn, True)
-        # For each (lambda1, w_threshold), find the row with the best score
+        # For each (lambda1, w_threshold_notears), find the row with the best score
         best = (df.sort_values(mn, ascending=ascending)
-                .drop_duplicates(subset=["lambda1", "w_threshold"], keep="first"))
+                .drop_duplicates(subset=["lambda1", "w_threshold_notears"], keep="first"))
 
         score_pivot = best.pivot_table(
-            index="lambda1", columns="w_threshold", values=mn, aggfunc="first")
+            index="lambda1", columns="w_threshold_notears", values=mn, aggfunc="first")
         label_pivot = best.pivot_table(
-            index="lambda1", columns="w_threshold", values="_disc_label",
+            index="lambda1", columns="w_threshold_notears", values="_disc_label",
             aggfunc="first")
 
         # Build annotation matrix: "score\nlabel"
@@ -116,7 +116,7 @@ def plot_grid_search_results(name, gs, param_grid, metric_names, pareto_objectiv
         order = sorted(df["discretization"].unique(),
                        key=lambda l: (0 if l.startswith("Q") else 1, l))
 
-        # Bar chart: scores by discretization (averaged over lambda1/w_threshold)
+        # Bar chart: scores by discretization (averaged over lambda1/w_threshold_notears)
         fig, axes = plt.subplots(1, 3, figsize=(18, 5))
         fig.suptitle(f"{name} : score par discrétisation  (Q=quantile, H=hartemink)",
                      fontsize=13, fontweight="bold")
@@ -128,9 +128,9 @@ def plot_grid_search_results(name, gs, param_grid, metric_names, pareto_objectiv
         plt.tight_layout()
         plt.show()
 
-        # Heatmap: best score over all discretizations for each (lambda1, w_threshold)
+        # Heatmap: best score over all discretizations for each (lambda1, w_threshold_notears)
         # Each cell is annotated with the score and the discretization that achieved it
-        if "lambda1" in df.columns and "w_threshold" in df.columns:
+        if "lambda1" in df.columns and "w_threshold_notears" in df.columns:
             _plot_best_over_discretizations(df, name, metric_names)
 
     elif len(param_cols) == 1:

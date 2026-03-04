@@ -1,5 +1,8 @@
 """
 Tests for Hartemink information-preserving discretization.
+
+To run: python tests/test_hartemink.py
+so it also runs the demos
 """
 
 import sys
@@ -19,8 +22,17 @@ def test_mutual_information_independent():
     x = rng.integers(0, 3, size=10000)
     y = rng.integers(0, 3, size=10000)
     mi = _mutual_information_naive(x, y)
+    print(f"MI of independent vars: {mi:.4f}")
     assert mi < 0.01, f"MI of independent vars should be ~0, got {mi}"
 
+def test_mutual_information_dependent():
+    """MI of dependent variables should be significantly different from 0."""
+    rng = np.random.default_rng(42)
+    x = rng.integers(0, 3, size=10000)
+    y = x + rng.integers(0, 3, size=10000)  # Make y dependent on x
+    mi = _mutual_information_naive(x, y)
+    print(f"MI of dependent vars: {mi:.4f}")
+    assert mi > 0.1, f"MI of dependent vars should be >0, got {mi}"
 
 def test_multi_matches_individual():
     """hartemink_discretize_multi must produce the same results as individual calls."""
@@ -38,6 +50,11 @@ def test_multi_matches_individual():
 
     # Multi call
     multi = hartemink_discretize_multi(df, target_bins=[3, 5], initial_bins=initial_bins)
+
+    print("r3:", r3)
+    print("r5:", r5)
+    print("multi[3, 5]:", multi)
+
     assert set(multi.keys()) == {3, 5}, f"Expected keys {{3, 5}}, got {set(multi.keys())}"
     assert (r3 == multi[3]).all().all(), "n_bins=3: multi result differs from individual call"
     assert (r5 == multi[5]).all().all(), "n_bins=5: multi result differs from individual call"
@@ -52,6 +69,10 @@ def test_multi_single_target():
     })
     single = hartemink_discretize(df, n_bins=4)
     multi = hartemink_discretize_multi(df, target_bins=[4])
+
+    print("single:\n", single)
+    print("multi[4]:\n", multi[4])
+
     assert (single == multi[4]).all().all(), "Single-target multi differs from hartemink_discretize"
 
 
@@ -69,46 +90,20 @@ def demo_correlated():
 
     n_bins = 3
     hart = hartemink_discretize(df, n_bins=n_bins)
-    quant = df.apply(
-        lambda col: pd.qcut(col, n_bins, labels=["0", "1", "2"], duplicates="drop")
-    )
+    quant = df.apply(lambda col: pd.qcut(col, n_bins, labels=["0", "1", "2"], duplicates="drop"))
 
-    for col in df.columns:
-        same = (hart[col] == quant[col]).mean() * 100
-        print(f"\n  {col}: {same:.1f}% identical bins")
-        print(f"    Hartemink  bin counts: {dict(hart[col].value_counts().sort_index())}")
-        print(f"    Quantile   bin counts: {dict(quant[col].value_counts().sort_index())}")
-    print()
+    # MI(X,Y) should be higher for Hartemink than quantile, since it preserves more info
+    mi_hart = _mutual_information_naive(hart["X"], hart["Y"])
+    mi_quant = _mutual_information_naive(quant["X"], quant["Y"])
+    print(f"MI(X,Y) Hartemink: {mi_hart:.4f}, Quantile: {mi_quant:.4f}")
 
-
-def demo_sachs():
-    """Show Hartemink discretization on the Sachs dataset."""
-    print("=" * 60)
-    print("DEMO: Sachs dataset")
-    print("=" * 60)
-
-    data_path = project_root / "data" / "sachs" / "sachs_observational.csv"
-    sachs = pd.read_csv(data_path, sep="\t")
-    print(f"  Shape: {sachs.shape}")
-
-    for n_bins in [3, 5]:
-        hart = hartemink_discretize(sachs, n_bins=n_bins)
-        quant = sachs.apply(
-            lambda col: pd.qcut(col, n_bins, labels=False, duplicates="drop").astype(str)
-        )
-
-        print(f"\n  n_bins={n_bins}:")
-        for col in sachs.columns:
-            same = (hart[col] == quant[col]).mean() * 100
-            h_nunique = hart[col].nunique()
-            q_nunique = quant[col].nunique()
-            print(f"    {col:<6} hartemink={h_nunique} bins, quantile={q_nunique} bins, {same:.0f}% identical")
-    print()
+    assert mi_hart > mi_quant, "Hartemink should preserve more MI between X and Y than quantile"
 
 
 if __name__ == "__main__":
     tests = [
         test_mutual_information_independent,
+        test_mutual_information_dependent,
         test_multi_matches_individual,
         test_multi_single_target,
     ]
@@ -122,4 +117,3 @@ if __name__ == "__main__":
             print(f"  ERROR {test.__name__}: {e}")
 
     demo_correlated()
-    demo_sachs()

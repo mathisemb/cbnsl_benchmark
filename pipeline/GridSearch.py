@@ -111,7 +111,7 @@ class GridSearch:
         self.verbose = verbose
         self.learn_method = learn_method
 
-        self._configs: List[tuple] = []  # (name, algo_class, param_grid, fixed_params)
+        self._configs: List[tuple] = []  # (name, algo_class, param_grid, fixed_params, random_seeds)
         self.results: Dict[str, List[GridSearchResult]] = {}
 
     # ----- registration -----------------------------------------------------
@@ -122,12 +122,13 @@ class GridSearch:
         algo_class: Type[AlgorithmAdapter],
         param_grid: Optional[Dict[str, List[Any]] | List[Dict]] = None,
         fixed_params: Optional[Dict[str, Any]] = None,
+        random_seeds: Optional[List[int]] = None,
     ) -> "GridSearch":
         if param_grid is None:
             param_grid = algo_class.DEFAULT_PARAM_GRID
         if fixed_params is None:
             fixed_params = algo_class.DEFAULT_FIXED_PARAMS
-        self._configs.append((name, algo_class, param_grid, fixed_params))
+        self._configs.append((name, algo_class, param_grid, fixed_params, random_seeds))
         return self
 
     # ----- execution --------------------------------------------------------
@@ -136,89 +137,149 @@ class GridSearch:
         hartemink_cache = self._precompute_hartemink()
 
         use_bars = not self.verbose
-        total = sum(_count_combinations(pg) for _, _, pg, _ in self._configs)
+        # Each seed run counts as one step in the progress bar
+        total = sum(
+            _count_combinations(pg) * (len(rs) if rs else 1)
+            for _, _, pg, _, rs in self._configs
+        )
         pbar = tqdm(total=total, desc="Grid search", leave=True) if use_bars else None
 
-        for name, algo_class, param_grid, fixed_params in self._configs:
+        for name, algo_class, param_grid, fixed_params, random_seeds in self._configs:
             if pbar is not None:
                 pbar.set_postfix_str(name)
             grids = param_grid if isinstance(param_grid, list) else [param_grid]
             algo_results: List[GridSearchResult] = []
             for grid in grids:
                 algo_results.extend(
-                    self._run_grid(algo_class, grid, fixed_params, hartemink_cache, pbar)
+                    self._run_grid(algo_class, grid, fixed_params,
+                                   hartemink_cache, pbar, random_seeds)
                 )
             self.results[name] = algo_results
 
         if pbar is not None:
             pbar.close()
         return self
+    
 
-    def _run_grid(self, algo_class, param_grid, fixed_params, hartemink_cache, pbar):
-        """Run a single param_grid for a single algorithm.
+    # Threshold params: only affect post-processing (edge pruning), not the
+    # core optimisation.  When any of these varies in the grid, the raw weight
+    # matrix is cached and reused so the expensive fit runs only once per
+    # unique set of non-threshold params.
+    _THRESHOLD_PARAMS = ("w_threshold_notears", "threshold_lingam")
 
-        Includes two caching mechanisms to avoid redundant computation:
+    def _run_grid(self, algo_class, param_grid, fixed_params,
+                  hartemink_cache, pbar, random_seeds=None):
+        """Run all combinations of a single param_grid dict for one algorithm.
+
+        Two caching mechanisms avoid redundant computation:
         - Hartemink cache: pre-computed discretizations injected via discretized_df
-        - W matrix cache: when w_threshold is in the grid, the expensive
-          notears_linear optimization only depends on lambda1 (and discretization
-          params). The raw W matrix is cached and reused across w_threshold values,
-          giving a ~5x speedup for NOTEARS-based algorithms.
+        - W matrix cache: when a threshold param (w_threshold_notears or
+          threshold_lingam) is in the grid, the expensive optimisation is
+          cached and reused across threshold values.
+
+        If random_seeds is provided, for each combo (threshold for lingam) we average the
+        score over every seed. This is useful for stochastic algorithms (e.g.
+        LiNGAM) to get more stable results.
         """
+
+        # -- Build all parameter combinations (cartesian product) --
         param_names = list(param_grid.keys())
         combos = list(itertools.product(*param_grid.values()))
         results = []
 
-        # Cache for NOTEARS weight matrices: avoids re-running L-BFGS
-        # optimization when only w_threshold changes
-        use_w_cache = "w_threshold" in param_names
+        # -- W matrix cache setup --
+        # Activated when a threshold param is in the grid, because threshold
+        # only affects post-processing and not the core optimisation.
+        use_w_cache = any(tp in param_names for tp in self._THRESHOLD_PARAMS)
         w_cache = {}
-        # Params that are injected objects, not part of the cache key
-        _injected_params = ("w_threshold", "W_est", "discretized_df")
+        # Params excluded from the cache key: thresholds (vary without
+        # affecting the optimisation) and injected objects (not hashable).
+        _injected_params = (*self._THRESHOLD_PARAMS, "W_est", "discretized_df")
+
+        # -- Seed loop setup --
+        # When random_seeds is None (non-stochastic algo), we use [None] as
+        # a single-element list so the inner loop runs exactly once without
+        # overriding random_state.  This avoids duplicating the loop body.
+        seeds = random_seeds or [None]
 
         for combo in combos:
             params = {k: round(v, 3) if isinstance(v, float) else v
                       for k, v in zip(param_names, combo)}
             try:
-                all_params = {**fixed_params, **params}
-                # Inject pre-computed Hartemink discretizations
-                if hartemink_cache and all_params.get("discretization_method") == "hartemink":
-                    key = (all_params.get("n_bins"), all_params.get("initial_bins"))
-                    if key in hartemink_cache:
-                        all_params["discretized_df"] = hartemink_cache[key]
+                seed_scores = []
 
-                # Inject cached W matrix if available
-                if use_w_cache:
-                    cache_key = tuple(sorted(
-                        (k, v) for k, v in all_params.items()
-                        if k not in _injected_params
-                    ))
-                    if cache_key in w_cache:
-                        all_params["W_est"] = w_cache[cache_key]
+                for seed in seeds: # single run if seeds is None
+                    # Merge fixed params (e.g. loss_type) with grid params
+                    all_params = {**fixed_params, **params}
 
-                algo = algo_class(**all_params)
-                result_obj = getattr(algo, self.learn_method)(self.dataset)
-                learned = dag_as_a_structure(result_obj) if self.learn_method == "learn_dag" else result_obj
+                    # Override random_state if running with multiple seeds
+                    if seed is not None:
+                        all_params["random_state"] = seed
 
-                # Cache raw W matrix after first computation
-                if use_w_cache and hasattr(algo, '_W_est_raw') \
-                        and cache_key not in w_cache:
-                    w_cache[cache_key] = algo._W_est_raw
+                    # --- Hartemink cache: inject pre-discretized dataframe ---
+                    # Avoids re-running the slow hartemink discretization for
+                    # every combination; the result only depends on (n_bins, initial_bins).
+                    if hartemink_cache and all_params.get("discretization_method") == "hartemink":
+                        key = (all_params.get("n_bins"), all_params.get("initial_bins"))
+                        if key in hartemink_cache:
+                            all_params["discretized_df"] = hartemink_cache[key]
 
-                scores = {m.name(): m.compute(ref=self.golden_structure, test=learned)
-                          for m in self.metrics}
-                result = GridSearchResult(params=params, scores=scores)
+                    # --- W matrix cache: inject pre-computed weight matrix ---
+                    # The cache key includes all params except thresholds and
+                    # injected objects, so combos that differ only by threshold
+                    # share the same cached W matrix.
+                    if use_w_cache:
+                        cache_key = tuple(sorted(
+                            (k, v) for k, v in all_params.items()
+                            if k not in _injected_params
+                        ))
+                        if cache_key in w_cache:
+                            all_params["W_est"] = w_cache[cache_key]
+
+                    # --- Run the algorithm ---
+                    algo = algo_class(**all_params)
+                    result_obj = getattr(algo, self.learn_method)(self.dataset)
+                    learned = dag_as_a_structure(result_obj) if self.learn_method == "learn_dag" else result_obj
+
+                    # --- Store raw W matrix for future threshold values ---
+                    # After the first run for a given cache_key, the adapter
+                    # exposes _W_est_raw (the weight matrix before thresholding).
+                    if use_w_cache and hasattr(algo, '_W_est_raw') \
+                            and cache_key not in w_cache:
+                        w_cache[cache_key] = algo._W_est_raw
+
+                    # --- Evaluate metrics for this seed ---
+                    scores = {m.name(): m.compute(ref=self.golden_structure, test=learned)
+                              for m in self.metrics}
+                    seed_scores.append(scores)
+
+                    if pbar is not None:
+                        pbar.update(1)
+
+                # --- Average scores across seeds ---
+                avg_scores = {
+                    k: sum(s[k] for s in seed_scores) / len(seed_scores)
+                    for k in seed_scores[0]
+                }
+                result = GridSearchResult(params=params, scores=avg_scores)
+
                 if self.verbose:
                     params_str = ", ".join(f"{k}={v}" for k, v in params.items())
-                    scores_str = ", ".join(f"{k}={v:.4f}" for k, v in scores.items())
-                    print(f"  {params_str} -> {scores_str}")
+                    scores_str = ", ".join(f"{k}={v:.4f}" for k, v in avg_scores.items())
+                    n_seeds = len(seeds) if random_seeds else 0
+                    suffix = f" (avg over {n_seeds} seeds)" if random_seeds else ""
+                    print(f"  {params_str} -> {scores_str}{suffix}")
+
             except Exception as e:
                 result = GridSearchResult(params=params, error=str(e))
                 if self.verbose:
                     print(f"  {params} -> FAILED: {e}")
+                # Skip remaining seeds for this combo in the progress bar
+                remaining = len(seeds) - len(seed_scores)
+                if pbar is not None and remaining > 0:
+                    pbar.update(remaining)
 
             results.append(result)
-            if pbar is not None:
-                pbar.update(1)
 
         return results
 
@@ -266,7 +327,7 @@ class GridSearch:
     def rerun_best(self, rank_by: str = "SHD") -> Dict[str, Structure]:
         selection = self.select_best(rank_by)
         hartemink_cache = self._precompute_hartemink()
-        configs_map = {name: (cls, fp) for name, cls, _, fp in self._configs}
+        configs_map = {name: (cls, fp) for name, cls, _, fp, _ in self._configs}
         structures = {}
         for name, r in selection.items():
             if r is None:
@@ -288,7 +349,7 @@ class GridSearch:
         from notebooks.plotting import plot_grid_search_results
         metric_names = [m.name() for m in self.metrics]
         pareto_obj = {k: v for k, v in self.objectives.items() if k in ("SHD", "F1-Score")}
-        for name, _, param_grid, _ in self._configs:
+        for name, _, param_grid, _, _ in self._configs:
             plot_grid_search_results(name, self, param_grid, metric_names, pareto_obj)
 
     def plot_comparison(self, rank_by: str = "SHD") -> None:
@@ -305,7 +366,7 @@ class GridSearch:
 
         df = self.dataset.to_dataframe()
         groups = {}
-        for _name, _cls, param_grid, fixed_params in self._configs:
+        for _name, _cls, param_grid, fixed_params, _ in self._configs:
             grids = param_grid if isinstance(param_grid, list) else [param_grid]
             for grid in grids:
                 methods = grid.get("discretization_method",

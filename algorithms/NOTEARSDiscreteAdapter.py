@@ -25,20 +25,20 @@ class NOTEARSDiscreteAdapter(AlgorithmAdapter):
     DEFAULT_PARAM_GRID = [
         {
             "lambda1": [0.0, 0.05, 0.1, 0.3, 0.5],
-            "w_threshold": [0.0, 0.1, 0.3, 0.5, 0.7],
+            "w_threshold_notears": [0.0, 0.1, 0.3, 0.5, 0.7],
             "n_bins": [2, 4, 6, 8, 10],
             "discretization_method": ["quantile"],
         },
         {
             "lambda1": [0.0, 0.05, 0.1, 0.3, 0.5],
-            "w_threshold": [0.0, 0.1, 0.3, 0.5, 0.7],
+            "w_threshold_notears": [0.0, 0.1, 0.3, 0.5, 0.7],
             "n_bins": [2, 4, 6, 8, 10],
             "discretization_method": ["hartemink"],
             "initial_bins": [20],
         },
     ]
 
-    def __init__(self, lambda1: float = 0.1, w_threshold: float = 0.3,
+    def __init__(self, lambda1: float = 0.1, w_threshold_notears: float = 0.3,
                  n_bins: int = 3, discretization_method: str = "quantile",
                  initial_bins: int | None = None,
                  discretized_df: pd.DataFrame | None = None,
@@ -48,7 +48,7 @@ class NOTEARSDiscreteAdapter(AlgorithmAdapter):
         ----------
         lambda1 : float, optional
             L1 penalty parameter for sparsity (default: 0.1).
-        w_threshold : float, optional
+        w_threshold_notears : float, optional
             Threshold for pruning weak edges (default: 0.3).
         n_bins : int, optional
             Number of bins for discretization (default: 3).
@@ -61,11 +61,11 @@ class NOTEARSDiscreteAdapter(AlgorithmAdapter):
         W_est : np.ndarray, optional
             Pre-computed weight matrix from notears_linear. If provided,
             skips both discretization and L-BFGS optimization, only applies
-            w_threshold. Used by GridSearch to avoid redundant optimizations
-            when only w_threshold varies.
+            w_threshold_notears. Used by GridSearch to avoid redundant
+            optimizations when only w_threshold_notears varies.
         """
         self.lambda1 = lambda1
-        self.w_threshold = w_threshold
+        self.w_threshold_notears = w_threshold_notears
         self.n_bins = n_bins
         self.discretization_method = discretization_method
         self.initial_bins = initial_bins
@@ -89,7 +89,7 @@ class NOTEARSDiscreteAdapter(AlgorithmAdapter):
         if self._W_est_precomputed is not None:
             # Reuse pre-computed W matrix (optimization already done)
             W_est = self._W_est_precomputed.copy()
-            W_est[np.abs(W_est) < self.w_threshold] = 0
+            W_est[np.abs(W_est) < self.w_threshold_notears] = 0
         else:
             # Discretize data
             if self._discretized_df is not None:
@@ -119,7 +119,7 @@ class NOTEARSDiscreteAdapter(AlgorithmAdapter):
                 X, lambda1=self.lambda1, loss_type="l2", w_threshold=0,
             )
             self._W_est_raw = W_est.copy()
-            W_est[np.abs(W_est) < self.w_threshold] = 0
+            W_est[np.abs(W_est) < self.w_threshold_notears] = 0
 
         dag = gum.DAG()
         d = W_est.shape[0]
