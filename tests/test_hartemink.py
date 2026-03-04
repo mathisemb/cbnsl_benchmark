@@ -76,12 +76,8 @@ def test_multi_single_target():
     assert (single == multi[4]).all().all(), "Single-target multi differs from hartemink_discretize"
 
 
-def demo_correlated():
-    """Show Hartemink vs quantile on correlated data."""
-    print("=" * 60)
-    print("DEMO: Correlated variables (X, Y=X+noise, Z=independent)")
-    print("=" * 60)
-
+def test_hartemink_preserves_more_mi_than_quantile():
+    """Hartemink should preserve more MI between correlated variables than quantile."""
     rng = np.random.default_rng(0)
     x = rng.standard_normal(500)
     y = x + rng.standard_normal(500) * 0.3
@@ -92,20 +88,73 @@ def demo_correlated():
     hart = hartemink_discretize(df, n_bins=n_bins)
     quant = df.apply(lambda col: pd.qcut(col, n_bins, labels=["0", "1", "2"], duplicates="drop"))
 
-    # MI(X,Y) should be higher for Hartemink than quantile, since it preserves more info
     mi_hart = _mutual_information_naive(hart["X"], hart["Y"])
     mi_quant = _mutual_information_naive(quant["X"], quant["Y"])
     print(f"MI(X,Y) Hartemink: {mi_hart:.4f}, Quantile: {mi_quant:.4f}")
-
     assert mi_hart > mi_quant, "Hartemink should preserve more MI between X and Y than quantile"
+
+
+def test_mi_symmetry():
+    """Mutual information must be symmetric: MI(X,Y) == MI(Y,X)."""
+    rng = np.random.default_rng(42)
+    x = rng.integers(0, 5, size=5000)
+    y = (x + rng.integers(0, 3, size=5000)) % 5
+    mi_xy = _mutual_information_naive(x, y)
+    mi_yx = _mutual_information_naive(y, x)
+    print(f"MI(X,Y): {mi_xy:.4f}, MI(Y,X): {mi_yx:.4f}")
+    assert abs(mi_xy - mi_yx) < 1e-12, (
+        f"MI should be symmetric: MI(X,Y)={mi_xy}, MI(Y,X)={mi_yx}"
+    )
+
+
+def test_mi_self_equals_entropy():
+    """MI(X,X) should equal the entropy of X."""
+    rng = np.random.default_rng(42)
+    x = rng.integers(0, 4, size=10000)
+    mi_self = _mutual_information_naive(x, x)
+    _, counts = np.unique(x, return_counts=True)
+    p = counts / counts.sum()
+    entropy = -np.sum(p * np.log(p))
+    print(f"MI(X,X): {mi_self:.4f}, H(X): {entropy:.4f}")
+    assert abs(mi_self - entropy) < 1e-10, (
+        f"MI(X,X)={mi_self:.6f} should equal H(X)={entropy:.6f}"
+    )
+
+
+def test_monotonic_mi_loss():
+    """More bins should preserve at least as much MI as fewer bins.
+
+    If we discretize correlated variables into 5, 4, and 3 bins,
+    the total pairwise MI should be non-increasing as bins decrease.
+    """
+    rng = np.random.default_rng(0)
+    x = rng.standard_normal(500)
+    y = x + rng.standard_normal(500) * 0.5
+    df = pd.DataFrame({"X": x, "Y": y})
+
+    results = hartemink_discretize_multi(df, target_bins=[3, 4, 5])
+
+    def total_mi(disc_df):
+        return _mutual_information_naive(disc_df["X"].values, disc_df["Y"].values)
+
+    mi_5 = total_mi(results[5])
+    mi_4 = total_mi(results[4])
+    mi_3 = total_mi(results[3])
+    print(f"MI: 5bins={mi_5:.4f}, 4bins={mi_4:.4f}, 3bins={mi_3:.4f}")
+    assert mi_5 >= mi_4 - 1e-10, f"MI should not increase when reducing from 5 to 4 bins"
+    assert mi_4 >= mi_3 - 1e-10, f"MI should not increase when reducing from 4 to 3 bins"
 
 
 if __name__ == "__main__":
     tests = [
         test_mutual_information_independent,
         test_mutual_information_dependent,
+        test_mi_symmetry,
+        test_mi_self_equals_entropy,
         test_multi_matches_individual,
         test_multi_single_target,
+        test_hartemink_preserves_more_mi_than_quantile,
+        test_monotonic_mi_loss,
     ]
     for test in tests:
         try:
@@ -115,5 +164,3 @@ if __name__ == "__main__":
             print(f"  FAIL  {test.__name__}: {e}")
         except Exception as e:
             print(f"  ERROR {test.__name__}: {e}")
-
-    demo_correlated()

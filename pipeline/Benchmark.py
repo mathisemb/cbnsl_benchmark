@@ -140,8 +140,9 @@ class Benchmark:
             metrics=self.metrics,
             objectives=self.objectives,
         )
-        for name, (algo_cls, fixed_params) in ALL_ALGORITHMS.items():
-            self._gs.add(name, algo_cls, fixed_params=fixed_params)
+        for name, (algo_cls, fixed_params, random_seeds) in ALL_ALGORITHMS.items():
+            self._gs.add(name, algo_cls, fixed_params=fixed_params,
+                         random_seeds=random_seeds)
 
     # ------------------------------------------------------------------
     # Execution

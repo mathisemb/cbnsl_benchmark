@@ -206,8 +206,6 @@ class GridSearch:
             params = {k: round(v, 3) if isinstance(v, float) else v
                       for k, v in zip(param_names, combo)}
             try:
-                seed_scores = []
-
                 for seed in seeds: # single run if seeds is None
                     # Merge fixed params (e.g. loss_type) with grid params
                     all_params = {**fixed_params, **params}
@@ -248,38 +246,22 @@ class GridSearch:
                             and cache_key not in w_cache:
                         w_cache[cache_key] = algo._W_est_raw
 
-                    # --- Evaluate metrics for this seed ---
+                    # --- Evaluate metrics ---
+                    # One result per seed: seaborn barplot automatically
+                    # computes mean + CI when multiple rows share the same params.
                     scores = {m.name(): m.compute(ref=self.golden_structure, test=learned)
                               for m in self.metrics}
-                    seed_scores.append(scores)
+                    results.append(GridSearchResult(params=params, scores=scores))
 
                     if pbar is not None:
                         pbar.update(1)
 
-                # --- Average scores across seeds ---
-                avg_scores = {
-                    k: sum(s[k] for s in seed_scores) / len(seed_scores)
-                    for k in seed_scores[0]
-                }
-                result = GridSearchResult(params=params, scores=avg_scores)
-
-                if self.verbose:
-                    params_str = ", ".join(f"{k}={v}" for k, v in params.items())
-                    scores_str = ", ".join(f"{k}={v:.4f}" for k, v in avg_scores.items())
-                    n_seeds = len(seeds) if random_seeds else 0
-                    suffix = f" (avg over {n_seeds} seeds)" if random_seeds else ""
-                    print(f"  {params_str} -> {scores_str}{suffix}")
-
             except Exception as e:
-                result = GridSearchResult(params=params, error=str(e))
+                results.append(GridSearchResult(params=params, error=str(e)))
                 if self.verbose:
                     print(f"  {params} -> FAILED: {e}")
-                # Skip remaining seeds for this combo in the progress bar
-                remaining = len(seeds) - len(seed_scores)
-                if pbar is not None and remaining > 0:
-                    pbar.update(remaining)
-
-            results.append(result)
+                if pbar is not None:
+                    pbar.update(1)
 
         return results
 

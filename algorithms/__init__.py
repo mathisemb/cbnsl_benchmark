@@ -1,7 +1,7 @@
 """
 Algorithm adapter registry.
 
-ALL_ALGORITHMS maps display names to (adapter_class, fixed_params) tuples.
+ALL_ALGORITHMS maps display names to (adapter_class, fixed_params, random_seeds) tuples.
 Each adapter defines its own DEFAULT_PARAM_GRID used by GridSearch.
 """
 
@@ -13,14 +13,16 @@ from algorithms.NOTEARSAdapter import NOTEARSAdapter
 from algorithms.NOTEARSDiscreteAdapter import NOTEARSDiscreteAdapter
 from algorithms.LiNGAMAdapter import LiNGAMAdapter
 
+# Each entry: (adapter_class, fixed_params, random_seeds)
+# random_seeds is optional (None = deterministic algorithm, run once).
 ALL_ALGORITHMS = {
-    "CPC v1":        (CPCAdapter, {"version": 1}),
-    "CPC v2":        (CPCAdapter, {"version": 2}),
-    "CMIIC v1":      (CMIICAdapter, {"version": 1}),
-    "CMIIC v2":      (CMIICAdapter, {"version": 2}),
-    "MIIC":          (MIICAdapter, {}),
-    "GHC+BDeu":      (GHCBDeuAdapter, {}),
-    "NOTEARS":       (NOTEARSAdapter, {}),
-    "NOTEARS Disc.": (NOTEARSDiscreteAdapter, {}),
-    "LiNGAM":        (LiNGAMAdapter, {}),
+    "CPC v1":        (CPCAdapter, {"version": 1}, None),
+    "CPC v2":        (CPCAdapter, {"version": 2}, None),
+    "CMIIC v1":      (CMIICAdapter, {"version": 1}, None),
+    "CMIIC v2":      (CMIICAdapter, {"version": 2}, None),
+    "MIIC":          (MIICAdapter, {}, None),
+    "GHC+BDeu":      (GHCBDeuAdapter, {}, None),
+    "NOTEARS":       (NOTEARSAdapter, {}, None),
+    "NOTEARS Disc.": (NOTEARSDiscreteAdapter, {}, None),
+    "LiNGAM":        (LiNGAMAdapter, {}, list(range(10))),
 }
