@@ -55,7 +55,7 @@ class CPCAdapter(AlgorithmAdapter):
         """
         max_cond_set = self.max_conditioning_set_size
         if max_cond_set is None:
-            max_cond_set = dataset.data.shape[1] - 1
+            max_cond_set = dataset.data.shape[1] - 2
 
         # Create learner based on version
         if self.version == 1:

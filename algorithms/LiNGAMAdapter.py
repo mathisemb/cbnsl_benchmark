@@ -23,7 +23,7 @@ class LiNGAMAdapter(AlgorithmAdapter):
     """
 
     DEFAULT_PARAM_GRID = {
-        "threshold_lingam": [0.1, 0.5, 0.75, 1.0, 1.25, 1.5],
+        "threshold_lingam": [0.01, 0.025, 0.05, 0.075, 0.1],
     }
 
     def __init__(self, random_state: int = 42, measure: str = "pwling",

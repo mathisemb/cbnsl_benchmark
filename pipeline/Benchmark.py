@@ -60,9 +60,12 @@ class Benchmark:
         # Internal state (populated by run / run_fixed)
         self._gs: Optional[GridSearch] = None
         self._selection: Optional[dict] = None
-        self._structures: Optional[Dict[str, Structure]] = None
+        # For stochastic algorithms, _structures[name] is a List[Structure]
+        self._structures: Optional[dict] = None
         self._scores: Optional[Dict[str, Dict[str, float]]] = None
         self._params: Optional[Dict[str, Dict[str, Any]]] = None
+        # Number of seeds per algorithm (only for stochastic algos)
+        self._seed_counts: Dict[str, int] = {}
 
     # ------------------------------------------------------------------
     # Factory methods
@@ -90,7 +93,7 @@ class Benchmark:
         return bench
 
     @classmethod
-    def synthetic(
+    def synthetic_cbn_unif_gauss(
         cls,
         dag,
         n_samples: int = 2000,
@@ -121,6 +124,96 @@ class Benchmark:
         dataset = Dataset(
             dataset.data,
             name=f"synthetic_{dag.size()}nodes",
+            feature_names=var_names,
+        )
+
+        bench = cls(dataset, golden, rank_by=rank_by)
+        bench._register_all_algorithms()
+        return bench
+
+    @classmethod
+    def synthetic_nongausslinSEM(
+        cls,
+        dag,
+        n_samples: int = 2000,
+        seed: int = 42,
+        rank_by: str = "F1-Score",
+        var_names: Optional[List[str]] = None,
+        noise_type: str = "laplace",
+        weight_range: tuple = (0.5, 2.0),
+    ) -> "Benchmark":
+        """Generate synthetic data from a known DAG using a linear SEM with non-Gaussian noise.
+
+        Each variable is generated as:
+        ``X_i = sum(w_ji * X_j for j in parents(i)) + e_i``
+        where ``e_i`` is drawn from a non-Gaussian distribution.
+
+        Args:
+            dag: ``gum.DAG`` defining the ground-truth structure.
+            n_samples: Number of samples to generate.
+            seed: Random seed.
+            rank_by: Metric used to rank Pareto-optimal profiles.
+            var_names: Variable names (default ``X0, X1, ...``).
+            noise_type: Noise distribution — ``"laplace"``, ``"uniform"``,
+                or ``"exp"`` (centred exponential).
+            weight_range: ``(low, high)`` for uniform sampling of
+                absolute edge weights (sign is random).
+        """
+        import numpy as np
+        import pyagrum as gum
+        from pipeline.Structure import Structure, dag_as_a_structure
+
+        rng = np.random.default_rng(seed)
+        n_vars = dag.size()
+
+        if var_names is None:
+            var_names = [f"X{i}" for i in range(dag.size())]
+
+        # Topological order
+        topo = dag.topologicalOrder()
+
+        # Sample edge weights
+        weights = {}  # (parent, child) -> weight
+        for node in topo:
+            for parent in dag.parents(node):
+                w = rng.uniform(*weight_range)
+                sign = rng.choice([-1, 1])
+                weights[(parent, node)] = sign * w
+
+        # Generate noise
+        if noise_type == "laplace":
+            noise = rng.laplace(loc=0.0, scale=1.0, size=(n_samples, n_vars))
+        elif noise_type == "uniform":
+            noise = rng.uniform(-1.0, 1.0, size=(n_samples, n_vars))
+        elif noise_type == "exp":
+            noise = rng.exponential(scale=1.0, size=(n_samples, n_vars))
+            noise -= noise.mean(axis=0)  # centre
+        else:
+            raise ValueError(
+                f"Unknown noise_type '{noise_type}'. "
+                "Choose from 'laplace', 'uniform', 'exp'."
+            )
+
+        # Generate data following topological order
+        data = np.zeros((n_samples, n_vars))
+        for node in topo:
+            data[:, node] = noise[:, node]
+            for parent in dag.parents(node):
+                data[:, node] += weights[(parent, node)] * data[:, parent]
+
+        # Golden structure (CPDAG)
+        bn = gum.BayesNet()
+        for node_id in dag.nodes():
+            bn.add(gum.LabelizedVariable(f"X{node_id}", f"X{node_id}", 2))
+        for node_id in dag.nodes():
+            for child_id in dag.children(node_id):
+                bn.addArc(node_id, child_id)
+        essential_graph = gum.EssentialGraph(bn)
+        golden = Structure(essential_graph.pdag())
+
+        dataset = Dataset(
+            data,
+            name=f"synthetic_nongausslinSEM_{n_vars}nodes",
             feature_names=var_names,
         )
 
@@ -163,16 +256,22 @@ class Benchmark:
         # The grid search stores params and scores but not the learned Structure
         # objects, to save memory across all combinations. Re-run the selected
         # Pareto-optimal profiles to obtain structures needed for visualization.
+        # For stochastic algorithms, all seed structures are returned as a list.
         print(f"\nRe-running best profiles (rank_by={self.rank_by})...")
         self._structures = self._gs.rerun_best(self.rank_by)
 
         # Build scores and params dicts from selection
+        # (scores are already seed-averaged for stochastic algorithms)
         self._scores = {}
         self._params = {}
+        self._seed_counts = {}
         for name, r in self._selection.items():
             if r is not None:
                 self._scores[name] = r.scores
                 self._params[name] = r.params
+        for n, _, _, _, seeds in self._gs._configs:
+            if seeds is not None:
+                self._seed_counts[n] = len(seeds)
 
         print("Done.\n")
         return self
@@ -205,7 +304,7 @@ class Benchmark:
                     f"Unknown algorithm '{name}'. Available: {available}"
                 )
 
-            algo_cls, default_fixed = ALL_ALGORITHMS[name]
+            algo_cls, default_fixed, _ = ALL_ALGORITHMS[name]
             all_params = {**default_fixed, **params}
 
             try:
@@ -259,10 +358,13 @@ class Benchmark:
             raise RuntimeError("Call run() or run_fixed() first.")
         from notebooks.plotting import plot_best_scores
 
-        plot_best_scores(self._scores, self._params)
+        plot_best_scores(self._scores, self._params, seed_counts=self._seed_counts)
 
     def plot_structures(self) -> None:
-        """Display learned CPDAGs for each algorithm."""
+        """Display learned CPDAGs for each algorithm.
+
+        For stochastic algorithms (e.g. LiNGAM), all seed structures are shown.
+        """
         if self._structures is None:
             raise RuntimeError("Call run() or run_fixed() first.")
         from notebooks.plotting import plot_cpdags

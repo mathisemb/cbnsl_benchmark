@@ -11,9 +11,11 @@ Usage:
 """
 
 import itertools
+from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Type
 
+import numpy as np
 import pandas as pd
 from tqdm.auto import tqdm
 
@@ -289,40 +291,109 @@ class GridSearch:
             rows.append(row)
         return pd.DataFrame(rows)
 
+    def _get_seeds(self, name: str) -> Optional[List[int]]:
+        """Return the random_seeds list for a registered algorithm, or None."""
+        for n, _, _, _, seeds in self._configs:
+            if n == name:
+                return seeds
+        return None
+
     def select_best(self, rank_by: str = "SHD") -> Dict[str, Optional[GridSearchResult]]:
-        """Select one Pareto-optimal profile per algorithm."""
+        """Select one Pareto-optimal profile per algorithm.
+
+        For stochastic algorithms (with random_seeds), scores are first
+        averaged over seeds per unique param combo before computing the
+        Pareto front.  The returned ``GridSearchResult`` contains the
+        averaged scores so that downstream code sees stable estimates.
+        """
         pareto_obj = {k: v for k, v in self.objectives.items() if k in ("SHD", "F1-Score")}
         rank_lower = pareto_obj.get(rank_by, True)
         selection = {}
+
         for name, res in self.results.items():
-            front_idx = pareto_front([r.scores for r in res], pareto_obj)
-            if not front_idx:
-                selection[name] = None
-                continue
-            front = [res[i] for i in front_idx]
-            key = lambda r: r.scores[rank_by]
-            selection[name] = min(front, key=key) if rank_lower else max(front, key=key)
+            seeds = self._get_seeds(name)
+
+            if seeds is not None:
+                # Average scores over seeds per param combo
+                groups: Dict[tuple, List[GridSearchResult]] = defaultdict(list)
+                for r in res:
+                    if r.error is not None:
+                        continue
+                    key = tuple(sorted(r.params.items()))
+                    groups[key].append(r)
+
+                averaged = []
+                for key, group in groups.items():
+                    metric_names = list(group[0].scores.keys())
+                    avg_scores = {
+                        mn: float(np.mean([r.scores[mn] for r in group]))
+                        for mn in metric_names
+                    }
+                    averaged.append(GridSearchResult(params=dict(key), scores=avg_scores))
+
+                front_idx = pareto_front([r.scores for r in averaged], pareto_obj)
+                if not front_idx:
+                    selection[name] = None
+                    continue
+                front = [averaged[i] for i in front_idx]
+            else:
+                front_idx = pareto_front([r.scores for r in res], pareto_obj)
+                if not front_idx:
+                    selection[name] = None
+                    continue
+                front = [res[i] for i in front_idx]
+
+            key_fn = lambda r: r.scores[rank_by]
+            selection[name] = min(front, key=key_fn) if rank_lower else max(front, key=key_fn)
+
         return selection
 
     # ----- re-run best profiles ---------------------------------------------
 
-    def rerun_best(self, rank_by: str = "SHD") -> Dict[str, Structure]:
+    def rerun_best(self, rank_by: str = "SHD"):
+        """Re-run best profiles to obtain Structure objects for visualisation.
+
+        For stochastic algorithms (with random_seeds), returns a *list* of
+        structures (one per seed).  For deterministic algorithms, returns a
+        single Structure.
+
+        Returns:
+            ``{algo_name: Structure | List[Structure]}``
+        """
         selection = self.select_best(rank_by)
         hartemink_cache = self._precompute_hartemink()
-        configs_map = {name: (cls, fp) for name, cls, _, fp, _ in self._configs}
+        configs_map = {name: (cls, fp, rs) for name, cls, _, fp, rs in self._configs}
         structures = {}
+
         for name, r in selection.items():
             if r is None:
                 continue
-            algo_class, fixed_params = configs_map[name]
-            all_params = {**fixed_params, **r.params}
-            if hartemink_cache and all_params.get("discretization_method") == "hartemink":
-                key = (all_params.get("n_bins"), all_params.get("initial_bins"))
-                if key in hartemink_cache:
-                    all_params["discretized_df"] = hartemink_cache[key]
-            algo = algo_class(**all_params)
-            result_obj = getattr(algo, self.learn_method)(self.dataset)
-            structures[name] = dag_as_a_structure(result_obj) if self.learn_method == "learn_dag" else result_obj
+            algo_class, fixed_params, random_seeds = configs_map[name]
+
+            if random_seeds is not None:
+                # Re-run for every seed to collect all learned structures
+                seed_structures = []
+                for seed in random_seeds:
+                    all_params = {**fixed_params, **r.params, "random_state": seed}
+                    if hartemink_cache and all_params.get("discretization_method") == "hartemink":
+                        key = (all_params.get("n_bins"), all_params.get("initial_bins"))
+                        if key in hartemink_cache:
+                            all_params["discretized_df"] = hartemink_cache[key]
+                    algo = algo_class(**all_params)
+                    result_obj = getattr(algo, self.learn_method)(self.dataset)
+                    s = dag_as_a_structure(result_obj) if self.learn_method == "learn_dag" else result_obj
+                    seed_structures.append(s)
+                structures[name] = seed_structures
+            else:
+                all_params = {**fixed_params, **r.params}
+                if hartemink_cache and all_params.get("discretization_method") == "hartemink":
+                    key = (all_params.get("n_bins"), all_params.get("initial_bins"))
+                    if key in hartemink_cache:
+                        all_params["discretized_df"] = hartemink_cache[key]
+                algo = algo_class(**all_params)
+                result_obj = getattr(algo, self.learn_method)(self.dataset)
+                structures[name] = dag_as_a_structure(result_obj) if self.learn_method == "learn_dag" else result_obj
+
         return structures
 
     # ----- plotting (delegates to notebooks.plotting) -----------------------
@@ -331,15 +402,20 @@ class GridSearch:
         from notebooks.plotting import plot_grid_search_results
         metric_names = [m.name() for m in self.metrics]
         pareto_obj = {k: v for k, v in self.objectives.items() if k in ("SHD", "F1-Score")}
-        for name, _, param_grid, _, _ in self._configs:
-            plot_grid_search_results(name, self, param_grid, metric_names, pareto_obj)
+        for name, _, param_grid, _, random_seeds in self._configs:
+            plot_grid_search_results(name, self, param_grid, metric_names, pareto_obj,
+                                     random_seeds=random_seeds)
 
     def plot_comparison(self, rank_by: str = "SHD") -> None:
         from notebooks.plotting import plot_best_scores
         selection = self.select_best(rank_by)
         scores_by_algo = {name: r.scores for name, r in selection.items() if r is not None}
         params_by_algo = {name: r.params for name, r in selection.items() if r is not None}
-        plot_best_scores(scores_by_algo, params_by_algo)
+        seed_counts = {
+            n: len(rs) for n, _, _, _, rs in self._configs
+            if rs is not None and n in scores_by_algo
+        }
+        plot_best_scores(scores_by_algo, params_by_algo, seed_counts=seed_counts)
 
     # ----- Hartemink precomputation -----------------------------------------
 

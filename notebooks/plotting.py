@@ -42,10 +42,13 @@ def discretization_label(row):
 # ---------------------------------------------------------------------------
 
 def _compact_disc_label(row):
-    """Ultra-compact discretization label for heatmap cells: Q3, H4, etc."""
+    """Ultra-compact discretization label for heatmap cells: Q3, H4-20, etc."""
     method = row["discretization_method"]
     n = int(row["n_bins"])
-    return f"{'H' if method == 'hartemink' else 'Q'}{n}"
+    if method == "hartemink":
+        init = int(row["initial_bins"])
+        return f"H{n}-{init}"
+    return f"Q{n}"
 
 
 def _plot_best_over_discretizations(df, name, metric_names):
@@ -61,7 +64,7 @@ def _plot_best_over_discretizations(df, name, metric_names):
     lower_better = {"SHD": True, "F1-Score": False, "TPR": False}
 
     fig, axes = plt.subplots(1, len(metric_names), figsize=(18, 5))
-    fig.suptitle(f"{name} : best over discretizations (lambda1 x w_threshold_notears)",
+    fig.suptitle(f"{name} : best over discretizations",
                  fontsize=13, fontweight="bold")
 
     for ax, mn in zip(axes, metric_names):
@@ -96,7 +99,8 @@ def _plot_best_over_discretizations(df, name, metric_names):
     plt.show()
 
 
-def plot_grid_search_results(name, gs, param_grid, metric_names, pareto_objectives):
+def plot_grid_search_results(name, gs, param_grid, metric_names, pareto_objectives,
+                             random_seeds=None):
     """Plot bar charts / heatmaps per metric + SHD vs F1 scatter with Pareto front.
 
     Args:
@@ -105,6 +109,7 @@ def plot_grid_search_results(name, gs, param_grid, metric_names, pareto_objectiv
         param_grid: The param_grid used for this algo (dict or list of dicts).
         metric_names: List of metric names.
         pareto_objectives: Dict of objectives for Pareto front.
+        random_seeds: List of seeds if stochastic algorithm, None otherwise.
     """
     df = gs.get_results_dataframe(name)
     results = gs.results.get(name, [])
@@ -118,7 +123,7 @@ def plot_grid_search_results(name, gs, param_grid, metric_names, pareto_objectiv
 
         # Bar chart: scores by discretization (averaged over lambda1/w_threshold_notears)
         fig, axes = plt.subplots(1, 3, figsize=(18, 5))
-        fig.suptitle(f"{name} : score par discrétisation  (Q=quantile, H=hartemink)",
+        fig.suptitle(f"{name} : score par discrétisation",
                      fontsize=13, fontweight="bold")
         for ax, mn in zip(axes, metric_names):
             sns.barplot(data=df, x="discretization", y=mn, ax=ax, color="steelblue",
@@ -137,7 +142,8 @@ def plot_grid_search_results(name, gs, param_grid, metric_names, pareto_objectiv
         p = param_cols[0]
         df[p] = df[p].astype(str)
         fig, axes = plt.subplots(1, 3, figsize=(16, 4))
-        fig.suptitle(f"{name} : score par {p}", fontsize=13, fontweight="bold")
+        seed_note = f" (moyenne sur {len(random_seeds)} seeds)" if random_seeds else ""
+        fig.suptitle(f"{name} : score par {p}{seed_note}", fontsize=13, fontweight="bold")
         for ax, mn in zip(axes, metric_names):
             sns.barplot(data=df, x=p, y=mn, ax=ax, color="steelblue")
             ax.set_title(mn)
@@ -200,13 +206,15 @@ def plot_grid_search_results(name, gs, param_grid, metric_names, pareto_objectiv
 # Best scores comparison scatter
 # ---------------------------------------------------------------------------
 
-def plot_best_scores(scores_by_algo, params_by_algo):
+def plot_best_scores(scores_by_algo, params_by_algo, seed_counts=None):
     """Scatter plot comparing all algos (one point per algo) on SHD vs F1-Score.
 
     Args:
         scores_by_algo: {algo_name: {metric_name: value}}.
         params_by_algo: {algo_name: {param_name: value}}.
+        seed_counts: {algo_name: n_seeds} for stochastic algorithms.
     """
+    seed_counts = seed_counts or {}
     algo_names = list(scores_by_algo.keys())
     palette = sns.color_palette("tab10", len(algo_names))
 
@@ -215,10 +223,13 @@ def plot_best_scores(scores_by_algo, params_by_algo):
         scores = scores_by_algo[name]
         params = params_by_algo.get(name, {})
         params_str = ", ".join(f"{k}={v}" for k, v in params.items())
+        label = f"{name} ({params_str})"
+        if name in seed_counts:
+            label += f" [moy. {seed_counts[name]} seeds]"
         ax.scatter(
             scores["SHD"], scores["F1-Score"],
             color=palette[idx], s=150, edgecolors="black", linewidths=1.5,
-            label=f"{name} ({params_str})", zorder=5,
+            label=label, zorder=5,
         )
     ax.set_xlabel("SHD (lower is better)")
     ax.set_ylabel("F1-Score (higher is better)")
@@ -235,43 +246,96 @@ def plot_best_scores(scores_by_algo, params_by_algo):
 def plot_cpdags(structures, params_by_algo, feature_names):
     """Display the learned CPDAG for each algorithm.
 
+    For stochastic algorithms, ``structures[name]`` is a list of Structures
+    (one per seed) and all are displayed.
+
     Args:
-        structures: {algo_name: Structure}.
+        structures: {algo_name: Structure | List[Structure]}.
         params_by_algo: {algo_name: {param_name: value}}.
         feature_names: List of variable names.
     """
     import pyagrum.lib.notebook as gnb
-    for name, structure in structures.items():
+    for name, struct_or_list in structures.items():
         params = params_by_algo.get(name, {})
         params_str = ", ".join(f"{k}={v}" for k, v in params.items())
-        print(f"\n{name} ({params_str}) — {structure.cpdag.sizeArcs()} arcs, {structure.cpdag.sizeEdges()} edges")
-        gnb.showDot(cpdag_to_dot(structure, feature_names))
+
+        if isinstance(struct_or_list, list):
+            # Stochastic algorithm: display every seed structure
+            for i, structure in enumerate(struct_or_list):
+                print(
+                    f"\n{name} seed {i} ({params_str}) — "
+                    f"{structure.cpdag.sizeArcs()} arcs, "
+                    f"{structure.cpdag.sizeEdges()} edges"
+                )
+                gnb.showDot(cpdag_to_dot(structure, feature_names))
+        else:
+            structure = struct_or_list
+            print(
+                f"\n{name} ({params_str}) — "
+                f"{structure.cpdag.sizeArcs()} arcs, "
+                f"{structure.cpdag.sizeEdges()} edges"
+            )
+            gnb.showDot(cpdag_to_dot(structure, feature_names))
 
 
 # ---------------------------------------------------------------------------
 # Pairwise heatmaps
 # ---------------------------------------------------------------------------
 
+def _compute_metric_value(metric, ref, test):
+    """Compute a metric between ref and test, averaging over seeds if needed.
+
+    If ref or test is a list of structures (stochastic algo), the metric is
+    computed for every combination and averaged.
+    """
+    ref_list = ref if isinstance(ref, list) else [ref]
+    test_list = test if isinstance(test, list) else [test]
+
+    values = [
+        metric.compute(ref=r, test=t)
+        for r in ref_list
+        for t in test_list
+    ]
+    return float(np.mean(values))
+
+
 def plot_pairwise_heatmaps(structures, title_prefix, metrics, objectives, golden_structure=None):
-    """Plot pairwise heatmaps for each metric."""
+    """Plot pairwise heatmaps for each metric.
+
+    For stochastic algorithms whose ``structures[name]`` is a list, the
+    metric is averaged over all seed structures.
+    """
     names = list(structures.keys())
     n = len(names)
 
+    # Build display names: append "[moy. N seeds]" for seeded algos
+    col_labels = []
+    for name in names:
+        s = structures[name]
+        if isinstance(s, list):
+            col_labels.append(f"{name}\n[moy. {len(s)} seeds]")
+        else:
+            col_labels.append(name)
+
     for metric in metrics:
-        row_names = names
+        row_labels = list(col_labels)
         if golden_structure is not None:
-            row_names = ["Golden BN"] + names
+            row_labels = ["Golden BN"] + row_labels
+
+        row_names = list(names)
+        if golden_structure is not None:
+            row_names = ["Golden BN"] + row_names
 
         matrix = np.zeros((len(row_names), n))
         for i, ref_name in enumerate(row_names):
             ref = golden_structure if ref_name == "Golden BN" else structures[ref_name]
             for j, test_name in enumerate(names):
-                matrix[i, j] = metric.compute(ref=ref, test=structures[test_name])
+                matrix[i, j] = _compute_metric_value(metric, ref, structures[test_name])
 
         lower_better = objectives.get(metric.name(), True)
         cmap = "rocket_r" if lower_better else "viridis"
 
-        matrix_df = pd.DataFrame(matrix, index=row_names, columns=names)
+        matrix_df = pd.DataFrame(matrix, index=row_labels, columns=col_labels)
         fig, ax = plt.subplots(figsize=(9, 7))
         sns.heatmap(matrix_df, annot=True, fmt=".2f", cmap=cmap, ax=ax,
                     cbar_kws={"shrink": 0.8}, linewidths=0.5, square=True)
