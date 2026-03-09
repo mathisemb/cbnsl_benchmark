@@ -24,5 +24,6 @@ ALL_ALGORITHMS = {
     "GHC+BDeu":      (GHCBDeuAdapter, {}, None),
     "NOTEARS":       (NOTEARSAdapter, {}, None),
     "NOTEARS Disc.": (NOTEARSDiscreteAdapter, {}, None),
-    "LiNGAM":        (LiNGAMAdapter, {}, list(range(10))),
+    #"LiNGAM":        (LiNGAMAdapter, {}, list(range(10))),
+    "LiNGAM":        (LiNGAMAdapter, {}, [42]),
 }

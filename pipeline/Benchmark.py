@@ -93,6 +93,27 @@ class Benchmark:
         return bench
 
     @classmethod
+    def preprocessed_sachs(cls, rank_by: str = "F1-Score") -> "Benchmark":
+        """Load Sachs protein signaling dataset with BN18 ground truth."""
+        from data.sachs.load_ground_truth import load_sachs_ground_truth
+
+        sachs_path = Path(__file__).parent.parent / "data" / "sachs"
+        sachs_data = pd.read_csv(
+            sachs_path / "sachs_observational_preprocessed.csv", sep="\t"
+        )
+        golden = load_sachs_ground_truth(version="bn18", as_structure=True)
+
+        dataset = Dataset(
+            sachs_data.to_numpy(),
+            name="sachs_observational_preprocessed",
+            feature_names=list(sachs_data.columns),
+        )
+
+        bench = cls(dataset, golden, rank_by=rank_by)
+        bench._register_all_algorithms()
+        return bench
+
+    @classmethod
     def synthetic_cbn_unif_gauss(
         cls,
         dag,

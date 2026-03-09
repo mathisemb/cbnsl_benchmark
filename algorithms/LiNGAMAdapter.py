@@ -71,8 +71,8 @@ class LiNGAMAdapter(AlgorithmAdapter):
             B = self._W_est_precomputed.copy()
         else:
             X = dataset.data
-            model = lingam.DirectLiNGAM(random_state=self.random_state,
-                                        measure=self.measure)
+            model = lingam.DirectLiNGAM(random_state=self.random_state, measure=self.measure)
+            # model = lingam.ICALiNGAM(random_state=self.random_state) # default max_iter
             model.fit(X)
             B = model.adjacency_matrix_
             self._W_est_raw = B.copy()
