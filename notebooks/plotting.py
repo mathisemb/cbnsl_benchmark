@@ -142,8 +142,7 @@ def plot_grid_search_results(name, gs, param_grid, metric_names, pareto_objectiv
         p = param_cols[0]
         df[p] = df[p].astype(str)
         fig, axes = plt.subplots(1, 3, figsize=(16, 4))
-        seed_note = f" (moyenne sur {len(random_seeds)} seeds)" if random_seeds else ""
-        fig.suptitle(f"{name} : score par {p}{seed_note}", fontsize=13, fontweight="bold")
+        fig.suptitle(f"{name} : score par {p}", fontsize=13, fontweight="bold")
         for ax, mn in zip(axes, metric_names):
             sns.barplot(data=df, x=p, y=mn, ax=ax, color="steelblue")
             ax.set_title(mn)
@@ -308,11 +307,11 @@ def plot_pairwise_heatmaps(structures, title_prefix, metrics, objectives, golden
     names = list(structures.keys())
     n = len(names)
 
-    # Build display names: append "[moy. N seeds]" for seeded algos
+    # Build display names: append "[moy. N seeds]" for seeded algos (only if >1 seed)
     col_labels = []
     for name in names:
         s = structures[name]
-        if isinstance(s, list):
+        if isinstance(s, list) and len(s) > 1:
             col_labels.append(f"{name}\n[moy. {len(s)} seeds]")
         else:
             col_labels.append(name)

@@ -105,13 +105,17 @@ class GridSearch:
         objectives: Dict[str, bool],
         verbose: bool = False,
         learn_method: str = "learn_structure",
+        compare_mode: str = "cpdag",
     ):
+        if compare_mode not in ("cpdag", "skeleton"):
+            raise ValueError(f"compare_mode must be 'cpdag' or 'skeleton', got '{compare_mode}'")
         self.dataset = dataset
         self.golden_structure = golden_structure
         self.metrics = metrics
         self.objectives = objectives
         self.verbose = verbose
         self.learn_method = learn_method
+        self.compare_mode = compare_mode
 
         self._configs: List[tuple] = []  # (name, algo_class, param_grid, fixed_params, random_seeds)
         self.results: Dict[str, List[GridSearchResult]] = {}
@@ -251,7 +255,12 @@ class GridSearch:
                     # --- Evaluate metrics ---
                     # One result per seed: seaborn barplot automatically
                     # computes mean + CI when multiple rows share the same params.
-                    scores = {m.name(): m.compute(ref=self.golden_structure, test=learned)
+                    ref = self.golden_structure
+                    test = learned
+                    if self.compare_mode == "skeleton":
+                        ref = ref.skeleton()
+                        test = test.skeleton()
+                    scores = {m.name(): m.compute(ref=ref, test=test)
                               for m in self.metrics}
                     results.append(GridSearchResult(params=params, scores=scores))
 

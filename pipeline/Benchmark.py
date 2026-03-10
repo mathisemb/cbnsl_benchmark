@@ -16,6 +16,7 @@ Usage in notebooks::
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+import numpy as np
 import pandas as pd
 import seaborn as sns
 
@@ -47,12 +48,14 @@ class Benchmark:
         dataset: Dataset,
         golden_structure: Structure,
         rank_by: str = "F1-Score",
+        compare_mode: str = "cpdag",
     ):
         sns.set_theme(style="whitegrid", palette="tab10", font_scale=1.1)
 
         self.dataset = dataset
         self.golden_structure = golden_structure
         self.rank_by = rank_by
+        self.compare_mode = compare_mode
         self.metrics = list(ALL_METRICS)
         self.metric_names = [m.name() for m in self.metrics]
         self.objectives = dict(OBJECTIVES)
@@ -72,7 +75,7 @@ class Benchmark:
     # ------------------------------------------------------------------
 
     @classmethod
-    def sachs(cls, rank_by: str = "F1-Score") -> "Benchmark":
+    def sachs(cls, rank_by: str = "F1-Score", repetition_nb: int = 1, compare_mode: str = "cpdag") -> "Benchmark":
         """Load Sachs protein signaling dataset with BN18 ground truth."""
         from data.sachs.load_ground_truth import load_sachs_ground_truth
 
@@ -82,18 +85,23 @@ class Benchmark:
         )
         golden = load_sachs_ground_truth(version="bn18", as_structure=True)
 
+        data = sachs_data.to_numpy()
+        if repetition_nb > 1:
+            # np.tile(A, (r, c)) repeats A r times along rows and c times along columns
+            data = np.tile(data, (repetition_nb, 1))
+
         dataset = Dataset(
-            sachs_data.to_numpy(),
+            data,
             name="sachs_observational",
             feature_names=list(sachs_data.columns),
         )
 
-        bench = cls(dataset, golden, rank_by=rank_by)
+        bench = cls(dataset, golden, rank_by=rank_by, compare_mode=compare_mode)
         bench._register_all_algorithms()
         return bench
 
     @classmethod
-    def preprocessed_sachs(cls, rank_by: str = "F1-Score") -> "Benchmark":
+    def preprocessed_sachs(cls, rank_by: str = "F1-Score", repetition_nb: int = 1, compare_mode: str = "cpdag") -> "Benchmark":
         """Load Sachs protein signaling dataset with BN18 ground truth."""
         from data.sachs.load_ground_truth import load_sachs_ground_truth
 
@@ -103,13 +111,18 @@ class Benchmark:
         )
         golden = load_sachs_ground_truth(version="bn18", as_structure=True)
 
+        data = sachs_data.to_numpy()
+        if repetition_nb > 1:
+            # np.tile(A, (r, c)) repeats A r times along rows and c times along columns
+            data = np.tile(data, (repetition_nb, 1))
+
         dataset = Dataset(
-            sachs_data.to_numpy(),
+            data,
             name="sachs_observational_preprocessed",
             feature_names=list(sachs_data.columns),
         )
 
-        bench = cls(dataset, golden, rank_by=rank_by)
+        bench = cls(dataset, golden, rank_by=rank_by, compare_mode=compare_mode)
         bench._register_all_algorithms()
         return bench
 
@@ -121,6 +134,7 @@ class Benchmark:
         seed: int = 42,
         rank_by: str = "F1-Score",
         var_names: Optional[List[str]] = None,
+        compare_mode: str = "cpdag",
         **cbn_kwargs,
     ) -> "Benchmark":
         """Generate synthetic data from a known DAG structure.
@@ -134,12 +148,16 @@ class Benchmark:
             **cbn_kwargs: Forwarded to ``create_simple_cbn``
                 (e.g. ``copula_correlation``).
         """
-        from data.generators import create_simple_cbn, generate_from_cbn
+        from data.generators import create_default_cbn, generate_from_cbn
 
         if var_names is None:
             var_names = [f"X{i}" for i in range(dag.size())]
 
-        cbn = create_simple_cbn(dag, var_names=var_names, **cbn_kwargs)
+        #cbn = create_simple_cbn(dag, var_names=var_names, **cbn_kwargs)
+        cbn = create_default_cbn(dag,
+                                 var_names=var_names,
+                                 marginal_type="Uniform",
+                                 lcc_types="NormalCopula")
         dataset, golden = generate_from_cbn(cbn, n_samples=n_samples, seed=seed)
 
         dataset = Dataset(
@@ -148,7 +166,50 @@ class Benchmark:
             feature_names=var_names,
         )
 
-        bench = cls(dataset, golden, rank_by=rank_by)
+        bench = cls(dataset, golden, rank_by=rank_by, compare_mode=compare_mode)
+        bench._register_all_algorithms()
+        return bench
+
+    @classmethod
+    def synthetic_cbn_exp_clayton(
+        cls,
+        dag,
+        n_samples: int = 2000,
+        seed: int = 42,
+        rank_by: str = "F1-Score",
+        var_names: Optional[List[str]] = None,
+        compare_mode: str = "cpdag",
+        **cbn_kwargs,
+    ) -> "Benchmark":
+        """Generate synthetic data from a known DAG structure.
+
+        Args:
+            dag: ``gum.DAG`` defining the ground-truth structure.
+            n_samples: Number of samples to generate.
+            seed: Random seed.
+            rank_by: Metric used to rank Pareto-optimal profiles.
+            var_names: Variable names (default ``X0, X1, ...``).
+            **cbn_kwargs: Forwarded to ``create_simple_cbn``
+                (e.g. ``copula_correlation``).
+        """
+        from data.generators import create_default_cbn, generate_from_cbn
+
+        if var_names is None:
+            var_names = [f"X{i}" for i in range(dag.size())]
+
+        cbn = create_default_cbn(dag,
+                                 var_names=var_names,
+                                 marginal_type="Exponential",
+                                 lcc_types="ClaytonCopula")
+        dataset, golden = generate_from_cbn(cbn, n_samples=n_samples, seed=seed)
+
+        dataset = Dataset(
+            dataset.data,
+            name=f"synthetic_{dag.size()}nodes",
+            feature_names=var_names,
+        )
+
+        bench = cls(dataset, golden, rank_by=rank_by, compare_mode=compare_mode)
         bench._register_all_algorithms()
         return bench
 
@@ -162,6 +223,7 @@ class Benchmark:
         var_names: Optional[List[str]] = None,
         noise_type: str = "laplace",
         weight_range: tuple = (0.5, 2.0),
+        compare_mode: str = "cpdag",
     ) -> "Benchmark":
         """Generate synthetic data from a known DAG using a linear SEM with non-Gaussian noise.
 
@@ -238,7 +300,7 @@ class Benchmark:
             feature_names=var_names,
         )
 
-        bench = cls(dataset, golden, rank_by=rank_by)
+        bench = cls(dataset, golden, rank_by=rank_by, compare_mode=compare_mode)
         bench._register_all_algorithms()
         return bench
 
@@ -253,6 +315,7 @@ class Benchmark:
             golden_structure=self.golden_structure,
             metrics=self.metrics,
             objectives=self.objectives,
+            compare_mode=self.compare_mode,
         )
         for name, (algo_cls, fixed_params, random_seeds) in ALL_ALGORITHMS.items():
             self._gs.add(name, algo_cls, fixed_params=fixed_params,
@@ -333,11 +396,14 @@ class Benchmark:
                 structure = algo.learn_structure(self.dataset)
                 self._structures[name] = structure
 
+                ref = self.golden_structure
+                test = structure
+                if self.compare_mode == "skeleton":
+                    ref = ref.skeleton()
+                    test = test.skeleton()
                 scores = {}
                 for metric in self.metrics:
-                    scores[metric.name()] = metric.compute(
-                        ref=self.golden_structure, test=structure
-                    )
+                    scores[metric.name()] = metric.compute(ref=ref, test=test)
                 self._scores[name] = scores
                 print(f"  {name}: OK")
             except Exception as e:

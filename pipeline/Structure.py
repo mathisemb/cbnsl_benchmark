@@ -75,3 +75,19 @@ class Structure:
             print(f"\n  Undirected edges ({len(edges_list)}):")
             for node1, node2 in edges_list:
                 print(f"    {node1} - {node2}")
+
+    def skeleton(self) -> "Structure":
+        """Return a new Structure containing only the skeleton (undirected edges).
+
+        All directed arcs are converted to undirected edges.
+        """
+        skel = gum.PDAG()
+        for node_id in self.cpdag.nodes():
+            skel.addNodeWithId(node_id)
+        for tail, head in self.cpdag.arcs():
+            if not skel.existsEdge(tail, head):
+                skel.addEdge(tail, head)
+        for n1, n2 in self.cpdag.edges():
+            if not skel.existsEdge(n1, n2):
+                skel.addEdge(n1, n2)
+        return Structure(skel)

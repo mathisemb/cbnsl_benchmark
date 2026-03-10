@@ -132,3 +132,99 @@ def create_simple_cbn(
     cbn = otagrum.ContinuousBayesianNetwork(structure, marginals, local_conditional_copulas)
 
     return cbn
+
+
+def create_default_cbn(
+    dag: gum.DAG,
+    var_names: Optional[List[str]] = None,
+    marginal_type: str = "Uniform",
+    lcc_types: str = "NormalCopula",
+) -> otagrum.ContinuousBayesianNetwork:
+    """
+    Create a simple continuous Bayesian network with default distributions and copulas
+    based on the given DAG structure.
+
+    Args:
+        dag: The DAG structure
+        var_names: Names for variables (default: X0, X1, X2, ...)
+        marginal_type: Type of marginal distribution, same for all variables
+            choices:
+                Uniform
+                Normal
+                Exponential
+        lcc_types: Types of local conditional copulas, same for all variables
+            choices:
+                NormalCopula
+                ClaytonCopula
+                GumbelCopula
+                FrankCopula
+                MinCopula
+
+    Returns:
+        The created continuous Bayesian network
+
+    Example:
+        >>> # Create a chain: 0 -> 1 -> 2
+        >>> dag = gum.DAG()
+        >>> dag.addNode()
+        >>> dag.addNode()
+        >>> dag.addNode()
+        >>> dag.addArc(0, 1)
+        >>> dag.addArc(1, 2)
+        >>> cbn = create_default_cbn(dag)
+        >>> dataset, golden = generate_from_cbn(cbn, n_samples=1000)
+    """
+    n_vars = dag.size()
+
+    # Default variable names
+    if var_names is None:
+        var_names = [f"X{i}" for i in range(n_vars)]
+
+    structure = otagrum.NamedDAG(dag, var_names)
+
+    # Define marginal distributions
+    if marginal_type == "Uniform":
+        marginals = [ot.Uniform(0.0, 1.0) for _ in range(n_vars)]
+    elif marginal_type == "Normal":
+        marginals = [ot.Normal(0.0, 1.0) for _ in range(n_vars)]
+    elif marginal_type == "Exponential":
+        marginals = [ot.Exponential(1.0) for _ in range(n_vars)]
+    else:
+        raise ValueError(f"Unknown marginal type: {marginal_type}")
+
+    # Define local conditional copulas
+    def _make_normal_copula(dim, correlation=0.8):
+        R = ot.CorrelationMatrix(dim)
+        if dim > 1:
+            for j in range(dim):
+                for k in range(j):
+                    R[j, k] = correlation
+        return ot.NormalCopula(R)
+
+    copula_factories = {
+        "NormalCopula": lambda dim: _make_normal_copula(dim),
+        "ClaytonCopula": lambda dim: ot.ClaytonCopula(2.0, dim),
+        "GumbelCopula": lambda dim: ot.GumbelCopula(2.0, dim),
+        "FrankCopula": lambda dim: ot.FrankCopula(2.0, dim),
+        "MinCopula": lambda dim: ot.MinCopula(dim),
+    }
+
+    if lcc_types not in copula_factories:
+        raise ValueError(
+            f"Unknown copula type: {lcc_types}. "
+            f"Choices: {list(copula_factories.keys())}"
+        )
+
+    local_conditional_copulas = []
+    for i in range(n_vars):
+        parents = structure.getParents(i)
+        n_parents = parents.getSize()
+        dim_lcc = n_parents + 1  # parents + current variable
+
+        copula = copula_factories[lcc_types](dim_lcc)
+        local_conditional_copulas.append(copula)
+
+    # Create the continuous Bayesian network
+    cbn = otagrum.ContinuousBayesianNetwork(structure, marginals, local_conditional_copulas)
+
+    return cbn
