@@ -233,7 +233,10 @@ def plot_best_scores(scores_by_algo, params_by_algo, seed_counts=None):
     ax.set_xlabel("SHD (lower is better)")
     ax.set_ylabel("F1-Score (higher is better)")
     ax.set_title("Best profiles : SHD vs F1-Score")
-    ax.legend(fontsize=8, bbox_to_anchor=(1.05, 1), loc="upper left")
+    ax.legend(
+        fontsize=8, bbox_to_anchor=(0.5, -0.15), loc="upper center",
+        ncol=1,
+    )
     plt.tight_layout()
     plt.show()
 
