@@ -214,6 +214,83 @@ class Benchmark:
         return bench
 
     @classmethod
+    def synthetic_gausslinSEM(
+        cls,
+        dag,
+        n_samples: int = 2000,
+        seed: int = 42,
+        rank_by: str = "F1-Score",
+        var_names: Optional[List[str]] = None,
+        weight_range: tuple = (0.5, 2.0),
+        compare_mode: str = "cpdag",
+    ) -> "Benchmark":
+        """Generate synthetic data from a known DAG using a linear SEM with Gaussian noise.
+
+        Each variable is generated as:
+        ``X_i = sum(w_ji * X_j for j in parents(i)) + e_i``
+        where ``e_i`` is drawn from a Gaussian distribution.
+
+        Args:
+            dag: ``gum.DAG`` defining the ground-truth structure.
+            n_samples: Number of samples to generate.
+            seed: Random seed.
+            rank_by: Metric used to rank Pareto-optimal profiles.
+            var_names: Variable names (default ``X0, X1, ...``).
+            weight_range: ``(low, high)`` for uniform sampling of
+                absolute edge weights (sign is random).
+        """
+        import numpy as np
+        import pyagrum as gum
+        from pipeline.Structure import Structure
+
+        rng = np.random.default_rng(seed)
+        n_vars = dag.size()
+
+        if var_names is None:
+            var_names = [f"X{i}" for i in range(dag.size())]
+
+        # Topological order
+        topo = dag.topologicalOrder()
+
+        # Sample edge weights
+        weights = {}  # (parent, child) -> weight
+        for node in topo:
+            for parent in dag.parents(node):
+                w = rng.uniform(*weight_range)
+                sign = rng.choice([-1, 1])
+                weights[(parent, node)] = sign * w
+
+        # Generate gaussian noise
+        noise = rng.normal(loc=0.0, scale=1.0, size=(n_samples, n_vars))
+
+        # Generate data following topological order
+        data = np.zeros((n_samples, n_vars))
+        for node in topo:
+            data[:, node] = noise[:, node]
+            for parent in dag.parents(node):
+                data[:, node] += weights[(parent, node)] * data[:, parent]
+
+        # Golden structure (CPDAG)
+        bn = gum.BayesNet()
+        for node_id in dag.nodes():
+            bn.add(gum.LabelizedVariable(f"X{node_id}", f"X{node_id}", 2))
+        for node_id in dag.nodes():
+            for child_id in dag.children(node_id):
+                bn.addArc(node_id, child_id)
+        essential_graph = gum.EssentialGraph(bn)
+        golden = Structure(essential_graph.pdag())
+
+        dataset = Dataset(
+            data,
+            name=f"synthetic_nongausslinSEM_{n_vars}nodes",
+            feature_names=var_names,
+        )
+
+        bench = cls(dataset, golden, rank_by=rank_by, compare_mode=compare_mode)
+        bench._register_all_algorithms()
+        return bench
+
+    @classmethod
     def synthetic_nongausslinSEM(
         cls,
         dag,
@@ -221,7 +298,7 @@ class Benchmark:
         seed: int = 42,
         rank_by: str = "F1-Score",
         var_names: Optional[List[str]] = None,
-        noise_type: str = "laplace",
+        noise_type: str = "uniform",
         weight_range: tuple = (0.5, 2.0),
         compare_mode: str = "cpdag",
     ) -> "Benchmark":
@@ -244,7 +321,7 @@ class Benchmark:
         """
         import numpy as np
         import pyagrum as gum
-        from pipeline.Structure import Structure, dag_as_a_structure
+        from pipeline.Structure import Structure
 
         rng = np.random.default_rng(seed)
         n_vars = dag.size()
