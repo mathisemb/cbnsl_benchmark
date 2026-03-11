@@ -35,6 +35,7 @@ class GridSearchResult:
 
     params: Dict[str, Any]
     scores: Dict[str, float] = field(default_factory=dict)
+    scores_skeleton: Dict[str, float] = field(default_factory=dict)
     error: Optional[str] = None
 
 
@@ -105,17 +106,13 @@ class GridSearch:
         objectives: Dict[str, bool],
         verbose: bool = False,
         learn_method: str = "learn_structure",
-        compare_mode: str = "cpdag",
     ):
-        if compare_mode not in ("cpdag", "skeleton"):
-            raise ValueError(f"compare_mode must be 'cpdag' or 'skeleton', got '{compare_mode}'")
         self.dataset = dataset
         self.golden_structure = golden_structure
         self.metrics = metrics
         self.objectives = objectives
         self.verbose = verbose
         self.learn_method = learn_method
-        self.compare_mode = compare_mode
 
         self._configs: List[tuple] = []  # (name, algo_class, param_grid, fixed_params, random_seeds)
         self.results: Dict[str, List[GridSearchResult]] = {}
@@ -255,14 +252,16 @@ class GridSearch:
                     # --- Evaluate metrics ---
                     # One result per seed: seaborn barplot automatically
                     # computes mean + CI when multiple rows share the same params.
-                    ref = self.golden_structure
-                    test = learned
-                    if self.compare_mode == "skeleton":
-                        ref = ref.skeleton()
-                        test = test.skeleton()
-                    scores = {m.name(): m.compute(ref=ref, test=test)
-                              for m in self.metrics}
-                    results.append(GridSearchResult(params=params, scores=scores))
+                    # Always compute both cpdag and skeleton scores.
+                    scores_cpdag = {m.name(): m.compute(ref=self.golden_structure, test=learned)
+                                    for m in self.metrics}
+                    scores_skel = {m.name(): m.compute(ref=self.golden_structure.skeleton(),
+                                                        test=learned.skeleton())
+                                   for m in self.metrics}
+                    results.append(GridSearchResult(
+                        params=params, scores=scores_cpdag,
+                        scores_skeleton=scores_skel,
+                    ))
 
                     if pbar is not None:
                         pbar.update(1)
@@ -291,11 +290,11 @@ class GridSearch:
         best = self.best_result(algo_name, metric_name)
         return best.scores[metric_name] if best else None
 
-    def get_results_dataframe(self, algo_name: str) -> pd.DataFrame:
+    def get_results_dataframe(self, algo_name: str, compare_mode: str = "cpdag") -> pd.DataFrame:
         rows = []
         for r in self.results.get(algo_name, []):
             row = dict(r.params)
-            row.update(r.scores)
+            row.update(self._get_scores(r, compare_mode))
             row["error"] = r.error
             rows.append(row)
         return pd.DataFrame(rows)
@@ -307,13 +306,23 @@ class GridSearch:
                 return seeds
         return None
 
-    def select_best(self, rank_by: str = "SHD") -> Dict[str, Optional[GridSearchResult]]:
+    def _get_scores(self, result: GridSearchResult, compare_mode: str = "cpdag") -> Dict[str, float]:
+        """Return the appropriate scores dict based on compare_mode."""
+        if compare_mode == "skeleton":
+            return result.scores_skeleton
+        return result.scores
+
+    def select_best(self, rank_by: str = "SHD", compare_mode: str = "cpdag") -> Dict[str, Optional[GridSearchResult]]:
         """Select one Pareto-optimal profile per algorithm.
 
         For stochastic algorithms (with random_seeds), scores are first
         averaged over seeds per unique param combo before computing the
         Pareto front.  The returned ``GridSearchResult`` contains the
         averaged scores so that downstream code sees stable estimates.
+
+        Args:
+            rank_by: Metric used to rank Pareto-optimal profiles.
+            compare_mode: ``"cpdag"`` or ``"skeleton"`` — which score set to use.
         """
         pareto_obj = {k: v for k, v in self.objectives.items() if k in ("SHD", "F1-Score")}
         rank_lower = pareto_obj.get(rank_by, True)
@@ -335,24 +344,37 @@ class GridSearch:
                 for key, group in groups.items():
                     metric_names = list(group[0].scores.keys())
                     avg_scores = {
-                        mn: float(np.mean([r.scores[mn] for r in group]))
+                        mn: float(np.mean([self._get_scores(r, compare_mode)[mn] for r in group]))
                         for mn in metric_names
                     }
-                    averaged.append(GridSearchResult(params=dict(key), scores=avg_scores))
+                    avg_scores_skel = {
+                        mn: float(np.mean([self._get_scores(r, "skeleton")[mn] for r in group]))
+                        for mn in metric_names
+                    }
+                    avg_scores_cpdag = {
+                        mn: float(np.mean([self._get_scores(r, "cpdag")[mn] for r in group]))
+                        for mn in metric_names
+                    }
+                    averaged.append(GridSearchResult(
+                        params=dict(key), scores=avg_scores_cpdag,
+                        scores_skeleton=avg_scores_skel,
+                    ))
 
-                front_idx = pareto_front([r.scores for r in averaged], pareto_obj)
+                scores_list = [self._get_scores(r, compare_mode) for r in averaged]
+                front_idx = pareto_front(scores_list, pareto_obj)
                 if not front_idx:
                     selection[name] = None
                     continue
                 front = [averaged[i] for i in front_idx]
             else:
-                front_idx = pareto_front([r.scores for r in res], pareto_obj)
+                scores_list = [self._get_scores(r, compare_mode) for r in res]
+                front_idx = pareto_front(scores_list, pareto_obj)
                 if not front_idx:
                     selection[name] = None
                     continue
                 front = [res[i] for i in front_idx]
 
-            key_fn = lambda r: r.scores[rank_by]
+            key_fn = lambda r: self._get_scores(r, compare_mode)[rank_by]
             selection[name] = min(front, key=key_fn) if rank_lower else max(front, key=key_fn)
 
         return selection
@@ -407,18 +429,21 @@ class GridSearch:
 
     # ----- plotting (delegates to notebooks.plotting) -----------------------
 
-    def plot(self) -> None:
+    def plot(self, compare_mode: str = "cpdag") -> None:
         from notebooks.plotting import plot_grid_search_results
         metric_names = [m.name() for m in self.metrics]
         pareto_obj = {k: v for k, v in self.objectives.items() if k in ("SHD", "F1-Score")}
         for name, _, param_grid, _, random_seeds in self._configs:
             plot_grid_search_results(name, self, param_grid, metric_names, pareto_obj,
-                                     random_seeds=random_seeds)
+                                     random_seeds=random_seeds, compare_mode=compare_mode)
 
-    def plot_comparison(self, rank_by: str = "SHD") -> None:
+    def plot_comparison(self, rank_by: str = "SHD", compare_mode: str = "cpdag") -> None:
         from notebooks.plotting import plot_best_scores
-        selection = self.select_best(rank_by)
-        scores_by_algo = {name: r.scores for name, r in selection.items() if r is not None}
+        selection = self.select_best(rank_by, compare_mode=compare_mode)
+        scores_by_algo = {
+            name: self._get_scores(r, compare_mode)
+            for name, r in selection.items() if r is not None
+        }
         params_by_algo = {name: r.params for name, r in selection.items() if r is not None}
         seed_counts = {
             n: len(rs) for n, _, _, _, rs in self._configs

@@ -100,7 +100,7 @@ def _plot_best_over_discretizations(df, name, metric_names):
 
 
 def plot_grid_search_results(name, gs, param_grid, metric_names, pareto_objectives,
-                             random_seeds=None):
+                             random_seeds=None, compare_mode="cpdag"):
     """Plot bar charts / heatmaps per metric + SHD vs F1 scatter with Pareto front.
 
     Args:
@@ -110,8 +110,9 @@ def plot_grid_search_results(name, gs, param_grid, metric_names, pareto_objectiv
         metric_names: List of metric names.
         pareto_objectives: Dict of objectives for Pareto front.
         random_seeds: List of seeds if stochastic algorithm, None otherwise.
+        compare_mode: ``"cpdag"`` or ``"skeleton"`` — which score set to use.
     """
-    df = gs.get_results_dataframe(name)
+    df = gs.get_results_dataframe(name, compare_mode=compare_mode)
     results = gs.results.get(name, [])
     param_cols = [c for c in df.columns if c not in metric_names + ["error"]]
 
@@ -165,14 +166,16 @@ def plot_grid_search_results(name, gs, param_grid, metric_names, pareto_objectiv
         plt.show()
 
     # Scatter SHD vs F1 + Pareto front
-    valid = [r for r in results if "SHD" in r.scores and "F1-Score" in r.scores]
+    _get = lambda r: r.scores_skeleton if compare_mode == "skeleton" else r.scores
+    valid = [r for r in results if "SHD" in _get(r) and "F1-Score" in _get(r)]
     if valid:
-        front_idx = set(pareto_front([r.scores for r in results], pareto_objectives))
+        scores_list = [_get(r) for r in results]
+        front_idx = set(pareto_front(scores_list, pareto_objectives))
 
         scatter_df = pd.DataFrame([
-            {"SHD": r.scores["SHD"], "F1-Score": r.scores["F1-Score"],
+            {"SHD": _get(r)["SHD"], "F1-Score": _get(r)["F1-Score"],
              "Pareto": "Pareto front" if i in front_idx else "Profile"}
-            for i, r in enumerate(results) if "SHD" in r.scores and "F1-Score" in r.scores
+            for i, r in enumerate(results) if "SHD" in _get(r) and "F1-Score" in _get(r)
         ])
 
         fig, ax = plt.subplots(figsize=(8, 5))
@@ -187,10 +190,10 @@ def plot_grid_search_results(name, gs, param_grid, metric_names, pareto_objectiv
         )
         front_results = [results[i] for i in front_idx]
         if len(front_results) > 1:
-            front_sorted = sorted(front_results, key=lambda r: r.scores["SHD"])
+            front_sorted = sorted(front_results, key=lambda r: _get(r)["SHD"])
             ax.plot(
-                [r.scores["SHD"] for r in front_sorted],
-                [r.scores["F1-Score"] for r in front_sorted],
+                [_get(r)["SHD"] for r in front_sorted],
+                [_get(r)["F1-Score"] for r in front_sorted],
                 color="#e74c3c", linestyle="--", alpha=0.5
             )
         ax.set_xlabel("SHD (lower is better)")
@@ -301,12 +304,30 @@ def _compute_metric_value(metric, ref, test):
     return float(np.mean(values))
 
 
-def plot_pairwise_heatmaps(structures, title_prefix, metrics, objectives, golden_structure=None):
+def _to_skeleton(struct_or_list):
+    """Convert a Structure (or list of Structures) to skeleton form."""
+    if isinstance(struct_or_list, list):
+        return [s.skeleton() for s in struct_or_list]
+    return struct_or_list.skeleton()
+
+
+def plot_pairwise_heatmaps(structures, title_prefix, metrics, objectives,
+                           golden_structure=None, compare_mode="cpdag"):
     """Plot pairwise heatmaps for each metric.
 
     For stochastic algorithms whose ``structures[name]`` is a list, the
     metric is averaged over all seed structures.
+
+    Args:
+        compare_mode: ``"cpdag"`` or ``"skeleton"`` — if skeleton, structures
+            are converted to skeletons before computing metrics.
     """
+    # Convert to skeletons if needed
+    if compare_mode == "skeleton":
+        structures = {name: _to_skeleton(s) for name, s in structures.items()}
+        if golden_structure is not None:
+            golden_structure = golden_structure.skeleton()
+
     names = list(structures.keys())
     n = len(names)
 

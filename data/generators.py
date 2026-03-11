@@ -201,11 +201,20 @@ def create_default_cbn(
                     R[j, k] = correlation
         return ot.NormalCopula(R)
 
+    def _make_archimedean_copula(copula_class, theta, dim):
+        """Create an Archimedean copula, falling back to NormalCopula for dim > 2."""
+        if dim == 1:
+            return ot.IndependentCopula(1)
+        if dim == 2:
+            return copula_class(theta)
+        # Archimedean copulas are bivariate only in OpenTURNS
+        return _make_normal_copula(dim)
+
     copula_factories = {
-        "NormalCopula": lambda dim: _make_normal_copula(dim),
-        "ClaytonCopula": lambda dim: ot.ClaytonCopula(2.0, dim),
-        "GumbelCopula": lambda dim: ot.GumbelCopula(2.0, dim),
-        "FrankCopula": lambda dim: ot.FrankCopula(2.0, dim),
+        "NormalCopula": lambda dim: _make_normal_copula(dim) if dim > 1 else ot.IndependentCopula(1),
+        "ClaytonCopula": lambda dim: _make_archimedean_copula(ot.ClaytonCopula, 2.0, dim),
+        "GumbelCopula": lambda dim: _make_archimedean_copula(ot.GumbelCopula, 2.0, dim),
+        "FrankCopula": lambda dim: _make_archimedean_copula(ot.FrankCopula, 2.0, dim),
         "MinCopula": lambda dim: ot.MinCopula(dim),
     }
 

@@ -228,6 +228,37 @@ Le paramètre `w_threshold` de NOTEARS n'est qu'un seuillage final (`W[|W| < t] 
 - NOTEARSAdapter : 25 appels → 5 optimisations (~5x)
 - NOTEARSDiscreteAdapter : 250 appels → 50 optimisations (~5x)
 
+### Fusion des notebooks cpdag/skeleton et scoring dual
+
+Auparavant, chaque dataset avait deux notebooks : un `*_cpdag.ipynb` et un `*_skeleton.ipynb`. La seule différence était le paramètre `compare_mode` qui contrôlait si les métriques étaient calculées en comparant les CPDAGs ou les squelettes (graphes non orientés). La grid search (l'étape coûteuse) était identique dans les deux cas, seul le scoring changeait.
+
+**Refactoring** : la grid search calcule maintenant systématiquement les deux jeux de scores (cpdag et skeleton) pour chaque structure apprise. Les changements :
+
+- `GridSearchResult` stocke `scores` (cpdag) et `scores_skeleton` en parallèle
+- `GridSearch.select_best()`, `get_results_dataframe()`, `plot()` acceptent un paramètre `compare_mode` pour choisir quel jeu de scores utiliser
+- `Benchmark` supprime le paramètre `compare_mode` de son constructeur et des factory methods. `run()` fait `select_best` pour les deux modes et stocke `_scores_cpdag`, `_scores_skeleton`, `_params_cpdag`, `_params_skeleton`
+- `plot_grid_search(compare_mode)`, `plot_best_scores(compare_mode)`, `plot_pairwise_heatmaps(compare_mode)` acceptent le mode en paramètre (défaut : `"cpdag"`)
+
+Les notebooks fusionnés font une seule grid search puis affichent les résultats pour les deux modes. Structure :
+1. Golden structure
+2. Grid search (unique)
+3. Résultats par algorithme (CPDAG)
+4. Meilleurs profils (CPDAG)
+5. Résultats par algorithme (Skeleton)
+6. Meilleurs profils (Skeleton)
+7. Structures apprises (communes)
+8. Comparaisons pairwise (CPDAG)
+9. Comparaisons pairwise (Skeleton)
+
+**Exécution batch des notebooks** :
+```bash
+source venv/bin/activate
+for nb in notebooks/synthetic/*/5vars/*.ipynb notebooks/synthetic/*/20vars/*.ipynb notebooks/sachs/*/*/*.ipynb; do
+  echo "=== Running: $nb ==="
+  jupyter nbconvert --execute --inplace --ExecutePreprocessor.timeout=2700 "$nb"
+done
+```
+
 ## Fonctionnalités à implémenter
 - [ ] Faire des tests unitaires propres ?
 - [ ] Export des résultats (CSV, JSON) ?

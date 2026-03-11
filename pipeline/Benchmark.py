@@ -48,25 +48,27 @@ class Benchmark:
         dataset: Dataset,
         golden_structure: Structure,
         rank_by: str = "F1-Score",
-        compare_mode: str = "cpdag",
     ):
         sns.set_theme(style="whitegrid", palette="tab10", font_scale=1.1)
 
         self.dataset = dataset
         self.golden_structure = golden_structure
         self.rank_by = rank_by
-        self.compare_mode = compare_mode
         self.metrics = list(ALL_METRICS)
         self.metric_names = [m.name() for m in self.metrics]
         self.objectives = dict(OBJECTIVES)
 
         # Internal state (populated by run / run_fixed)
         self._gs: Optional[GridSearch] = None
-        self._selection: Optional[dict] = None
+        # Selections and scores for both compare modes
+        self._selection_cpdag: Optional[dict] = None
+        self._selection_skeleton: Optional[dict] = None
         # For stochastic algorithms, _structures[name] is a List[Structure]
         self._structures: Optional[dict] = None
-        self._scores: Optional[Dict[str, Dict[str, float]]] = None
-        self._params: Optional[Dict[str, Dict[str, Any]]] = None
+        self._scores_cpdag: Optional[Dict[str, Dict[str, float]]] = None
+        self._scores_skeleton: Optional[Dict[str, Dict[str, float]]] = None
+        self._params_cpdag: Optional[Dict[str, Dict[str, Any]]] = None
+        self._params_skeleton: Optional[Dict[str, Dict[str, Any]]] = None
         # Number of seeds per algorithm (only for stochastic algos)
         self._seed_counts: Dict[str, int] = {}
 
@@ -75,7 +77,7 @@ class Benchmark:
     # ------------------------------------------------------------------
 
     @classmethod
-    def sachs(cls, rank_by: str = "F1-Score", repetition_nb: int = 1, compare_mode: str = "cpdag") -> "Benchmark":
+    def sachs(cls, rank_by: str = "F1-Score", repetition_nb: int = 1, ) -> "Benchmark":
         """Load Sachs protein signaling dataset with BN18 ground truth."""
         from data.sachs.load_ground_truth import load_sachs_ground_truth
 
@@ -96,12 +98,12 @@ class Benchmark:
             feature_names=list(sachs_data.columns),
         )
 
-        bench = cls(dataset, golden, rank_by=rank_by, compare_mode=compare_mode)
+        bench = cls(dataset, golden, rank_by=rank_by)
         bench._register_all_algorithms()
         return bench
 
     @classmethod
-    def preprocessed_sachs(cls, rank_by: str = "F1-Score", repetition_nb: int = 1, compare_mode: str = "cpdag") -> "Benchmark":
+    def preprocessed_sachs(cls, rank_by: str = "F1-Score", repetition_nb: int = 1, ) -> "Benchmark":
         """Load Sachs protein signaling dataset with BN18 ground truth."""
         from data.sachs.load_ground_truth import load_sachs_ground_truth
 
@@ -122,7 +124,7 @@ class Benchmark:
             feature_names=list(sachs_data.columns),
         )
 
-        bench = cls(dataset, golden, rank_by=rank_by, compare_mode=compare_mode)
+        bench = cls(dataset, golden, rank_by=rank_by)
         bench._register_all_algorithms()
         return bench
 
@@ -134,7 +136,6 @@ class Benchmark:
         seed: int = 42,
         rank_by: str = "F1-Score",
         var_names: Optional[List[str]] = None,
-        compare_mode: str = "cpdag",
         **cbn_kwargs,
     ) -> "Benchmark":
         """Generate synthetic data from a known DAG structure.
@@ -153,7 +154,6 @@ class Benchmark:
         if var_names is None:
             var_names = [f"X{i}" for i in range(dag.size())]
 
-        #cbn = create_simple_cbn(dag, var_names=var_names, **cbn_kwargs)
         cbn = create_default_cbn(dag,
                                  var_names=var_names,
                                  marginal_type="Uniform",
@@ -166,7 +166,7 @@ class Benchmark:
             feature_names=var_names,
         )
 
-        bench = cls(dataset, golden, rank_by=rank_by, compare_mode=compare_mode)
+        bench = cls(dataset, golden, rank_by=rank_by)
         bench._register_all_algorithms()
         return bench
 
@@ -178,7 +178,6 @@ class Benchmark:
         seed: int = 42,
         rank_by: str = "F1-Score",
         var_names: Optional[List[str]] = None,
-        compare_mode: str = "cpdag",
         **cbn_kwargs,
     ) -> "Benchmark":
         """Generate synthetic data from a known DAG structure.
@@ -209,7 +208,7 @@ class Benchmark:
             feature_names=var_names,
         )
 
-        bench = cls(dataset, golden, rank_by=rank_by, compare_mode=compare_mode)
+        bench = cls(dataset, golden, rank_by=rank_by)
         bench._register_all_algorithms()
         return bench
 
@@ -222,7 +221,6 @@ class Benchmark:
         rank_by: str = "F1-Score",
         var_names: Optional[List[str]] = None,
         weight_range: tuple = (0.5, 2.0),
-        compare_mode: str = "cpdag",
     ) -> "Benchmark":
         """Generate synthetic data from a known DAG using a linear SEM with Gaussian noise.
 
@@ -286,7 +284,7 @@ class Benchmark:
             feature_names=var_names,
         )
 
-        bench = cls(dataset, golden, rank_by=rank_by, compare_mode=compare_mode)
+        bench = cls(dataset, golden, rank_by=rank_by)
         bench._register_all_algorithms()
         return bench
 
@@ -300,7 +298,6 @@ class Benchmark:
         var_names: Optional[List[str]] = None,
         noise_type: str = "uniform",
         weight_range: tuple = (0.5, 2.0),
-        compare_mode: str = "cpdag",
     ) -> "Benchmark":
         """Generate synthetic data from a known DAG using a linear SEM with non-Gaussian noise.
 
@@ -377,7 +374,7 @@ class Benchmark:
             feature_names=var_names,
         )
 
-        bench = cls(dataset, golden, rank_by=rank_by, compare_mode=compare_mode)
+        bench = cls(dataset, golden, rank_by=rank_by)
         bench._register_all_algorithms()
         return bench
 
@@ -392,7 +389,6 @@ class Benchmark:
             golden_structure=self.golden_structure,
             metrics=self.metrics,
             objectives=self.objectives,
-            compare_mode=self.compare_mode,
         )
         for name, (algo_cls, fixed_params, random_seeds) in ALL_ALGORITHMS.items():
             self._gs.add(name, algo_cls, fixed_params=fixed_params,
@@ -407,29 +403,37 @@ class Benchmark:
 
         After completion, the best Pareto-optimal profiles are selected
         (according to ``rank_by``) and re-run to obtain learned structures.
+        Both cpdag and skeleton scores are stored.
         """
         if self._gs is None:
             self._register_all_algorithms()
 
         self._gs.run()
-        self._selection = self._gs.select_best(self.rank_by)
+        self._selection_cpdag = self._gs.select_best(self.rank_by, compare_mode="cpdag")
+        self._selection_skeleton = self._gs.select_best(self.rank_by, compare_mode="skeleton")
 
         # The grid search stores params and scores but not the learned Structure
         # objects, to save memory across all combinations. Re-run the selected
         # Pareto-optimal profiles to obtain structures needed for visualization.
-        # For stochastic algorithms, all seed structures are returned as a list.
+        # Use cpdag selection for structures (skeleton selection may pick different
+        # hyperparams but the structures section is shared).
         print(f"\nRe-running best profiles (rank_by={self.rank_by})...")
         self._structures = self._gs.rerun_best(self.rank_by)
 
-        # Build scores and params dicts from selection
-        # (scores are already seed-averaged for stochastic algorithms)
-        self._scores = {}
-        self._params = {}
+        # Build scores and params dicts from both selections
+        self._scores_cpdag = {}
+        self._scores_skeleton = {}
+        self._params_cpdag = {}
+        self._params_skeleton = {}
         self._seed_counts = {}
-        for name, r in self._selection.items():
+        for name, r in self._selection_cpdag.items():
             if r is not None:
-                self._scores[name] = r.scores
-                self._params[name] = r.params
+                self._scores_cpdag[name] = r.scores
+                self._params_cpdag[name] = r.params
+        for name, r in self._selection_skeleton.items():
+            if r is not None:
+                self._scores_skeleton[name] = r.scores_skeleton
+                self._params_skeleton[name] = r.params
         for n, _, _, _, seeds in self._gs._configs:
             if seeds is not None:
                 self._seed_counts[n] = len(seeds)
@@ -453,10 +457,13 @@ class Benchmark:
             })
         """
         self._gs = None
-        self._selection = None
+        self._selection_cpdag = None
+        self._selection_skeleton = None
         self._structures = {}
-        self._scores = {}
-        self._params = configs
+        self._scores_cpdag = {}
+        self._scores_skeleton = {}
+        self._params_cpdag = configs
+        self._params_skeleton = configs
 
         for name, params in configs.items():
             if name not in ALL_ALGORITHMS:
@@ -473,15 +480,15 @@ class Benchmark:
                 structure = algo.learn_structure(self.dataset)
                 self._structures[name] = structure
 
-                ref = self.golden_structure
-                test = structure
-                if self.compare_mode == "skeleton":
-                    ref = ref.skeleton()
-                    test = test.skeleton()
-                scores = {}
+                scores_cpdag = {}
+                scores_skel = {}
                 for metric in self.metrics:
-                    scores[metric.name()] = metric.compute(ref=ref, test=test)
-                self._scores[name] = scores
+                    scores_cpdag[metric.name()] = metric.compute(
+                        ref=self.golden_structure, test=structure)
+                    scores_skel[metric.name()] = metric.compute(
+                        ref=self.golden_structure.skeleton(), test=structure.skeleton())
+                self._scores_cpdag[name] = scores_cpdag
+                self._scores_skeleton[name] = scores_skel
                 print(f"  {name}: OK")
             except Exception as e:
                 print(f"  {name}: FAILED ({e})")
@@ -509,20 +516,22 @@ class Benchmark:
         )
         gnb.showDot(cpdag_to_dot(s, self.dataset.feature_names))
 
-    def plot_grid_search(self) -> None:
+    def plot_grid_search(self, compare_mode: str = "cpdag") -> None:
         """Plot per-algorithm grid search results (bars/heatmaps + Pareto)."""
         if self._gs is None:
             print("No grid search results (run_fixed was used).")
             return
-        self._gs.plot()
+        self._gs.plot(compare_mode=compare_mode)
 
-    def plot_best_scores(self) -> None:
+    def plot_best_scores(self, compare_mode: str = "cpdag") -> None:
         """Scatter plot comparing best scores of each algorithm (SHD vs F1)."""
-        if self._scores is None:
+        scores = self._scores_cpdag if compare_mode == "cpdag" else self._scores_skeleton
+        params = self._params_cpdag if compare_mode == "cpdag" else self._params_skeleton
+        if scores is None:
             raise RuntimeError("Call run() or run_fixed() first.")
         from notebooks.plotting import plot_best_scores
 
-        plot_best_scores(self._scores, self._params, seed_counts=self._seed_counts)
+        plot_best_scores(scores, params, seed_counts=self._seed_counts)
 
     def plot_structures(self) -> None:
         """Display learned CPDAGs for each algorithm.
@@ -533,9 +542,9 @@ class Benchmark:
             raise RuntimeError("Call run() or run_fixed() first.")
         from notebooks.plotting import plot_cpdags
 
-        plot_cpdags(self._structures, self._params, self.dataset.feature_names)
+        plot_cpdags(self._structures, self._params_cpdag, self.dataset.feature_names)
 
-    def plot_pairwise_heatmaps(self) -> None:
+    def plot_pairwise_heatmaps(self, compare_mode: str = "cpdag") -> None:
         """Plot pairwise metric heatmaps between all learned structures."""
         if self._structures is None:
             raise RuntimeError("Call run() or run_fixed() first.")
@@ -543,7 +552,7 @@ class Benchmark:
 
         title = (
             f"Best profiles (rank_by={self.rank_by})"
-            if self._selection
+            if self._selection_cpdag
             else "Fixed hyperparameters"
         )
         plot_pairwise_heatmaps(
@@ -552,6 +561,7 @@ class Benchmark:
             self.metrics,
             self.objectives,
             golden_structure=self.golden_structure,
+            compare_mode=compare_mode,
         )
 
     def __repr__(self) -> str:
