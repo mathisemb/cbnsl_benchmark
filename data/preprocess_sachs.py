@@ -24,6 +24,7 @@ def preprocess_sachs(
     n_before = len(df)
 
     # 1. Remove outliers (if at least one variable > std_threshold standard deviations from the mean)
+    """
     mean = df.mean()
     std = df.std()
     is_within_bounds = (df - mean).abs() <= std_threshold * std
@@ -31,6 +32,7 @@ def preprocess_sachs(
     df = df[mask].reset_index(drop=True)
     n_removed = n_before - len(df)
     print(f"Outlier removal: {n_removed} rows removed ({n_before} -> {len(df)})")
+    """
 
     # 2. Log transformation
     df = np.log(df)
@@ -45,4 +47,5 @@ def preprocess_sachs(
 
 
 if __name__ == "__main__":
-    preprocess_sachs()
+    #preprocess_sachs()
+    preprocess_sachs(output_path = "sachs/log_sachs_observational.csv")
