@@ -255,7 +255,7 @@ Les notebooks fusionnés font une seule grid search puis affichent les résultat
 source venv/bin/activate
 for nb in notebooks/synthetic/*/5vars/*.ipynb notebooks/synthetic/*/20vars/*.ipynb notebooks/sachs/*/*/*.ipynb; do
   echo "=== Running: $nb ==="
-  jupyter nbconvert --execute --inplace --ExecutePreprocessor.timeout=2700 "$nb"
+  jupyter nbconvert --execute --inplace --ExecutePreprocessor.timeout=3600 "$nb"
 done
 ```
 

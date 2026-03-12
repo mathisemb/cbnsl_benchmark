@@ -27,6 +27,76 @@ def cpdag_to_dot(structure, feature_names=None):
     return "\n".join(lines)
 
 
+def cpdag_diff_dot(ref_structure, test_structure, feature_names=None):
+    """Build a dot string showing the diff between a reference and a learned CPDAG.
+
+    Colour code:
+      - **green**: arc/edge present in both (correct)
+      - **red**: arc/edge in *test* only (added / false positive)
+      - **orange**: arc present in both but inverted in *test*
+      - **grey dashed**: arc/edge in *ref* only (missing / false negative)
+    """
+    ref = ref_structure.cpdag
+    test = test_structure.cpdag
+
+    ref_arcs = set(ref.arcs())
+    test_arcs = set(test.arcs())
+    ref_edges = {frozenset(e) for e in ref.edges()}
+    test_edges = {frozenset(e) for e in test.edges()}
+
+    all_nodes = set(ref.nodes()) | set(test.nodes())
+
+    lines = ["digraph {"]
+    for node_id in sorted(all_nodes):
+        label = feature_names[node_id] if feature_names else str(node_id)
+        lines.append(f'  {node_id} [label="{label}"];')
+
+    # --- arcs ---
+    for t, h in test_arcs:
+        if (t, h) in ref_arcs:
+            # correct arc
+            lines.append(f'  {t} -> {h} [color="forestgreen", penwidth=2];')
+        elif (h, t) in ref_arcs:
+            # inverted arc
+            lines.append(f'  {t} -> {h} [color="orange", penwidth=2];')
+        else:
+            # false positive arc
+            lines.append(f'  {t} -> {h} [color="red", penwidth=2];')
+
+    for t, h in ref_arcs:
+        if (t, h) not in test_arcs and (h, t) not in test_arcs:
+            # check if it appears as an edge in test
+            if frozenset((t, h)) not in test_edges:
+                # missing arc
+                lines.append(
+                    f'  {t} -> {h} [color="grey", style=dashed, penwidth=1];'
+                )
+
+    # --- edges ---
+    for e in test_edges:
+        n1, n2 = sorted(e)
+        if e in ref_edges:
+            lines.append(
+                f'  {n1} -> {n2} [dir=none, color="forestgreen", penwidth=2];'
+            )
+        else:
+            lines.append(
+                f'  {n1} -> {n2} [dir=none, color="red", penwidth=2];'
+            )
+
+    for e in ref_edges:
+        if e not in test_edges:
+            n1, n2 = sorted(e)
+            # check if it appears as an arc in test
+            if (n1, n2) not in test_arcs and (n2, n1) not in test_arcs:
+                lines.append(
+                    f'  {n1} -> {n2} [dir=none, color="grey", style=dashed, penwidth=1];'
+                )
+
+    lines.append("}")
+    return "\n".join(lines)
+
+
 def discretization_label(row):
     """Compact label: Q(n_bins) or H(n_bins, initial_bins)."""
     method = row["discretization_method"]
@@ -248,39 +318,61 @@ def plot_best_scores(scores_by_algo, params_by_algo, seed_counts=None):
 # CPDAG display
 # ---------------------------------------------------------------------------
 
-def plot_cpdags(structures, params_by_algo, feature_names):
-    """Display the learned CPDAG for each algorithm.
+def plot_cpdags(structures, params_by_algo, feature_names,
+                golden_structure=None):
+    """Display the learned CPDAG for each algorithm, optionally with golden BN and diff.
 
     For stochastic algorithms, ``structures[name]`` is a list of Structures
     (one per seed) and all are displayed.
+
+    When *golden_structure* is provided, each learned structure is shown
+    side-by-side with the golden CPDAG and a colour-coded diff
+    (green = correct, red = extra, orange = inverted, grey dashed = missing).
 
     Args:
         structures: {algo_name: Structure | List[Structure]}.
         params_by_algo: {algo_name: {param_name: value}}.
         feature_names: List of variable names.
+        golden_structure: Optional golden Structure for comparison.
     """
     import pyagrum.lib.notebook as gnb
+
+    golden_dot = (cpdag_to_dot(golden_structure, feature_names)
+                  if golden_structure is not None else None)
+
+    def _show_structure(structure, title):
+        if golden_structure is not None:
+            diff_dot = cpdag_diff_dot(golden_structure, structure, feature_names)
+            gnb.sideBySide(
+                gnb.getDot(cpdag_to_dot(structure, feature_names)),
+                gnb.getDot(golden_dot),
+                gnb.getDot(diff_dot),
+                captions=[title, "Golden BN", "Diff (ref=golden)"],
+            )
+        else:
+            print(title)
+            gnb.showDot(cpdag_to_dot(structure, feature_names))
+
     for name, struct_or_list in structures.items():
         params = params_by_algo.get(name, {})
         params_str = ", ".join(f"{k}={v}" for k, v in params.items())
 
         if isinstance(struct_or_list, list):
-            # Stochastic algorithm: display every seed structure
             for i, structure in enumerate(struct_or_list):
-                print(
-                    f"\n{name} seed {i} ({params_str}) — "
+                title = (
+                    f"{name} seed {i} ({params_str}) — "
                     f"{structure.cpdag.sizeArcs()} arcs, "
                     f"{structure.cpdag.sizeEdges()} edges"
                 )
-                gnb.showDot(cpdag_to_dot(structure, feature_names))
+                _show_structure(structure, title)
         else:
             structure = struct_or_list
-            print(
-                f"\n{name} ({params_str}) — "
+            title = (
+                f"{name} ({params_str}) — "
                 f"{structure.cpdag.sizeArcs()} arcs, "
                 f"{structure.cpdag.sizeEdges()} edges"
             )
-            gnb.showDot(cpdag_to_dot(structure, feature_names))
+            _show_structure(structure, title)
 
 
 # ---------------------------------------------------------------------------

@@ -77,8 +77,10 @@ class NOTEARSAdapter(AlgorithmAdapter):
             # Run full L-BFGS optimization with w_threshold=0 so we can
             # cache the raw weight matrix for other threshold values
             X = dataset.data
-            W_est = notears_linear(X, lambda1=self.lambda1,
-                                   loss_type=self.loss_type, w_threshold=0)
+            W_est = notears_linear(X,
+                                   lambda1=self.lambda1,
+                                   loss_type=self.loss_type,
+                                   w_threshold=0)
             self._W_est_raw = W_est.copy()
             W_est[np.abs(W_est) < self.w_threshold_notears] = 0
 

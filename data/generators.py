@@ -210,11 +210,31 @@ def create_default_cbn(
         # Archimedean copulas are bivariate only in OpenTURNS
         return _make_normal_copula(dim)
 
+    def _make_mixture_copula(dim, corr_high=0.8, corr_low=-0.3):
+        """Extract a non-Gaussian copula from a Mixture of two Normals via getCopula().
+
+        The two components have different correlation structures, producing
+        a bimodal dependence pattern that is genuinely non-Gaussian.
+        """
+        if dim == 1:
+            return ot.IndependentCopula(1)
+        R_high = ot.CorrelationMatrix(dim)
+        R_low = ot.CorrelationMatrix(dim)
+        for j in range(dim):
+            for k in range(j):
+                R_high[j, k] = corr_high
+                R_low[j, k] = corr_low
+        d1 = ot.Normal([0.0] * dim, [1.0] * dim, R_high)
+        d2 = ot.Normal([0.0] * dim, [1.0] * dim, R_low)
+        mixture = ot.Mixture([d1, d2], [0.5, 0.5])
+        return mixture.getCopula()
+
     copula_factories = {
         "NormalCopula": lambda dim: _make_normal_copula(dim) if dim > 1 else ot.IndependentCopula(1),
         "ClaytonCopula": lambda dim: _make_archimedean_copula(ot.ClaytonCopula, 2.0, dim),
         "GumbelCopula": lambda dim: _make_archimedean_copula(ot.GumbelCopula, 2.0, dim),
         "FrankCopula": lambda dim: _make_archimedean_copula(ot.FrankCopula, 2.0, dim),
+        "MixtureCopula": lambda dim: _make_mixture_copula(dim),
         "MinCopula": lambda dim: ot.MinCopula(dim),
     }
 

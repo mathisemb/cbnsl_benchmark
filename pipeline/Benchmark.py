@@ -213,6 +213,52 @@ class Benchmark:
         return bench
 
     @classmethod
+    def synthetic_cbn_mixture(
+        cls,
+        dag,
+        n_samples: int = 2000,
+        seed: int = 42,
+        rank_by: str = "F1-Score",
+        var_names: Optional[List[str]] = None,
+        marginal_type: str = "Uniform",
+    ) -> "Benchmark":
+        """Generate synthetic data with non-Gaussian dependence (Mixture copula).
+
+        The copula is extracted via ``getCopula()`` from a Mixture of two
+        Normal distributions with different correlation structures,
+        producing a bimodal dependence pattern in any dimension.
+
+        Args:
+            dag: ``gum.DAG`` defining the ground-truth structure.
+            n_samples: Number of samples to generate.
+            seed: Random seed.
+            rank_by: Metric used to rank Pareto-optimal profiles.
+            var_names: Variable names (default ``X0, X1, ...``).
+            marginal_type: Marginal distribution type
+                (``"Uniform"``, ``"Normal"``, ``"Exponential"``).
+        """
+        from data.generators import create_default_cbn, generate_from_cbn
+
+        if var_names is None:
+            var_names = [f"X{i}" for i in range(dag.size())]
+
+        cbn = create_default_cbn(dag,
+                                 var_names=var_names,
+                                 marginal_type=marginal_type,
+                                 lcc_types="MixtureCopula")
+        dataset, golden = generate_from_cbn(cbn, n_samples=n_samples, seed=seed)
+
+        dataset = Dataset(
+            dataset.data,
+            name=f"synthetic_mixture_{dag.size()}nodes",
+            feature_names=var_names,
+        )
+
+        bench = cls(dataset, golden, rank_by=rank_by)
+        bench._register_all_algorithms()
+        return bench
+
+    @classmethod
     def synthetic_gausslinSEM(
         cls,
         dag,
@@ -220,7 +266,8 @@ class Benchmark:
         seed: int = 42,
         rank_by: str = "F1-Score",
         var_names: Optional[List[str]] = None,
-        weight_range: tuple = (0.5, 2.0),
+        #weight_range: tuple = (0.5, 2.0),
+        weight_range: tuple = (0.3, 0.8),
     ) -> "Benchmark":
         """Generate synthetic data from a known DAG using a linear SEM with Gaussian noise.
 
@@ -258,15 +305,19 @@ class Benchmark:
                 sign = rng.choice([-1, 1])
                 weights[(parent, node)] = sign * w
 
-        # Generate gaussian noise
-        noise = rng.normal(loc=0.0, scale=1.0, size=(n_samples, n_vars))
+        # Generate noise
+        noise = rng.normal(loc=0.0, scale=0.1, size=(n_samples, n_vars))
 
         # Generate data following topological order
         data = np.zeros((n_samples, n_vars))
         for node in topo:
-            data[:, node] = noise[:, node]
-            for parent in dag.parents(node):
-                data[:, node] += weights[(parent, node)] * data[:, parent]
+            if len(dag.parents(node)) == 0:
+                # Root nodes: standard Gaussian marginal
+                data[:, node] = rng.normal(loc=0.0, scale=1.0, size=n_samples)
+            else:
+                data[:, node] = noise[:, node]
+                for parent in dag.parents(node):
+                    data[:, node] += weights[(parent, node)] * data[:, parent]
 
         # Golden structure (CPDAG)
         bn = gum.BayesNet()
@@ -534,7 +585,7 @@ class Benchmark:
         plot_best_scores(scores, params, seed_counts=self._seed_counts)
 
     def plot_structures(self) -> None:
-        """Display learned CPDAGs for each algorithm.
+        """Display learned CPDAGs for each algorithm alongside the golden BN and a diff.
 
         For stochastic algorithms (e.g. LiNGAM), all seed structures are shown.
         """
@@ -542,7 +593,10 @@ class Benchmark:
             raise RuntimeError("Call run() or run_fixed() first.")
         from notebooks.plotting import plot_cpdags
 
-        plot_cpdags(self._structures, self._params_cpdag, self.dataset.feature_names)
+        plot_cpdags(
+            self._structures, self._params_cpdag, self.dataset.feature_names,
+            golden_structure=self.golden_structure,
+        )
 
     def plot_pairwise_heatmaps(self, compare_mode: str = "cpdag") -> None:
         """Plot pairwise metric heatmaps between all learned structures."""
