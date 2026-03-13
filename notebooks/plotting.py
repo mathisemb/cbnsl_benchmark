@@ -215,6 +215,9 @@ def plot_grid_search_results(name, gs, param_grid, metric_names, pareto_objectiv
         fig, axes = plt.subplots(1, 3, figsize=(16, 4))
         fig.suptitle(f"{name} : score par {p}", fontsize=13, fontweight="bold")
         for ax, mn in zip(axes, metric_names):
+            if mn not in df.columns:
+                ax.set_title(f"{mn} (N/A)")
+                continue
             sns.barplot(data=df, x=p, y=mn, ax=ax, color="steelblue")
             ax.set_title(mn)
         plt.tight_layout()
@@ -225,6 +228,9 @@ def plot_grid_search_results(name, gs, param_grid, metric_names, pareto_objectiv
         fig, axes = plt.subplots(1, 3, figsize=(18, 5))
         fig.suptitle(f"{name} : {p1} x {p2}", fontsize=13, fontweight="bold")
         for ax, mn, cmap in zip(axes, metric_names, ["rocket_r", "viridis", "viridis"]):
+            if mn not in df.columns:
+                ax.set_title(f"{mn} (N/A)")
+                continue
             pivot = df.pivot_table(index=p1, columns=p2, values=mn, aggfunc="mean")
             if pivot.empty or pivot.isna().all().all():
                 ax.set_title(f"{mn} (N/A)")

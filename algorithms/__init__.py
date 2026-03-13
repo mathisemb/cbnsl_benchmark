@@ -15,23 +15,17 @@ from algorithms.LiNGAMAdapter import LiNGAMAdapter
 
 # Each entry: (adapter_class, fixed_params, random_seeds)
 # random_seeds is optional (None = deterministic algorithm, run once).
-"""
 ALL_ALGORITHMS = {
-    "CPC v1":        (CPCAdapter, {"version": 1}, None),
-    "CPC v2":        (CPCAdapter, {"version": 2}, None),
-    "CMIIC v1":      (CMIICAdapter, {"version": 1}, None),
-    "CMIIC v2":      (CMIICAdapter, {"version": 2}, None),
+    #"CPC v1":        (CPCAdapter, {"version": 1}, None),
+    #"CPC v2":        (CPCAdapter, {"version": 2}, None),
+    #"CMIIC v1":      (CMIICAdapter, {"version": 1}, None),
+    #"CMIIC v2":      (CMIICAdapter, {"version": 2}, None),
+    "CPC":           (CPCAdapter, {"version": 1}, None),
+    "CMIIC":         (CMIICAdapter, {"version": 1}, None),
     "MIIC":          (MIICAdapter, {}, None),
     "GHC+BDeu":      (GHCBDeuAdapter, {}, None),
     "NOTEARS":       (NOTEARSAdapter, {}, None),
     "NOTEARS Disc.": (NOTEARSDiscreteAdapter, {}, None),
     #"LiNGAM":        (LiNGAMAdapter, {}, list(range(10))),
     "LiNGAM":        (LiNGAMAdapter, {}, [42]),
-}
-"""
-ALL_ALGORITHMS = {
-    "CPC v1":        (CPCAdapter, {"version": 1}, None),
-    "CPC v2":        (CPCAdapter, {"version": 2}, None),
-    "CMIIC v1":      (CMIICAdapter, {"version": 1}, None),
-    "CMIIC v2":      (CMIICAdapter, {"version": 2}, None),
 }
