@@ -357,7 +357,7 @@ class Benchmark:
 
         dataset = Dataset(
             data,
-            name=f"synthetic_nongausslinSEM_{n_vars}nodes",
+            name=f"synthetic_gausslinSEM_{n_vars}nodes",
             feature_names=var_names,
         )
 
@@ -374,7 +374,8 @@ class Benchmark:
         rank_by: str = "F1-Score",
         var_names: Optional[List[str]] = None,
         noise_type: str = "uniform",
-        weight_range: tuple = (0.5, 2.0),
+        #weight_range: tuple = (0.5, 2.0),
+        weight_range: tuple = (0.3, 0.8),
     ) -> "Benchmark":
         """Generate synthetic data from a known DAG using a linear SEM with non-Gaussian noise.
 
@@ -416,7 +417,7 @@ class Benchmark:
 
         # Generate noise
         if noise_type == "laplace":
-            noise = rng.laplace(loc=0.0, scale=1.0, size=(n_samples, n_vars))
+            noise = rng.laplace(loc=0.0, scale=0.1, size=(n_samples, n_vars))
         elif noise_type == "uniform":
             noise = rng.uniform(-1.0, 1.0, size=(n_samples, n_vars))
         elif noise_type == "exp":
