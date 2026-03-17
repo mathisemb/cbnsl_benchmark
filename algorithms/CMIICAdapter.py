@@ -11,14 +11,13 @@ class CMIICAdapter(AlgorithmAdapter):
     CMIIC is a constraint-based algorithm for learning Bayesian Network structures
     from continuous data using conditional independence tests with MIIC approach.
 
-    Supports both CMIIC (version 1) and CMIIC2 (version 2).
     """
 
     DEFAULT_PARAM_GRID = {
         "alpha": [0.01, 0.05, 0.10],
     }
 
-    def __init__(self, alpha: float = 0.05, version: int = 1):
+    def __init__(self, alpha: float = 0.05):
         """
         Initialize the CMIIC adapter
 
@@ -28,9 +27,6 @@ class CMIICAdapter(AlgorithmAdapter):
             Significance level for independence tests (default: 0.05).
             Note: CMIIC's internal default is 0.01 (see CorrectedMutualInformation.hxx),
             but we use 0.05 for consistency with CPC and standard statistical practice.
-            Source: https://github.com/openturns/otagrum/blob/master/lib/src/otagrum/CorrectedMutualInformation.hxx
-        version : int, optional
-            Algorithm version: 1 for CMIIC, 2 for CMIIC2 (default: 1)
 
         Note
         ----
@@ -38,10 +34,6 @@ class CMIICAdapter(AlgorithmAdapter):
         Alpha is configured via setAlpha() after construction, not in the constructor.
         """
         self.alpha = alpha
-        self.version = version
-
-        if self.version not in [1, 2]:
-            raise ValueError(f"Unsupported CMIIC version: {self.version}. Must be 1 or 2.")
 
     def learn_dag(self, dataset: Dataset) -> gum.DAG:
         """
@@ -57,13 +49,7 @@ class CMIICAdapter(AlgorithmAdapter):
         gum.DAG
             The learned DAG
         """
-        # Create learner based on version (only takes data in constructor)
-        if self.version == 1:
-            learner = otagrum.ContinuousMIIC(dataset.data)
-        elif self.version == 2:
-            learner = otagrum.ContinuousMIIC2(dataset.data)
-        else:
-            raise ValueError(f"Unsupported CMIIC version: {self.version}")
+        learner = otagrum.ContinuousMIIC(dataset.data)
 
         # Configure alpha via setter (CMIIC uses setter, not constructor parameter)
         learner.setAlpha(self.alpha)
@@ -106,7 +92,4 @@ class CMIICAdapter(AlgorithmAdapter):
         str
             The algorithm name
         """
-        if self.version == 1:
-            return "ContinuousMIIC"
-        else:
-            return f"ContinuousMIIC{self.version}"
+        return "ContinuousMIIC"

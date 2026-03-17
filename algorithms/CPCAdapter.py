@@ -11,7 +11,6 @@ class CPCAdapter(AlgorithmAdapter):
     CPC is a constraint-based algorithm for learning Bayesian Network structures
     from continuous data using conditional independence tests.
 
-    Supports both CPC (version 1) and CPC2 (version 2).
     """
 
     DEFAULT_PARAM_GRID = {
@@ -19,7 +18,7 @@ class CPCAdapter(AlgorithmAdapter):
         "max_conditioning_set_size": list(range(2, 9)),
     }
 
-    def __init__(self, alpha: float = 0.05, max_conditioning_set_size: int = None, version: int = 1):
+    def __init__(self, alpha: float = 0.05, max_conditioning_set_size: int = None):
         """
         Initialize the CPC adapter
 
@@ -29,15 +28,9 @@ class CPCAdapter(AlgorithmAdapter):
             Significance level for independence tests (default: 0.05)
         max_conditioning_set_size : int, optional
             Maximum size of conditioning sets. If None, uses data dimension - 1
-        version : int, optional
-            Algorithm version: 1 for CPC, 2 for CPC2 (default: 1)
         """
         self.alpha = alpha
         self.max_conditioning_set_size = max_conditioning_set_size
-        self.version = version
-
-        if self.version not in [1, 2]:
-            raise ValueError(f"Unsupported CPC version: {self.version}. Must be 1 or 2.")
 
     def learn_dag(self, dataset: Dataset) -> gum.DAG:
         """
@@ -57,13 +50,7 @@ class CPCAdapter(AlgorithmAdapter):
         if max_cond_set is None:
             max_cond_set = dataset.data.shape[1] - 2
 
-        # Create learner based on version
-        if self.version == 1:
-            learner = otagrum.ContinuousPC(dataset.data, max_cond_set, self.alpha)
-        elif self.version == 2:
-            learner = otagrum.ContinuousPC2(dataset.data, max_cond_set, self.alpha)
-        else:
-            raise ValueError(f"Unsupported CPC version: {self.version}")
+        learner = otagrum.ContinuousPC(dataset.data, max_cond_set, self.alpha)
 
         learner.setVerbosity(False)
         named_dag = learner.learnDAG()
@@ -104,7 +91,4 @@ class CPCAdapter(AlgorithmAdapter):
         str
             The algorithm name
         """
-        if self.version == 1:
-            return "ContinuousPC"
-        else:
-            return f"ContinuousPC{self.version}"
+        return "ContinuousPC"

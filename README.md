@@ -1,93 +1,77 @@
-# Continuous Bayesian Network Structure Learning benchmark
-This repository provides wrappers for different structure learning algorithms for bayesian networks in the continuous case. The pipeline allows them to be executed on the same dataset and to compare their results.
+# Continuous Bayesian Network Structure Learning Benchmark
 
-# Installation
+This repository benchmarks structure learning algorithms for Bayesian networks in the continuous case. It provides a unified pipeline to run them on the same datasets and compare their results.
 
-## Quick start
+## Algorithms
+
+| Algorithm | Package |
+|---|---|
+| ContinuousPC | otagrum |
+| ContinuousMIIC | otagrum |
+| MIIC | pyAgrum |
+| GHC+BDeu | pyAgrum |
+| NOTEARS | notears |
+| DirectLiNGAM | lingam |
+
+## Installation
+
+### Quick start
 ```bash
 ./install.sh
 ```
 
-## Manual Installation
+### Manual installation
 
-### 1. Create a virtual environment
+#### 1. Create a virtual environment
+
 ```bash
-python3 -m venv venv --system-site-packages
+python3 -m venv venv
 source venv/bin/activate
 ```
-The flag `--system-site-packages` gives the venv access to system-installed packages (pyAgrum, openturns) and user-installed packages (otagrum in `~/.local/`).
 
-### 2. Install dependencies
+#### 2. Install Python dependencies
 
-#### Why `--system-site-packages`?
-
-There are two possible approaches for managing dependencies:
-
-**Approach A — Everything inside the venv:**
-Install pyAgrum, openturns, numpy, pandas, etc. directly in the venv via `pip install`. Advantage: the venv is fully self-contained. Drawback: some C++ packages (pyAgrum, openturns) are better managed by the system package manager (pacman, apt…), and otagrum cannot be pip-installed — it must be compiled from source and installs into `~/.local/`.
-
-**Approach B — Hybrid system + venv (current choice):**
-Heavy C++ packages (pyAgrum, openturns) are installed at the system level via the package manager, otagrum is compiled into `~/.local/`, and only pure Python packages (lingam, notears, pandas, numpy) are installed inside the venv. The `--system-site-packages` flag makes system packages and `~/.local/` visible from within the venv.
-
-**We use Approach B** because:
-- pyAgrum and openturns are C++ libraries with Python bindings: the system package manager handles their native dependencies and updates more reliably
-- otagrum must be compiled from source (cmake/C++) and installs into `~/.local/` — it cannot be `pip install`ed
-- On some distributions (Arch/Manjaro), PEP 668 prevents `pip install` at the system level, which makes the venv even more useful for pure Python packages
-- This approach avoids duplicating large C++ libraries in each venv
-
-#### Dependency table
-
-The table below lists every dependency, how to install it, and where it ends up.
-
-**Packages installed outside the venv** (visible thanks to `--system-site-packages`):
-
-| Package | Command | Installed in | Used by |
-|---|---|---|---|
-| **pyAgrum** | `pip install pyAgrum` or via the system package manager | `/usr/lib/.../site-packages/` | All algorithms, metrics |
-| **OpenTURNS** | `pip install openturns` or via the system package manager | `/usr/lib/.../site-packages/` | CPC, CMIIC, data generators |
-| **otagrum** (standard) | `conda install otagrum` | `/usr/lib/.../site-packages/` | CPC, CMIIC (v1 only) |
-| **otagrum** (with CPC2/CMIIC2) | Build from source (see below) | `~/.local/lib/.../site-packages/` | CPC, CPC2, CMIIC, CMIIC2 |
-
-**Packages installed inside the venv** (via `pip install` after activation):
-
-| Package | Command | Installed in | Used by |
-|---|---|---|---|
-| **LiNGAM** | via `pip install -e .` (in pyproject.toml) | `venv/lib/.../site-packages/` | LiNGAMAdapter |
-| **NOTEARS** | `pip install git+https://github.com/xunzheng/notears.git` | `venv/lib/.../site-packages/` | NOTEARSAdapter |
-
-Once the venv is activated:
 ```bash
 pip install -e .
 pip install git+https://github.com/xunzheng/notears.git
 ```
 
-### 3. Install otagrum
+This installs pyAgrum, OpenTURNS, lingam, and the benchmark itself. NOTEARS is installed separately as it is not on PyPI.
 
-**Option A** — Standard otagrum (CPC and CMIIC only, no CPC2/CMIIC2):
-```bash
-conda install otagrum
-```
+#### 3. Install otagrum from source
 
-**Option B** — Fork with CPC2/CMIIC2 support (requires cmake and a C++ compiler):
+This benchmark requires the latest version of otagrum (with aGrUM Meek rules in ContinuousPC/MIIC). This version is not yet available via `conda install otagrum` — it must be built from source for now.
+
+> Once a new conda-forge release of otagrum includes this change, `conda install otagrum` will be sufficient and this step can be skipped.
+
+Requires cmake and a C++ compiler:
 ```bash
-git clone https://github.com/mathisemb/otagrum.git
+git clone https://github.com/openturns/otagrum.git
 cd otagrum
-git checkout cpc2_cmiic2
 mkdir build && cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$HOME/.local
+cmake .. -DCMAKE_INSTALL_PREFIX=$VIRTUAL_ENV
 cmake --build .
 cmake --build . --target install
+cd ../..
 ```
-This installs otagrum in `~/.local/lib/python3.x/site-packages/`, which is visible in the venv thanks to `--system-site-packages`.
 
-# How to run the benchmark?
+## Usage
 
-Activate the virtual environment, then run the comparison test on the Sachs dataset:
+### Run benchmarks
+
+Edit the configurations in `views/run_all_benchmarks.py`, then:
+
 ```bash
 source venv/bin/activate
-python tests/test_comparison_sachs.py
+python views/run_all_benchmarks.py
 ```
 
-This runs all 8 algorithms (CPC, CPC2, CMIIC, CMIIC2, MIIC, GHC+BDeu, NOTEARS, DirectLiNGAM) on the Sachs observational dataset, computes SHD against the ground truth, and displays pairwise comparisons.
+Results are saved in `views/results/`.
 
-You can also run the ```notebooks/benchmark_sachs.ipynb```.
+### Visualize results
+
+Open `views/visualize_gridsearch.ipynb` to explore and compare the results.
+
+### Scaling study
+
+The `scaling/` directory measures how algorithms scale with graph size (number of nodes and samples). See `scaling/run_scaling.py`.
