@@ -22,38 +22,17 @@ This repository benchmarks structure learning algorithms for Bayesian networks i
 
 ### Manual installation
 
-#### 1. Create a virtual environment
-
 ```bash
-python3 -m venv venv
-source venv/bin/activate
-```
-
-#### 2. Install Python dependencies
-
-```bash
+conda create -n cbnsl
+conda activate cbnsl
+conda install otagrum
 pip install -e .
 pip install git+https://github.com/xunzheng/notears.git
 ```
 
-This installs pyAgrum, OpenTURNS, lingam, and the benchmark itself. NOTEARS is installed separately as it is not on PyPI.
+`conda install otagrum` installs otagrum along with its dependencies (pyAgrum, OpenTURNS). The remaining packages (lingam, notears) are installed via pip.
 
-#### 3. Install otagrum from source
-
-This benchmark requires the latest version of otagrum (with aGrUM Meek rules in ContinuousPC/MIIC). This version is not yet available via `conda install otagrum` — it must be built from source for now.
-
-> Once a new conda-forge release of otagrum includes this change, `conda install otagrum` will be sufficient and this step can be skipped.
-
-Requires cmake and a C++ compiler:
-```bash
-git clone https://github.com/openturns/otagrum.git
-cd otagrum
-mkdir build && cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$VIRTUAL_ENV
-cmake --build .
-cmake --build . --target install
-cd ../..
-```
+> **Note:** The conda version of otagrum is not yet up to date with the [GitHub repository](https://github.com/openturns/otagrum). The latest version integrates aGrUM's Meek rules into ContinuousPC and ContinuousMIIC. The conda package will be updated soon.
 
 ## Usage
 
@@ -62,7 +41,7 @@ cd ../..
 Edit the configurations in `views/run_all_benchmarks.py`, then:
 
 ```bash
-source venv/bin/activate
+conda activate cbnsl
 python views/run_all_benchmarks.py
 ```
 
