@@ -76,170 +76,63 @@ class Benchmark:
     # Factory methods
     # ------------------------------------------------------------------
 
-    @classmethod
-    def sachs(cls, rank_by: str = "F1-Score", repetition_nb: int = 1, ) -> "Benchmark":
-        """Load Sachs protein signaling dataset with BN18 ground truth."""
-        from data.sachs.load_ground_truth import load_sachs_ground_truth
-
-        sachs_path = Path(__file__).parent.parent / "data" / "sachs"
-        sachs_data = pd.read_csv(
-            sachs_path / "sachs_observational.csv", sep="\t"
-        )
-        golden = load_sachs_ground_truth(version="bn18", as_structure=True)
-
-        data = sachs_data.to_numpy()
-        if repetition_nb > 1:
-            # np.tile(A, (r, c)) repeats A r times along rows and c times along columns
-            data = np.tile(data, (repetition_nb, 1))
-
-        dataset = Dataset(
-            data,
-            name="sachs_observational",
-            feature_names=list(sachs_data.columns),
-        )
-
-        bench = cls(dataset, golden, rank_by=rank_by)
-        bench._register_all_algorithms()
-        return bench
+    _SACHS_VARIANTS = {
+        "raw": "sachs_observational.csv",
+        "log": "log_sachs_observational.csv",
+        "preprocessed": "sachs_observational_preprocessed.csv",
+    }
 
     @classmethod
-    def log_sachs(cls, rank_by: str = "F1-Score", repetition_nb: int = 1, ) -> "Benchmark":
-        """Load Sachs protein signaling dataset with BN18 ground truth."""
-        from data.sachs.load_ground_truth import load_sachs_ground_truth
-
-        sachs_path = Path(__file__).parent.parent / "data" / "sachs"
-        sachs_data = pd.read_csv(
-            sachs_path / "log_sachs_observational.csv", sep="\t"
-        )
-        golden = load_sachs_ground_truth(version="bn18", as_structure=True)
-
-        data = sachs_data.to_numpy()
-        if repetition_nb > 1:
-            # np.tile(A, (r, c)) repeats A r times along rows and c times along columns
-            data = np.tile(data, (repetition_nb, 1))
-
-        dataset = Dataset(
-            data,
-            name="log_sachs_observational",
-            feature_names=list(sachs_data.columns),
-        )
-
-        bench = cls(dataset, golden, rank_by=rank_by)
-        bench._register_all_algorithms()
-        return bench
-
-    @classmethod
-    def preprocessed_sachs(cls, rank_by: str = "F1-Score", repetition_nb: int = 1, ) -> "Benchmark":
-        """Load Sachs protein signaling dataset with BN18 ground truth."""
-        from data.sachs.load_ground_truth import load_sachs_ground_truth
-
-        sachs_path = Path(__file__).parent.parent / "data" / "sachs"
-        sachs_data = pd.read_csv(
-            sachs_path / "sachs_observational_preprocessed.csv", sep="\t"
-        )
-        golden = load_sachs_ground_truth(version="bn18", as_structure=True)
-
-        data = sachs_data.to_numpy()
-        if repetition_nb > 1:
-            # np.tile(A, (r, c)) repeats A r times along rows and c times along columns
-            data = np.tile(data, (repetition_nb, 1))
-
-        dataset = Dataset(
-            data,
-            name="sachs_observational_preprocessed",
-            feature_names=list(sachs_data.columns),
-        )
-
-        bench = cls(dataset, golden, rank_by=rank_by)
-        bench._register_all_algorithms()
-        return bench
-
-    @classmethod
-    def synthetic_cbn_unif_gauss(
+    def sachs(
         cls,
-        dag,
-        n_samples: int = 2000,
-        seed: int = 42,
+        variant: str = "raw",
         rank_by: str = "F1-Score",
-        var_names: Optional[List[str]] = None,
-        **cbn_kwargs,
+        repetition_nb: int = 1,
     ) -> "Benchmark":
-        """Generate synthetic data from a known DAG structure.
+        """Load Sachs protein signaling dataset with BN18 ground truth.
 
         Args:
-            dag: ``gum.DAG`` defining the ground-truth structure.
-            n_samples: Number of samples to generate.
-            seed: Random seed.
+            variant: ``"raw"``, ``"log"``, or ``"preprocessed"``.
             rank_by: Metric used to rank Pareto-optimal profiles.
-            var_names: Variable names (default ``X0, X1, ...``).
-            **cbn_kwargs: Forwarded to ``create_simple_cbn``
-                (e.g. ``copula_correlation``).
+            repetition_nb: Tile the dataset this many times (for sample-size experiments).
         """
-        from data.generators import create_default_cbn, generate_from_cbn
+        from data.sachs.load_ground_truth import load_sachs_ground_truth
 
-        if var_names is None:
-            var_names = [f"X{i}" for i in range(dag.size())]
+        if variant not in cls._SACHS_VARIANTS:
+            raise ValueError(
+                f"Unknown variant '{variant}'. "
+                f"Choose from {list(cls._SACHS_VARIANTS.keys())}"
+            )
 
-        cbn = create_default_cbn(dag,
-                                 var_names=var_names,
-                                 marginal_type="Uniform",
-                                 lcc_types="NormalCopula")
-        dataset, golden = generate_from_cbn(cbn, n_samples=n_samples, seed=seed)
+        sachs_path = Path(__file__).parent.parent / "data" / "sachs"
+        sachs_data = pd.read_csv(sachs_path / cls._SACHS_VARIANTS[variant], sep="\t")
+        golden = load_sachs_ground_truth(version="bn18", as_structure=True)
+
+        data = sachs_data.to_numpy()
+        if repetition_nb > 1:
+            data = np.tile(data, (repetition_nb, 1))
 
         dataset = Dataset(
-            dataset.data,
-            name=f"synthetic_{dag.size()}nodes",
-            feature_names=var_names,
+            data,
+            name=f"sachs_{variant}",
+            feature_names=list(sachs_data.columns),
         )
 
         bench = cls(dataset, golden, rank_by=rank_by)
         bench._register_all_algorithms()
         return bench
 
+    # Aliases for backward compatibility with existing notebooks
     @classmethod
-    def synthetic_cbn_exp_clayton(
-        cls,
-        dag,
-        n_samples: int = 2000,
-        seed: int = 42,
-        rank_by: str = "F1-Score",
-        var_names: Optional[List[str]] = None,
-        **cbn_kwargs,
-    ) -> "Benchmark":
-        """Generate synthetic data from a known DAG structure.
-
-        Args:
-            dag: ``gum.DAG`` defining the ground-truth structure.
-            n_samples: Number of samples to generate.
-            seed: Random seed.
-            rank_by: Metric used to rank Pareto-optimal profiles.
-            var_names: Variable names (default ``X0, X1, ...``).
-            **cbn_kwargs: Forwarded to ``create_simple_cbn``
-                (e.g. ``copula_correlation``).
-        """
-        from data.generators import create_default_cbn, generate_from_cbn
-
-        if var_names is None:
-            var_names = [f"X{i}" for i in range(dag.size())]
-
-        cbn = create_default_cbn(dag,
-                                 var_names=var_names,
-                                 marginal_type="Exponential",
-                                 lcc_types="ClaytonCopula")
-        dataset, golden = generate_from_cbn(cbn, n_samples=n_samples, seed=seed)
-
-        dataset = Dataset(
-            dataset.data,
-            name=f"synthetic_{dag.size()}nodes",
-            feature_names=var_names,
-        )
-
-        bench = cls(dataset, golden, rank_by=rank_by)
-        bench._register_all_algorithms()
-        return bench
+    def log_sachs(cls, **kw) -> "Benchmark":
+        return cls.sachs(variant="log", **kw)
 
     @classmethod
-    def synthetic_cbn_mixture(
+    def preprocessed_sachs(cls, **kw) -> "Benchmark":
+        return cls.sachs(variant="preprocessed", **kw)
+
+    @classmethod
+    def synthetic_cbn(
         cls,
         dag,
         n_samples: int = 2000,
@@ -247,12 +140,9 @@ class Benchmark:
         rank_by: str = "F1-Score",
         var_names: Optional[List[str]] = None,
         marginal_type: str = "Uniform",
+        lcc_types: str = "NormalCopula",
     ) -> "Benchmark":
-        """Generate synthetic data with non-Gaussian dependence (Mixture copula).
-
-        The copula is extracted via ``getCopula()`` from a Mixture of two
-        Normal distributions with different correlation structures,
-        producing a bimodal dependence pattern in any dimension.
+        """Generate synthetic data from a CBN built on the given DAG.
 
         Args:
             dag: ``gum.DAG`` defining the ground-truth structure.
@@ -260,201 +150,78 @@ class Benchmark:
             seed: Random seed.
             rank_by: Metric used to rank Pareto-optimal profiles.
             var_names: Variable names (default ``X0, X1, ...``).
-            marginal_type: Marginal distribution type
-                (``"Uniform"``, ``"Normal"``, ``"Exponential"``).
+            marginal_type: ``"Uniform"``, ``"Normal"``, ``"Exponential"``.
+            lcc_types: ``"NormalCopula"``, ``"ClaytonCopula"``,
+                ``"MixtureCopula"``, etc.
         """
         from data.generators import create_default_cbn, generate_from_cbn
 
         if var_names is None:
             var_names = [f"X{i}" for i in range(dag.size())]
 
-        cbn = create_default_cbn(dag,
-                                 var_names=var_names,
-                                 marginal_type=marginal_type,
-                                 lcc_types="MixtureCopula")
+        cbn = create_default_cbn(dag, var_names=var_names,
+                                 marginal_type=marginal_type, lcc_types=lcc_types)
         dataset, golden = generate_from_cbn(cbn, n_samples=n_samples, seed=seed)
-
-        dataset = Dataset(
-            dataset.data,
-            name=f"synthetic_mixture_{dag.size()}nodes",
-            feature_names=var_names,
-        )
+        dataset = Dataset(dataset.data,
+                          name=f"synthetic_cbn_{dag.size()}nodes",
+                          feature_names=var_names)
 
         bench = cls(dataset, golden, rank_by=rank_by)
         bench._register_all_algorithms()
         return bench
 
     @classmethod
-    def synthetic_gausslinSEM(
+    def synthetic_sem(
         cls,
         dag,
         n_samples: int = 2000,
         seed: int = 42,
         rank_by: str = "F1-Score",
-        var_names: Optional[List[str]] = None,
-        #weight_range: tuple = (0.5, 2.0),
+        noise_type: str = "gaussian",
         weight_range: tuple = (0.3, 0.8),
     ) -> "Benchmark":
-        """Generate synthetic data from a known DAG using a linear SEM with Gaussian noise.
-
-        Each variable is generated as:
-        ``X_i = sum(w_ji * X_j for j in parents(i)) + e_i``
-        where ``e_i`` is drawn from a Gaussian distribution.
+        """Generate synthetic data from a linear SEM.
 
         Args:
             dag: ``gum.DAG`` defining the ground-truth structure.
             n_samples: Number of samples to generate.
             seed: Random seed.
             rank_by: Metric used to rank Pareto-optimal profiles.
-            var_names: Variable names (default ``X0, X1, ...``).
-            weight_range: ``(low, high)`` for uniform sampling of
-                absolute edge weights (sign is random).
+            noise_type: ``"gaussian"``, ``"laplace"``, ``"uniform"``,
+                or ``"exp"``.
+            weight_range: ``(low, high)`` for absolute edge weights.
         """
-        import numpy as np
-        import pyagrum as gum
-        from pipeline.Structure import Structure
+        from data.generators import generate_from_sem
 
-        rng = np.random.default_rng(seed)
-        n_vars = dag.size()
-
-        if var_names is None:
-            var_names = [f"X{i}" for i in range(dag.size())]
-
-        # Topological order
-        topo = dag.topologicalOrder()
-
-        # Sample edge weights
-        weights = {}  # (parent, child) -> weight
-        for node in topo:
-            for parent in dag.parents(node):
-                w = rng.uniform(*weight_range)
-                sign = rng.choice([-1, 1])
-                weights[(parent, node)] = sign * w
-
-        # Generate noise
-        noise = rng.normal(loc=0.0, scale=0.1, size=(n_samples, n_vars))
-
-        # Generate data following topological order
-        data = np.zeros((n_samples, n_vars))
-        for node in topo:
-            if len(dag.parents(node)) == 0:
-                # Root nodes: standard Gaussian marginal
-                data[:, node] = rng.normal(loc=0.0, scale=1.0, size=n_samples)
-            else:
-                data[:, node] = noise[:, node]
-                for parent in dag.parents(node):
-                    data[:, node] += weights[(parent, node)] * data[:, parent]
-
-        # Golden structure (CPDAG)
-        bn = gum.BayesNet()
-        for node_id in dag.nodes():
-            bn.add(gum.LabelizedVariable(f"X{node_id}", f"X{node_id}", 2))
-        for node_id in dag.nodes():
-            for child_id in dag.children(node_id):
-                bn.addArc(node_id, child_id)
-        essential_graph = gum.EssentialGraph(bn)
-        golden = Structure(essential_graph.pdag())
-
-        dataset = Dataset(
-            data,
-            name=f"synthetic_gausslinSEM_{n_vars}nodes",
-            feature_names=var_names,
+        dataset, golden = generate_from_sem(
+            dag, n_samples=n_samples, seed=seed,
+            noise_type=noise_type, weight_range=weight_range,
         )
 
         bench = cls(dataset, golden, rank_by=rank_by)
         bench._register_all_algorithms()
         return bench
+
+    # Aliases for backward compatibility with existing notebooks
+    @classmethod
+    def synthetic_cbn_unif_gauss(cls, dag, **kw) -> "Benchmark":
+        return cls.synthetic_cbn(dag, marginal_type="Uniform", lcc_types="NormalCopula", **kw)
 
     @classmethod
-    def synthetic_nongausslinSEM(
-        cls,
-        dag,
-        n_samples: int = 2000,
-        seed: int = 42,
-        rank_by: str = "F1-Score",
-        var_names: Optional[List[str]] = None,
-        noise_type: str = "uniform",
-        #weight_range: tuple = (0.5, 2.0),
-        weight_range: tuple = (0.3, 0.8),
-    ) -> "Benchmark":
-        """Generate synthetic data from a known DAG using a linear SEM with non-Gaussian noise.
+    def synthetic_cbn_exp_clayton(cls, dag, **kw) -> "Benchmark":
+        return cls.synthetic_cbn(dag, marginal_type="Exponential", lcc_types="ClaytonCopula", **kw)
 
-        Each variable is generated as:
-        ``X_i = sum(w_ji * X_j for j in parents(i)) + e_i``
-        where ``e_i`` is drawn from a non-Gaussian distribution.
+    @classmethod
+    def synthetic_cbn_mixture(cls, dag, marginal_type="Uniform", **kw) -> "Benchmark":
+        return cls.synthetic_cbn(dag, marginal_type=marginal_type, lcc_types="MixtureCopula", **kw)
 
-        Args:
-            dag: ``gum.DAG`` defining the ground-truth structure.
-            n_samples: Number of samples to generate.
-            seed: Random seed.
-            rank_by: Metric used to rank Pareto-optimal profiles.
-            var_names: Variable names (default ``X0, X1, ...``).
-            noise_type: Noise distribution — ``"laplace"``, ``"uniform"``,
-                or ``"exp"`` (centred exponential).
-            weight_range: ``(low, high)`` for uniform sampling of
-                absolute edge weights (sign is random).
-        """
-        import numpy as np
-        import pyagrum as gum
-        from pipeline.Structure import Structure
+    @classmethod
+    def synthetic_gausslinSEM(cls, dag, **kw) -> "Benchmark":
+        return cls.synthetic_sem(dag, noise_type="gaussian", **kw)
 
-        rng = np.random.default_rng(seed)
-        n_vars = dag.size()
-
-        if var_names is None:
-            var_names = [f"X{i}" for i in range(dag.size())]
-
-        # Topological order
-        topo = dag.topologicalOrder()
-
-        # Sample edge weights
-        weights = {}  # (parent, child) -> weight
-        for node in topo:
-            for parent in dag.parents(node):
-                w = rng.uniform(*weight_range)
-                sign = rng.choice([-1, 1])
-                weights[(parent, node)] = sign * w
-
-        # Generate noise
-        if noise_type == "laplace":
-            noise = rng.laplace(loc=0.0, scale=0.1, size=(n_samples, n_vars))
-        elif noise_type == "uniform":
-            noise = rng.uniform(-1.0, 1.0, size=(n_samples, n_vars))
-        elif noise_type == "exp":
-            noise = rng.exponential(scale=1.0, size=(n_samples, n_vars))
-            noise -= noise.mean(axis=0)  # centre
-        else:
-            raise ValueError(
-                f"Unknown noise_type '{noise_type}'. "
-                "Choose from 'laplace', 'uniform', 'exp'."
-            )
-
-        # Generate data following topological order
-        data = np.zeros((n_samples, n_vars))
-        for node in topo:
-            data[:, node] = noise[:, node]
-            for parent in dag.parents(node):
-                data[:, node] += weights[(parent, node)] * data[:, parent]
-
-        # Golden structure (CPDAG)
-        bn = gum.BayesNet()
-        for node_id in dag.nodes():
-            bn.add(gum.LabelizedVariable(f"X{node_id}", f"X{node_id}", 2))
-        for node_id in dag.nodes():
-            for child_id in dag.children(node_id):
-                bn.addArc(node_id, child_id)
-        essential_graph = gum.EssentialGraph(bn)
-        golden = Structure(essential_graph.pdag())
-
-        dataset = Dataset(
-            data,
-            name=f"synthetic_nongausslinSEM_{n_vars}nodes",
-            feature_names=var_names,
-        )
-
-        bench = cls(dataset, golden, rank_by=rank_by)
-        bench._register_all_algorithms()
-        return bench
+    @classmethod
+    def synthetic_nongausslinSEM(cls, dag, noise_type="uniform", **kw) -> "Benchmark":
+        return cls.synthetic_sem(dag, noise_type=noise_type, **kw)
 
     # ------------------------------------------------------------------
     # Algorithm registration

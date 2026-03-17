@@ -3,7 +3,7 @@
 <html lang="en">
 <head><meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>synthetic_sem_nongauss_5_2000s</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>scaling_study</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <style type="text/css">
     pre { line-height: 125%; }
 td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
@@ -7796,21 +7796,17 @@ a.anchor-link {
 <!-- End of mermaid configuration --></head>
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
 <main>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=84a85898">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cell-title">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h1 id="Synthetic-basic-SEM-dataset-(non-Gaussian)">Synthetic basic SEM dataset (non-Gaussian)<a class="anchor-link" href="#Synthetic-basic-SEM-dataset-(non-Gaussian)">¶</a></h1><ul>
-<li>non-Gaussian linear SEM (uniform noise)</li>
-<li>5 variables</li>
-<li>2000 samples</li>
-</ul>
+<h1 id="Scaling-study">Scaling study<a class="anchor-link" href="#Scaling-study">¶</a></h1>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=587fe3c5">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=cell-setup">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7818,33 +7814,40 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span><span class="p">;</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"../../../.."</span><span class="p">)</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">pyagrum</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gum</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pipeline.Benchmark</span><span class="w"> </span><span class="kn">import</span> <span class="n">Benchmark</span>
- 
-<span class="n">dag</span> <span class="o">=</span> <span class="n">gum</span><span class="o">.</span><span class="n">DAG</span><span class="p">()</span>
-<span class="n">dag</span><span class="o">.</span><span class="n">addNodes</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">h</span> <span class="ow">in</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">),(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">),(</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">),(</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">),(</span><span class="mi">4</span><span class="p">,</span><span class="mi">2</span><span class="p">)]:</span>
-    <span class="n">dag</span><span class="o">.</span><span class="n">addArc</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span><span class="p">;</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">".."</span><span class="p">)</span>
+<span class="o">%</span><span class="k">load_ext</span> autoreload
+<span class="o">%</span><span class="k">autoreload</span> 2
 
-<span class="n">bench</span> <span class="o">=</span> <span class="n">Benchmark</span><span class="o">.</span><span class="n">synthetic_nongausslinSEM</span><span class="p">(</span><span class="n">dag</span><span class="p">,</span> <span class="n">n_samples</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">algorithms.CMIICAdapter</span><span class="w"> </span><span class="kn">import</span> <span class="n">CMIICAdapter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">algorithms.CPCAdapter</span><span class="w"> </span><span class="kn">import</span> <span class="n">CPCAdapter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">algorithms.NOTEARSAdapter</span><span class="w"> </span><span class="kn">import</span> <span class="n">NOTEARSAdapter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">algorithms.LiNGAMAdapter</span><span class="w"> </span><span class="kn">import</span> <span class="n">LiNGAMAdapter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">algorithms.MIICAdapter</span><span class="w"> </span><span class="kn">import</span> <span class="n">MIICAdapter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">algorithms.GHCBDeuAdapter</span><span class="w"> </span><span class="kn">import</span> <span class="n">GHCBDeuAdapter</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">data.generators</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_from_sem</span><span class="p">,</span> <span class="n">generate_from_cbn_dag</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scaling.runner</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScalingRunner</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scaling.plot</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_facet</span><span class="p">,</span> <span class="n">METRIC_NAMES</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scaling.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_results</span>
 </pre></div>
 </div>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=64e0ccf5">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cell-config-title">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="1.-Golden-structure">1. Golden structure<a class="anchor-link" href="#1.-Golden-structure">¶</a></h2>
+<h2 id="Configuration">Configuration<a class="anchor-link" href="#Configuration">¶</a></h2>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=180396fb">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=cell-config">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7852,24 +7855,45 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">bench</span><span class="o">.</span><span class="n">show_golden</span><span class="p">()</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">algo_configs</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="s2">"CPC"</span><span class="p">,</span>      <span class="n">CPCAdapter</span><span class="p">,</span>     <span class="p">{</span><span class="s2">"version"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"alpha"</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span> <span class="s2">"max_conditioning_set_size"</span><span class="p">:</span> <span class="mi">4</span><span class="p">}),</span>
+    <span class="p">(</span><span class="s2">"CMIIC"</span><span class="p">,</span>    <span class="n">CMIICAdapter</span><span class="p">,</span>   <span class="p">{</span><span class="s2">"version"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"alpha"</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">}),</span>
+    <span class="p">(</span><span class="s2">"MIIC"</span><span class="p">,</span>     <span class="n">MIICAdapter</span><span class="p">,</span>    <span class="p">{</span><span class="s2">"n_bins"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">"discretization_method"</span><span class="p">:</span> <span class="s2">"quantile"</span><span class="p">}),</span>
+    <span class="p">(</span><span class="s2">"GHC+BDeu"</span><span class="p">,</span> <span class="n">GHCBDeuAdapter</span><span class="p">,</span> <span class="p">{</span><span class="s2">"n_bins"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">"discretization_method"</span><span class="p">:</span> <span class="s2">"quantile"</span><span class="p">}),</span>
+    <span class="p">(</span><span class="s2">"NOTEARS"</span><span class="p">,</span>  <span class="n">NOTEARSAdapter</span><span class="p">,</span> <span class="p">{</span><span class="s2">"lambda1"</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span> <span class="s2">"w_threshold_notears"</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">}),</span>
+    <span class="p">(</span><span class="s2">"LiNGAM"</span><span class="p">,</span>   <span class="n">LiNGAMAdapter</span><span class="p">,</span>  <span class="p">{</span><span class="s2">"threshold_lingam"</span><span class="p">:</span> <span class="mf">0.075</span><span class="p">}),</span>
+<span class="p">]</span>
+
+<span class="n">generator</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">generate_from_sem</span><span class="p">,</span> <span class="n">noise_type</span><span class="o">=</span><span class="s2">"laplace"</span><span class="p">)</span>
+<span class="c1"># generator = partial(generate_from_cbn_dag, marginal_type="Uniform", lcc_types="NormalCopula")</span>
+
+<span class="n">runner</span> <span class="o">=</span> <span class="n">ScalingRunner</span><span class="p">(</span>
+    <span class="n">algo_configs</span><span class="o">=</span><span class="n">algo_configs</span><span class="p">,</span>
+    <span class="n">generator</span><span class="o">=</span><span class="n">generator</span><span class="p">,</span>
+    <span class="n">generator_name</span><span class="o">=</span><span class="s2">"SEM_laplace"</span><span class="p">,</span>
+    <span class="n">n_vars_list</span><span class="o">=</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span>
+    <span class="n">n_samples_list</span><span class="o">=</span><span class="p">[</span><span class="mi">200</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">2000</span><span class="p">,</span> <span class="mi">5000</span><span class="p">],</span>
+    <span class="n">density</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
+    <span class="n">n_graphs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=ec77bd52">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cell-run-title">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="2.-Grid-search">2. Grid search<a class="anchor-link" href="#2.-Grid-search">¶</a></h2>
+<h2 id="Run">Run<a class="anchor-link" href="#Run">¶</a></h2>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=80c48582">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=cell-run">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7877,24 +7901,24 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">bench</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=06d6a32e">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cell-plots-title">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="3.-Resultats-par-algorithme-(CPDAG)">3. Resultats par algorithme (CPDAG)<a class="anchor-link" href="#3.-Resultats-par-algorithme-(CPDAG)">¶</a></h2>
+<h2 id="(ou-charger-des-r%C3%A9sultats-existants)">(ou charger des résultats existants)<a class="anchor-link" href="#(ou-charger-des-r%C3%A9sultats-existants)">¶</a></h2>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=afb1979b">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=cell-plots-cpdag">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7902,24 +7926,24 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">bench</span><span class="o">.</span><span class="n">plot_grid_search</span><span class="p">(</span><span class="s2">"cpdag"</span><span class="p">)</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1">#df = load_results("results/cbn_unif_normal/results.csv")</span>
 </pre></div>
 </div>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=dedba4aa">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cell-plots-skel-title">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="4.-Meilleurs-profils-par-algorithme-(CPDAG)">4. Meilleurs profils par algorithme (CPDAG)<a class="anchor-link" href="#4.-Meilleurs-profils-par-algorithme-(CPDAG)">¶</a></h2>
+<h2 id="Visualisation">Visualisation<a class="anchor-link" href="#Visualisation">¶</a></h2>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=eea780cd">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=cell-plots-skel">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7927,24 +7951,35 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">bench</span><span class="o">.</span><span class="n">plot_best_scores</span><span class="p">(</span><span class="s2">"cpdag"</span><span class="p">)</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">plot_facet</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">"time_s"</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="s2">"n_vars"</span><span class="p">);</span> <span class="c1"># Temps de calcul</span>
 </pre></div>
 </div>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=098860be">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cell-mean-title">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="5.-Resultats-par-algorithme-(Skeleton)">5. Resultats par algorithme (Skeleton)<a class="anchor-link" href="#5.-Resultats-par-algorithme-(Skeleton)">¶</a></h2>
+<h2 id="M%C3%A9triques">Métriques<a class="anchor-link" href="#M%C3%A9triques">¶</a></h2>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=264584d5">
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=69da4eb6">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="Sur-les-CPDAG">Sur les CPDAG<a class="anchor-link" href="#Sur-les-CPDAG">¶</a></h3>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=27adaa7a">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7952,24 +7987,25 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">bench</span><span class="o">.</span><span class="n">plot_grid_search</span><span class="p">(</span><span class="s2">"skeleton"</span><span class="p">)</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="n">METRIC_NAMES</span><span class="p">:</span>
+    <span class="n">plot_facet</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">metric</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="s2">"n_vars"</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=15c29735">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=759f6705">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="6.-Meilleurs-profils-par-algorithme-(Skeleton)">6. Meilleurs profils par algorithme (Skeleton)<a class="anchor-link" href="#6.-Meilleurs-profils-par-algorithme-(Skeleton)">¶</a></h2>
+<h3 id="Sur-les-squelettes">Sur les squelettes<a class="anchor-link" href="#Sur-les-squelettes">¶</a></h3>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=e7efdec7">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=cell-mean">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7977,100 +8013,14 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">bench</span><span class="o">.</span><span class="n">plot_best_scores</span><span class="p">(</span><span class="s2">"skeleton"</span><span class="p">)</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="n">METRIC_NAMES</span><span class="p">:</span>
+    <span class="n">plot_facet</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">metric</span><span class="si">}</span><span class="s2">_skeleton"</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="s2">"n_vars"</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
 </div>
 </div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=8c331aeb">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="7.-Structures-apprises-(CPDAGs)">7. Structures apprises (CPDAGs)<a class="anchor-link" href="#7.-Structures-apprises-(CPDAGs)">¶</a></h2>
-</div>
-</div>
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=920fafd9">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-<div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">bench</span><span class="o">.</span><span class="n">plot_structures</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=2db8fc76">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="8.-Comparaisons-pairwise-(CPDAG)">8. Comparaisons pairwise (CPDAG)<a class="anchor-link" href="#8.-Comparaisons-pairwise-(CPDAG)">¶</a></h2>
-</div>
-</div>
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=9851eb8b">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-<div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">bench</span><span class="o">.</span><span class="n">plot_pairwise_heatmaps</span><span class="p">(</span><span class="s2">"cpdag"</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=e41580e3">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="9.-Comparaisons-pairwise-(Skeleton)">9. Comparaisons pairwise (Skeleton)<a class="anchor-link" href="#9.-Comparaisons-pairwise-(Skeleton)">¶</a></h2>
-</div>
-</div>
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=ab14b4b2">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-<div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">bench</span><span class="o">.</span><span class="n">plot_pairwise_heatmaps</span><span class="p">(</span><span class="s2">"skeleton"</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=4730a5bf">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<hr/>
-<p>To html</p>
-</div>
-</div>
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=a205027e">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=b05a0b16">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>

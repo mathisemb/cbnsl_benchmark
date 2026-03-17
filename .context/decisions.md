@@ -173,6 +173,12 @@ Pour la discrétisation par quantiles on utilise la classe DiscreteTypeProcessor
 
 Pour la discrétisation d'Hartemink, on doit l'écrire car il n'existe pas de version disponible de celle ci en Python.
 
+### Generation of Bayesian Networks
+The random structures are generated following "Random Generation of Bayesian Networks" (Ide & Cozman, SBIA 2002) which proposes an MCMC chain converging to a uniform distribution over the set of DAGs with a given number of nodes and arcs.
+Paper: http://sites.poli.usp.br/pmr/ltd/People/jside/IdeCozman_sbia02.pdf
+
+**Implementation**: we use `pyagrum.BNGenerator` (already a project dependency) which implements this MCMC method in C++ via aGrUM. The API is `BNGenerator().generate(n_nodes, n_arcs)` and returns a `BayesNet` from which we extract the DAG via `.dag()`. No additional dependency is needed.
+
 ### Conversion vers Structure dans les adapters
 
 **Pipeline de conversion standard (otagrum)** : `NamedDAG` → `BayesNet` → `EssentialGraph(bn)` → `.pdag()` (MixedGraph) → `Structure(cpdag)`.

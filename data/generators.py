@@ -1,8 +1,9 @@
 """
-Synthetic data generation for continuous Bayesian networks.
+Synthetic data generation for continuous Bayesian networks and SEMs.
 
-This module provides utilities to generate synthetic datasets from
-continuous Bayesian networks using otagrum.
+This module provides utilities to generate synthetic datasets from:
+- Continuous Bayesian networks (CBN) using otagrum
+- Linear Structural Equation Models (SEM) with configurable noise
 """
 
 import numpy as np
@@ -218,6 +219,9 @@ def create_default_cbn(
         """
         if dim == 1:
             return ot.IndependentCopula(1)
+        # For a dim×dim equicorrelation matrix, PD requires ρ > -1/(dim-1)
+        if dim > 1:
+            corr_low = max(corr_low, -1.0 / (dim - 1) + 1e-6)
         R_high = ot.CorrelationMatrix(dim)
         R_low = ot.CorrelationMatrix(dim)
         for j in range(dim):
@@ -257,3 +261,103 @@ def create_default_cbn(
     cbn = otagrum.ContinuousBayesianNetwork(structure, marginals, local_conditional_copulas)
 
     return cbn
+
+
+def generate_from_cbn_dag(
+    dag: gum.DAG,
+    n_samples: int = 1000,
+    seed: int = 42,
+    marginal_type: str = "Uniform",
+    lcc_types: str = "NormalCopula",
+) -> Tuple[Dataset, Structure]:
+    """
+    Generate synthetic data from a DAG via a CBN with default distributions.
+
+    Builds a CBN from the DAG using ``create_default_cbn``, then samples from it.
+    Same signature as ``generate_from_sem`` so both can be used interchangeably.
+    """
+    var_names = [f"X{i}" for i in range(dag.size())]
+    cbn = create_default_cbn(dag, var_names=var_names,
+                             marginal_type=marginal_type, lcc_types=lcc_types)
+    return generate_from_cbn(cbn, n_samples=n_samples, seed=seed)
+
+
+def generate_from_sem(
+    dag: gum.DAG,
+    n_samples: int = 1000,
+    seed: int = 42,
+    noise_type: str = "gaussian",
+    weight_range: tuple = (0.3, 0.8),
+) -> Tuple[Dataset, Structure]:
+    """
+    Generate a synthetic dataset from a linear SEM with configurable noise.
+
+    Each variable is generated as:
+        X_i = sum(w_ji * X_j for j in parents(i)) + e_i
+    where e_i is drawn from the chosen noise distribution.
+
+    Args:
+        dag: The ground-truth DAG structure.
+        n_samples: Number of samples to generate.
+        seed: Random seed for reproducibility.
+        noise_type: Noise distribution — ``"gaussian"``, ``"laplace"``,
+            ``"uniform"``, or ``"exp"`` (centred exponential).
+        weight_range: ``(low, high)`` for uniform sampling of
+            absolute edge weights (sign is random ±1).
+
+    Returns:
+        Tuple of (Dataset, Structure) where Structure contains the golden CPDAG.
+
+    Example:
+        >>> dag = gum.DAG()
+        >>> dag.addNodes(5)
+        >>> dag.addArc(0, 1); dag.addArc(1, 2)
+        >>> dataset, golden = generate_from_sem(dag, n_samples=1000, noise_type="laplace")
+    """
+    rng = np.random.default_rng(seed)
+    n_vars = dag.size()
+    var_names = [f"X{i}" for i in range(n_vars)]
+    topo = dag.topologicalOrder()
+
+    # Sample edge weights
+    weights = {}
+    for node in topo:
+        for parent in dag.parents(node):
+            w = rng.uniform(*weight_range)
+            sign = rng.choice([-1, 1])
+            weights[(parent, node)] = sign * w
+
+    # Generate noise
+    if noise_type == "gaussian":
+        noise = rng.normal(loc=0.0, scale=0.1, size=(n_samples, n_vars))
+    elif noise_type == "laplace":
+        noise = rng.laplace(loc=0.0, scale=0.1, size=(n_samples, n_vars))
+    elif noise_type == "uniform":
+        noise = rng.uniform(-1.0, 1.0, size=(n_samples, n_vars))
+    elif noise_type == "exp":
+        noise = rng.exponential(scale=1.0, size=(n_samples, n_vars))
+        noise -= noise.mean(axis=0)
+    else:
+        raise ValueError(
+            f"Unknown noise_type '{noise_type}'. "
+            "Choose from 'gaussian', 'laplace', 'uniform', 'exp'."
+        )
+
+    # Generate data following topological order
+    data = np.zeros((n_samples, n_vars))
+    for node in topo:
+        data[:, node] = noise[:, node]
+        for parent in dag.parents(node):
+            data[:, node] += weights[(parent, node)] * data[:, parent]
+
+    # Build ground-truth CPDAG
+    bn = gum.BayesNet()
+    for node_id in dag.nodes():
+        bn.add(gum.LabelizedVariable(f"X{node_id}", f"X{node_id}", 2))
+    for node_id in dag.nodes():
+        for child_id in dag.children(node_id):
+            bn.addArc(node_id, child_id)
+    golden = Structure(gum.EssentialGraph(bn).pdag())
+
+    dataset = Dataset(data, feature_names=var_names)
+    return dataset, golden
