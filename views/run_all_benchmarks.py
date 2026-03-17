@@ -13,7 +13,7 @@ Usage:
 """
 
 import pyagrum as gum
-from tqdm.auto import tqdm
+from tqdm.auto import tqdm 
 from pipeline.Benchmark import Benchmark
 
 # ---------------------------------------------------------------------------
@@ -47,42 +47,38 @@ def dag_20vars():
 
 CONFIGS = [
     # --- Sachs (real data) ---
-    # ("sachs", {"variant": "raw"}),
+    ("sachs", {"variant": "raw"}),
     # ("sachs", {"variant": "log"}),
-    # ("sachs", {"variant": "preprocessed"}),
-    # ("sachs", {"variant": "raw", "repetition_nb": 3}),
-    # ("sachs", {"variant": "preprocessed", "repetition_nb": 3}),
+    ("sachs", {"variant": "preprocessed"}),
+    ("sachs", {"variant": "raw", "repetition_nb": 3}),
+    ("sachs", {"variant": "preprocessed", "repetition_nb": 3}),
 
     # --- CBN Gaussian (Uniform + NormalCopula) ---
     ("synthetic_cbn", {"dag": dag_5vars(), "n_samples": 200, "marginal_type": "Uniform", "lcc_types": "NormalCopula"}),
     ("synthetic_cbn", {"dag": dag_5vars(), "n_samples": 2000, "marginal_type": "Uniform", "lcc_types": "NormalCopula"}),
-    
-    #("synthetic_cbn", {"dag": dag_20vars(), "n_samples": 1000, "marginal_type": "Uniform", "lcc_types": "NormalCopula"}),
-    
+    ("synthetic_cbn", {"dag": dag_20vars(), "n_samples": 1000, "marginal_type": "Uniform", "lcc_types": "NormalCopula"}),
     # ("synthetic_cbn", {"dag": dag_20vars(), "n_samples": 5000, "marginal_type": "Uniform", "lcc_types": "NormalCopula"}),
 
     # --- CBN Non-Gaussian (Exponential + ClaytonCopula) ---
-    # ("synthetic_cbn", {"dag": dag_5vars(), "n_samples": 200, "marginal_type": "Exponential", "lcc_types": "ClaytonCopula"}),
-    # ("synthetic_cbn", {"dag": dag_5vars(), "n_samples": 2000, "marginal_type": "Exponential", "lcc_types": "ClaytonCopula"}),
-    
-    #("synthetic_cbn", {"dag": dag_20vars(), "n_samples": 1000, "marginal_type": "Exponential", "lcc_types": "ClaytonCopula"}),
-    
+    ("synthetic_cbn", {"dag": dag_5vars(), "n_samples": 200, "marginal_type": "Exponential", "lcc_types": "ClaytonCopula"}),
+    ("synthetic_cbn", {"dag": dag_5vars(), "n_samples": 2000, "marginal_type": "Exponential", "lcc_types": "ClaytonCopula"}),
+    ("synthetic_cbn", {"dag": dag_20vars(), "n_samples": 1000, "marginal_type": "Exponential", "lcc_types": "ClaytonCopula"}),
     # ("synthetic_cbn", {"dag": dag_20vars(), "n_samples": 5000, "marginal_type": "Exponential", "lcc_types": "ClaytonCopula"}),
 
     # --- CBN Non-Gaussian (Uniform + MixtureCopula) ---
-    # ("synthetic_cbn", {"dag": dag_5vars(), "n_samples": 200, "marginal_type": "Uniform", "lcc_types": "MixtureCopula"}),
-    # ("synthetic_cbn", {"dag": dag_5vars(), "n_samples": 2000, "marginal_type": "Uniform", "lcc_types": "MixtureCopula"}),
-    # ("synthetic_cbn", {"dag": dag_20vars(), "n_samples": 1000, "marginal_type": "Uniform", "lcc_types": "MixtureCopula"}),
+    ("synthetic_cbn", {"dag": dag_5vars(), "n_samples": 200, "marginal_type": "Uniform", "lcc_types": "MixtureCopula"}),
+    ("synthetic_cbn", {"dag": dag_5vars(), "n_samples": 2000, "marginal_type": "Uniform", "lcc_types": "MixtureCopula"}),
+    ("synthetic_cbn", {"dag": dag_20vars(), "n_samples": 1000, "marginal_type": "Uniform", "lcc_types": "MixtureCopula"}),
 
     # --- SEM Gaussian ---
-    # ("synthetic_sem", {"dag": dag_5vars(), "n_samples": 200, "noise_type": "gaussian"}),
-    # ("synthetic_sem", {"dag": dag_5vars(), "n_samples": 2000, "noise_type": "gaussian"}),
+    ("synthetic_sem", {"dag": dag_5vars(), "n_samples": 200, "noise_type": "gaussian"}),
+    ("synthetic_sem", {"dag": dag_5vars(), "n_samples": 2000, "noise_type": "gaussian"}),
     # ("synthetic_sem", {"dag": dag_20vars(), "n_samples": 1000, "noise_type": "gaussian"}),
     # ("synthetic_sem", {"dag": dag_20vars(), "n_samples": 5000, "noise_type": "gaussian"}),
 
     # --- SEM Non-Gaussian (laplace) ---
-    # ("synthetic_sem", {"dag": dag_5vars(), "n_samples": 200, "noise_type": "laplace"}),
-    # ("synthetic_sem", {"dag": dag_5vars(), "n_samples": 2000, "noise_type": "laplace"}),
+    ("synthetic_sem", {"dag": dag_5vars(), "n_samples": 200, "noise_type": "laplace"}),
+    ("synthetic_sem", {"dag": dag_5vars(), "n_samples": 2000, "noise_type": "laplace"}),
     # ("synthetic_sem", {"dag": dag_20vars(), "n_samples": 1000, "noise_type": "laplace"}),
     # ("synthetic_sem", {"dag": dag_20vars(), "n_samples": 5000, "noise_type": "laplace"}),
 ]

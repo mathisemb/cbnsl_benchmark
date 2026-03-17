@@ -1,0 +1,6176 @@
+{
+  "dataset_name": "cbn_Uniform_MixtureCopula__20vars_1000s",
+  "feature_names": [
+    "X0",
+    "X1",
+    "X2",
+    "X3",
+    "X4",
+    "X5",
+    "X6",
+    "X7",
+    "X8",
+    "X9",
+    "X10",
+    "X11",
+    "X12",
+    "X13",
+    "X14",
+    "X15",
+    "X16",
+    "X17",
+    "X18",
+    "X19"
+  ],
+  "rank_by": "F1-Score",
+  "scores_cpdag": {
+    "CPC": {
+      "SHD": 21.0,
+      "F1-Score": 0.3225806451612903,
+      "TPR": 0.3333333333333333
+    },
+    "CMIIC": {
+      "SHD": 25.0,
+      "F1-Score": 0.5901639344262295,
+      "TPR": 1.0
+    },
+    "MIIC": {
+      "SHD": 19.0,
+      "F1-Score": 0.42424242424242425,
+      "TPR": 0.3888888888888889
+    },
+    "GHC+BDeu": {
+      "SHD": 15.0,
+      "F1-Score": 0.5945945945945946,
+      "TPR": 0.55
+    },
+    "NOTEARS": {
+      "SHD": 24.0,
+      "F1-Score": 0.25,
+      "TPR": 0.26666666666666666
+    },
+    "NOTEARS Disc.": {
+      "SHD": 15.0,
+      "F1-Score": 0.5945945945945946,
+      "TPR": 0.4782608695652174
+    },
+    "LiNGAM": {
+      "SHD": 26.0,
+      "F1-Score": 0.18749999999999997,
+      "TPR": 0.2727272727272727
+    }
+  },
+  "scores_skeleton": {
+    "CPC": {
+      "SHD": 17.0,
+      "F1-Score": 0.7906976744186047,
+      "TPR": 0.6538461538461539
+    },
+    "CMIIC": {
+      "SHD": 34.0,
+      "F1-Score": 0.7536231884057971,
+      "TPR": 1.0
+    },
+    "MIIC": {
+      "SHD": 14.0,
+      "F1-Score": 0.7999999999999999,
+      "TPR": 0.6923076923076923
+    },
+    "GHC+BDeu": {
+      "SHD": 14.0,
+      "F1-Score": 0.8085106382978723,
+      "TPR": 0.7307692307692307
+    },
+    "NOTEARS": {
+      "SHD": 22.0,
+      "F1-Score": 0.6976744186046512,
+      "TPR": 0.5769230769230769
+    },
+    "NOTEARS Disc.": {
+      "SHD": 17.0,
+      "F1-Score": 0.7755102040816326,
+      "TPR": 0.7307692307692307
+    },
+    "LiNGAM": {
+      "SHD": 20.0,
+      "F1-Score": 0.7659574468085107,
+      "TPR": 0.6923076923076923
+    }
+  },
+  "params_cpdag": {
+    "CPC": {
+      "alpha": 0.05,
+      "max_conditioning_set_size": 2
+    },
+    "CMIIC": {
+      "alpha": 0.01
+    },
+    "MIIC": {
+      "n_bins": 4,
+      "discretization_method": "hartemink",
+      "initial_bins": 20
+    },
+    "GHC+BDeu": {
+      "n_bins": 2,
+      "discretization_method": "quantile"
+    },
+    "NOTEARS": {
+      "lambda1": 0.0,
+      "w_threshold_notears": 0.1
+    },
+    "NOTEARS Disc.": {
+      "lambda1": 0.05,
+      "w_threshold_notears": 0.1,
+      "n_bins": 8,
+      "discretization_method": "quantile"
+    },
+    "LiNGAM": {
+      "threshold_lingam": 0.01
+    }
+  },
+  "params_skeleton": {
+    "CPC": {
+      "alpha": 0.1,
+      "max_conditioning_set_size": 2
+    },
+    "CMIIC": {
+      "alpha": 0.01
+    },
+    "MIIC": {
+      "n_bins": 2,
+      "discretization_method": "quantile"
+    },
+    "GHC+BDeu": {
+      "n_bins": 2,
+      "discretization_method": "hartemink",
+      "initial_bins": 20
+    },
+    "NOTEARS": {
+      "lambda1": 0.0,
+      "w_threshold_notears": 0.1
+    },
+    "NOTEARS Disc.": {
+      "lambda1": 0.0,
+      "w_threshold_notears": 0.1,
+      "n_bins": 2,
+      "discretization_method": "hartemink",
+      "initial_bins": 20
+    },
+    "LiNGAM": {
+      "threshold_lingam": 0.01
+    }
+  },
+  "seed_counts": {
+    "LiNGAM": 1
+  },
+  "grid_search_results": {
+    "CPC": [
+      {
+        "params": {
+          "alpha": 0.01,
+          "max_conditioning_set_size": 2
+        },
+        "scores": {
+          "SHD": 22.0,
+          "F1-Score": 0.26666666666666666,
+          "TPR": 0.25
+        },
+        "scores_skeleton": {
+          "SHD": 17.0,
+          "F1-Score": 0.7000000000000001,
+          "TPR": 0.5384615384615384
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "alpha": 0.01,
+          "max_conditioning_set_size": 3
+        },
+        "scores": {
+          "SHD": 22.0,
+          "F1-Score": 0.26666666666666666,
+          "TPR": 0.25
+        },
+        "scores_skeleton": {
+          "SHD": 17.0,
+          "F1-Score": 0.7000000000000001,
+          "TPR": 0.5384615384615384
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "alpha": 0.01,
+          "max_conditioning_set_size": 4
+        },
+        "scores": {
+          "SHD": 22.0,
+          "F1-Score": 0.26666666666666666,
+          "TPR": 0.25
+        },
+        "scores_skeleton": {
+          "SHD": 17.0,
+          "F1-Score": 0.7000000000000001,
+          "TPR": 0.5384615384615384
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "alpha": 0.01,
+          "max_conditioning_set_size": 5
+        },
+        "scores": {
+          "SHD": 22.0,
+          "F1-Score": 0.26666666666666666,
+          "TPR": 0.25
+        },
+        "scores_skeleton": {
+          "SHD": 17.0,
+          "F1-Score": 0.7000000000000001,
+          "TPR": 0.5384615384615384
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "alpha": 0.01,
+          "max_conditioning_set_size": 6
+        },
+        "scores": {
+          "SHD": 22.0,
+          "F1-Score": 0.26666666666666666,
+          "TPR": 0.25
+        },
+        "scores_skeleton": {
+          "SHD": 17.0,
+          "F1-Score": 0.7000000000000001,
+          "TPR": 0.5384615384615384
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "alpha": 0.01,
+          "max_conditioning_set_size": 7
+        },
+        "scores": {
+          "SHD": 22.0,
+          "F1-Score": 0.26666666666666666,
+          "TPR": 0.25
+        },
+        "scores_skeleton": {
+          "SHD": 17.0,
+          "F1-Score": 0.7000000000000001,
+          "TPR": 0.5384615384615384
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "alpha": 0.01,
+          "max_conditioning_set_size": 8
+        },
+        "scores": {
+          "SHD": 22.0,
+          "F1-Score": 0.26666666666666666,
+          "TPR": 0.25
+        },
+        "scores_skeleton": {
+          "SHD": 17.0,
+          "F1-Score": 0.7000000000000001,
+          "TPR": 0.5384615384615384
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "alpha": 0.05,
+          "max_conditioning_set_size": 2
+        },
+        "scores": {
+          "SHD": 21.0,
+          "F1-Score": 0.3225806451612903,
+          "TPR": 0.3333333333333333
+        },
+        "scores_skeleton": {
+          "SHD": 18.0,
+          "F1-Score": 0.761904761904762,
+          "TPR": 0.6153846153846154
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "alpha": 0.05,
+          "max_conditioning_set_size": 3
+        },
+        "scores": {
+          "SHD": 21.0,
+          "F1-Score": 0.3225806451612903,
+          "TPR": 0.3333333333333333
+        },
+        "scores_skeleton": {
+          "SHD": 18.0,
+          "F1-Score": 0.761904761904762,
+          "TPR": 0.6153846153846154
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "alpha": 0.05,
+          "max_conditioning_set_size": 4
+        },
+        "scores": {
+          "SHD": 21.0,
+          "F1-Score": 0.3225806451612903,
+          "TPR": 0.3333333333333333
+        },
+        "scores_skeleton": {
+          "SHD": 18.0,
+          "F1-Score": 0.761904761904762,
+          "TPR": 0.6153846153846154
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "alpha": 0.05,
+          "max_conditioning_set_size": 5
+        },
+        "scores": {
+          "SHD": 21.0,
+          "F1-Score": 0.3225806451612903,
+          "TPR": 0.3333333333333333
+        },
+        "scores_skeleton": {
+          "SHD": 18.0,
+          "F1-Score": 0.761904761904762,
+          "TPR": 0.6153846153846154
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "alpha": 0.05,
+          "max_conditioning_set_size": 6
+        },
+        "scores": {
+          "SHD": 21.0,
+          "F1-Score": 0.3225806451612903,
+          "TPR": 0.3333333333333333
+        },
+        "scores_skeleton": {
+          "SHD": 18.0,
+          "F1-Score": 0.761904761904762,
+          "TPR": 0.6153846153846154
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "alpha": 0.05,
+          "max_conditioning_set_size": 7
+        },
+        "scores": {
+          "SHD": 21.0,
+          "F1-Score": 0.3225806451612903,
+          "TPR": 0.3333333333333333
+        },
+        "scores_skeleton": {
+          "SHD": 18.0,
+          "F1-Score": 0.761904761904762,
+          "TPR": 0.6153846153846154
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "alpha": 0.05,
+          "max_conditioning_set_size": 8
+        },
+        "scores": {
+          "SHD": 21.0,
+          "F1-Score": 0.3225806451612903,
+          "TPR": 0.3333333333333333
+        },
+        "scores_skeleton": {
+          "SHD": 18.0,
+          "F1-Score": 0.761904761904762,
+          "TPR": 0.6153846153846154
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "alpha": 0.1,
+          "max_conditioning_set_size": 2
+        },
+        "scores": {
+          "SHD": 22.0,
+          "F1-Score": 0.26666666666666666,
+          "TPR": 0.3076923076923077
+        },
+        "scores_skeleton": {
+          "SHD": 17.0,
+          "F1-Score": 0.7906976744186047,
+          "TPR": 0.6538461538461539
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "alpha": 0.1,
+          "max_conditioning_set_size": 3
+        },
+        "scores": {
+          "SHD": 22.0,
+          "F1-Score": 0.26666666666666666,
+          "TPR": 0.3076923076923077
+        },
+        "scores_skeleton": {
+          "SHD": 17.0,
+          "F1-Score": 0.7906976744186047,
+          "TPR": 0.6538461538461539
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "alpha": 0.1,
+          "max_conditioning_set_size": 4
+        },
+        "scores": {
+          "SHD": 22.0,
+          "F1-Score": 0.26666666666666666,
+          "TPR": 0.3076923076923077
+        },
+        "scores_skeleton": {
+          "SHD": 17.0,
+          "F1-Score": 0.7906976744186047,
+          "TPR": 0.6538461538461539
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "alpha": 0.1,
+          "max_conditioning_set_size": 5
+        },
+        "scores": {
+          "SHD": 22.0,
+          "F1-Score": 0.26666666666666666,
+          "TPR": 0.3076923076923077
+        },
+        "scores_skeleton": {
+          "SHD": 17.0,
+          "F1-Score": 0.7906976744186047,
+          "TPR": 0.6538461538461539
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "alpha": 0.1,
+          "max_conditioning_set_size": 6
+        },
+        "scores": {
+          "SHD": 22.0,
+          "F1-Score": 0.26666666666666666,
+          "TPR": 0.3076923076923077
+        },
+        "scores_skeleton": {
+          "SHD": 17.0,
+          "F1-Score": 0.7906976744186047,
+          "TPR": 0.6538461538461539
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "alpha": 0.1,
+          "max_conditioning_set_size": 7
+        },
+        "scores": {
+          "SHD": 22.0,
+          "F1-Score": 0.26666666666666666,
+          "TPR": 0.3076923076923077
+        },
+        "scores_skeleton": {
+          "SHD": 17.0,
+          "F1-Score": 0.7906976744186047,
+          "TPR": 0.6538461538461539
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "alpha": 0.1,
+          "max_conditioning_set_size": 8
+        },
+        "scores": {
+          "SHD": 22.0,
+          "F1-Score": 0.26666666666666666,
+          "TPR": 0.3076923076923077
+        },
+        "scores_skeleton": {
+          "SHD": 17.0,
+          "F1-Score": 0.7906976744186047,
+          "TPR": 0.6538461538461539
+        },
+        "error": null
+      }
+    ],
+    "CMIIC": [
+      {
+        "params": {
+          "alpha": 0.01
+        },
+        "scores": {
+          "SHD": 25.0,
+          "F1-Score": 0.5901639344262295,
+          "TPR": 1.0
+        },
+        "scores_skeleton": {
+          "SHD": 34.0,
+          "F1-Score": 0.7536231884057971,
+          "TPR": 1.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "alpha": 0.05
+        },
+        "scores": {
+          "SHD": 19.0,
+          "F1-Score": 0.4242424242424242,
+          "TPR": 0.3684210526315789
+        },
+        "scores_skeleton": {
+          "SHD": 18.0,
+          "F1-Score": 0.7000000000000001,
+          "TPR": 0.5384615384615384
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "alpha": 0.1
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      }
+    ],
+    "MIIC": [
+      {
+        "params": {
+          "n_bins": 2,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 22.0,
+          "F1-Score": 0.4117647058823529,
+          "TPR": 0.4666666666666667
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.7999999999999999,
+          "TPR": 0.6923076923076923
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "n_bins": 4,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 19.0,
+          "F1-Score": 0.4242424242424242,
+          "TPR": 0.35
+        },
+        "scores_skeleton": {
+          "SHD": 18.0,
+          "F1-Score": 0.6666666666666666,
+          "TPR": 0.5
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "n_bins": 6,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 25.0,
+          "F1-Score": 0.07407407407407407,
+          "TPR": 0.038461538461538464
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "n_bins": 8,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "n_bins": 10,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "n_bins": 2,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 22.0,
+          "F1-Score": 0.3125,
+          "TPR": 0.38461538461538464
+        },
+        "scores_skeleton": {
+          "SHD": 16.0,
+          "F1-Score": 0.7999999999999999,
+          "TPR": 0.6923076923076923
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "n_bins": 4,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 19.0,
+          "F1-Score": 0.42424242424242425,
+          "TPR": 0.3888888888888889
+        },
+        "scores_skeleton": {
+          "SHD": 17.0,
+          "F1-Score": 0.7317073170731707,
+          "TPR": 0.5769230769230769
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "n_bins": 6,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 25.0,
+          "F1-Score": 0.07407407407407407,
+          "TPR": 0.041666666666666664
+        },
+        "scores_skeleton": {
+          "SHD": 23.0,
+          "F1-Score": 0.20689655172413793,
+          "TPR": 0.11538461538461539
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "n_bins": 8,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "n_bins": 10,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      }
+    ],
+    "GHC+BDeu": [
+      {
+        "params": {
+          "n_bins": 2,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 15.0,
+          "F1-Score": 0.5945945945945946,
+          "TPR": 0.55
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.7906976744186047,
+          "TPR": 0.6538461538461539
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "n_bins": 4,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 21.0,
+          "F1-Score": 0.3225806451612903,
+          "TPR": 0.22727272727272727
+        },
+        "scores_skeleton": {
+          "SHD": 20.0,
+          "F1-Score": 0.5142857142857142,
+          "TPR": 0.34615384615384615
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "n_bins": 6,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "n_bins": 8,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "n_bins": 10,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "n_bins": 2,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 17.0,
+          "F1-Score": 0.5641025641025642,
+          "TPR": 0.6111111111111112
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.8085106382978723,
+          "TPR": 0.7307692307692307
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "n_bins": 4,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 21.0,
+          "F1-Score": 0.3225806451612903,
+          "TPR": 0.25
+        },
+        "scores_skeleton": {
+          "SHD": 19.0,
+          "F1-Score": 0.5945945945945945,
+          "TPR": 0.4230769230769231
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "n_bins": 6,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "n_bins": 8,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "n_bins": 10,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      }
+    ],
+    "NOTEARS": [
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.0
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.1
+        },
+        "scores": {
+          "SHD": 24.0,
+          "F1-Score": 0.25,
+          "TPR": 0.26666666666666666
+        },
+        "scores_skeleton": {
+          "SHD": 22.0,
+          "F1-Score": 0.6976744186046512,
+          "TPR": 0.5769230769230769
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.3
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.5
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.7
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.0
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.1
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.3
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.5
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.7
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.0
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.1
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.3
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.5
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.7
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.0
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.1
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.3
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.5
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.7
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.0
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.1
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.3
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.5
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.7
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      }
+    ],
+    "NOTEARS Disc.": [
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.0,
+          "n_bins": 2,
+          "discretization_method": "quantile"
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.0,
+          "n_bins": 4,
+          "discretization_method": "quantile"
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.0,
+          "n_bins": 6,
+          "discretization_method": "quantile"
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.0,
+          "n_bins": 8,
+          "discretization_method": "quantile"
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.0,
+          "n_bins": 10,
+          "discretization_method": "quantile"
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.1,
+          "n_bins": 2,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 20.0,
+          "F1-Score": 0.375,
+          "TPR": 0.3333333333333333
+        },
+        "scores_skeleton": {
+          "SHD": 18.0,
+          "F1-Score": 0.7000000000000001,
+          "TPR": 0.5384615384615384
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.1,
+          "n_bins": 4,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 16.0,
+          "F1-Score": 0.5789473684210527,
+          "TPR": 0.5238095238095238
+        },
+        "scores_skeleton": {
+          "SHD": 19.0,
+          "F1-Score": 0.744186046511628,
+          "TPR": 0.6153846153846154
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.1,
+          "n_bins": 6,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 16.0,
+          "F1-Score": 0.5789473684210527,
+          "TPR": 0.4782608695652174
+        },
+        "scores_skeleton": {
+          "SHD": 17.0,
+          "F1-Score": 0.6829268292682926,
+          "TPR": 0.5384615384615384
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.1,
+          "n_bins": 8,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 16.0,
+          "F1-Score": 0.5789473684210527,
+          "TPR": 0.5
+        },
+        "scores_skeleton": {
+          "SHD": 17.0,
+          "F1-Score": 0.7142857142857143,
+          "TPR": 0.5769230769230769
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.1,
+          "n_bins": 10,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 16.0,
+          "F1-Score": 0.5555555555555556,
+          "TPR": 0.47619047619047616
+        },
+        "scores_skeleton": {
+          "SHD": 15.0,
+          "F1-Score": 0.7317073170731707,
+          "TPR": 0.5769230769230769
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.3,
+          "n_bins": 2,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.3,
+          "n_bins": 4,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.3,
+          "n_bins": 6,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.3,
+          "n_bins": 8,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 25.0,
+          "F1-Score": 0.07407407407407407,
+          "TPR": 0.038461538461538464
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.3,
+          "n_bins": 10,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.5,
+          "n_bins": 2,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.5,
+          "n_bins": 4,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.5,
+          "n_bins": 6,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.5,
+          "n_bins": 8,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.5,
+          "n_bins": 10,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.7,
+          "n_bins": 2,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.7,
+          "n_bins": 4,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.7,
+          "n_bins": 6,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.7,
+          "n_bins": 8,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.7,
+          "n_bins": 10,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.0,
+          "n_bins": 2,
+          "discretization_method": "quantile"
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.0,
+          "n_bins": 4,
+          "discretization_method": "quantile"
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.0,
+          "n_bins": 6,
+          "discretization_method": "quantile"
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.0,
+          "n_bins": 8,
+          "discretization_method": "quantile"
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.0,
+          "n_bins": 10,
+          "discretization_method": "quantile"
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.1,
+          "n_bins": 2,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.1,
+          "n_bins": 4,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 19.0,
+          "F1-Score": 0.4242424242424242,
+          "TPR": 0.3333333333333333
+        },
+        "scores_skeleton": {
+          "SHD": 19.0,
+          "F1-Score": 0.631578947368421,
+          "TPR": 0.46153846153846156
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.1,
+          "n_bins": 6,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 19.0,
+          "F1-Score": 0.4242424242424242,
+          "TPR": 0.35
+        },
+        "scores_skeleton": {
+          "SHD": 18.0,
+          "F1-Score": 0.6666666666666666,
+          "TPR": 0.5
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.1,
+          "n_bins": 8,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 15.0,
+          "F1-Score": 0.5945945945945946,
+          "TPR": 0.4782608695652174
+        },
+        "scores_skeleton": {
+          "SHD": 16.0,
+          "F1-Score": 0.7000000000000001,
+          "TPR": 0.5384615384615384
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.1,
+          "n_bins": 10,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 19.0,
+          "F1-Score": 0.4242424242424242,
+          "TPR": 0.35
+        },
+        "scores_skeleton": {
+          "SHD": 18.0,
+          "F1-Score": 0.6666666666666666,
+          "TPR": 0.5
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.3,
+          "n_bins": 2,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.3,
+          "n_bins": 4,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.3,
+          "n_bins": 6,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.3,
+          "n_bins": 8,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.3,
+          "n_bins": 10,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.5,
+          "n_bins": 2,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.5,
+          "n_bins": 4,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.5,
+          "n_bins": 6,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.5,
+          "n_bins": 8,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.5,
+          "n_bins": 10,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.7,
+          "n_bins": 2,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.7,
+          "n_bins": 4,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.7,
+          "n_bins": 6,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.7,
+          "n_bins": 8,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.7,
+          "n_bins": 10,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.0,
+          "n_bins": 2,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.0,
+          "n_bins": 4,
+          "discretization_method": "quantile"
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.0,
+          "n_bins": 6,
+          "discretization_method": "quantile"
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.0,
+          "n_bins": 8,
+          "discretization_method": "quantile"
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.0,
+          "n_bins": 10,
+          "discretization_method": "quantile"
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.1,
+          "n_bins": 2,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.1,
+          "n_bins": 4,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 19.0,
+          "F1-Score": 0.4242424242424242,
+          "TPR": 0.3333333333333333
+        },
+        "scores_skeleton": {
+          "SHD": 19.0,
+          "F1-Score": 0.631578947368421,
+          "TPR": 0.46153846153846156
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.1,
+          "n_bins": 6,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 21.0,
+          "F1-Score": 0.3225806451612903,
+          "TPR": 0.2777777777777778
+        },
+        "scores_skeleton": {
+          "SHD": 18.0,
+          "F1-Score": 0.6666666666666666,
+          "TPR": 0.5
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.1,
+          "n_bins": 8,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 19.0,
+          "F1-Score": 0.4242424242424242,
+          "TPR": 0.35
+        },
+        "scores_skeleton": {
+          "SHD": 18.0,
+          "F1-Score": 0.6666666666666666,
+          "TPR": 0.5
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.1,
+          "n_bins": 10,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 19.0,
+          "F1-Score": 0.4242424242424242,
+          "TPR": 0.35
+        },
+        "scores_skeleton": {
+          "SHD": 18.0,
+          "F1-Score": 0.6666666666666666,
+          "TPR": 0.5
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.3,
+          "n_bins": 2,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.3,
+          "n_bins": 4,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.3,
+          "n_bins": 6,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.3,
+          "n_bins": 8,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.3,
+          "n_bins": 10,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.5,
+          "n_bins": 2,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.5,
+          "n_bins": 4,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.5,
+          "n_bins": 6,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.5,
+          "n_bins": 8,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.5,
+          "n_bins": 10,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.7,
+          "n_bins": 2,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.7,
+          "n_bins": 4,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.7,
+          "n_bins": 6,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.7,
+          "n_bins": 8,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.7,
+          "n_bins": 10,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.0,
+          "n_bins": 2,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.0,
+          "n_bins": 4,
+          "discretization_method": "quantile"
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.0,
+          "n_bins": 6,
+          "discretization_method": "quantile"
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.0,
+          "n_bins": 8,
+          "discretization_method": "quantile"
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.0,
+          "n_bins": 10,
+          "discretization_method": "quantile"
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.1,
+          "n_bins": 2,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.1,
+          "n_bins": 4,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.1,
+          "n_bins": 6,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 21.0,
+          "F1-Score": 0.3225806451612903,
+          "TPR": 0.22727272727272727
+        },
+        "scores_skeleton": {
+          "SHD": 20.0,
+          "F1-Score": 0.5142857142857142,
+          "TPR": 0.34615384615384615
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.1,
+          "n_bins": 8,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 19.0,
+          "F1-Score": 0.4242424242424242,
+          "TPR": 0.3333333333333333
+        },
+        "scores_skeleton": {
+          "SHD": 19.0,
+          "F1-Score": 0.631578947368421,
+          "TPR": 0.46153846153846156
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.1,
+          "n_bins": 10,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 19.0,
+          "F1-Score": 0.4242424242424242,
+          "TPR": 0.3333333333333333
+        },
+        "scores_skeleton": {
+          "SHD": 19.0,
+          "F1-Score": 0.631578947368421,
+          "TPR": 0.46153846153846156
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.3,
+          "n_bins": 2,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.3,
+          "n_bins": 4,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.3,
+          "n_bins": 6,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.3,
+          "n_bins": 8,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.3,
+          "n_bins": 10,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.5,
+          "n_bins": 2,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.5,
+          "n_bins": 4,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.5,
+          "n_bins": 6,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.5,
+          "n_bins": 8,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.5,
+          "n_bins": 10,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.7,
+          "n_bins": 2,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.7,
+          "n_bins": 4,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.7,
+          "n_bins": 6,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.7,
+          "n_bins": 8,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.7,
+          "n_bins": 10,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.0,
+          "n_bins": 2,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.0,
+          "n_bins": 4,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.0,
+          "n_bins": 6,
+          "discretization_method": "quantile"
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.0,
+          "n_bins": 8,
+          "discretization_method": "quantile"
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.0,
+          "n_bins": 10,
+          "discretization_method": "quantile"
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.1,
+          "n_bins": 2,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.1,
+          "n_bins": 4,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.1,
+          "n_bins": 6,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 25.0,
+          "F1-Score": 0.07407407407407407,
+          "TPR": 0.041666666666666664
+        },
+        "scores_skeleton": {
+          "SHD": 23.0,
+          "F1-Score": 0.20689655172413793,
+          "TPR": 0.11538461538461539
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.1,
+          "n_bins": 8,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 21.0,
+          "F1-Score": 0.3225806451612903,
+          "TPR": 0.23809523809523808
+        },
+        "scores_skeleton": {
+          "SHD": 19.0,
+          "F1-Score": 0.5555555555555556,
+          "TPR": 0.38461538461538464
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.1,
+          "n_bins": 10,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 19.0,
+          "F1-Score": 0.4242424242424242,
+          "TPR": 0.3333333333333333
+        },
+        "scores_skeleton": {
+          "SHD": 19.0,
+          "F1-Score": 0.631578947368421,
+          "TPR": 0.46153846153846156
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.3,
+          "n_bins": 2,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.3,
+          "n_bins": 4,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.3,
+          "n_bins": 6,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.3,
+          "n_bins": 8,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.3,
+          "n_bins": 10,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.5,
+          "n_bins": 2,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.5,
+          "n_bins": 4,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.5,
+          "n_bins": 6,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.5,
+          "n_bins": 8,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.5,
+          "n_bins": 10,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.7,
+          "n_bins": 2,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.7,
+          "n_bins": 4,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.7,
+          "n_bins": 6,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.7,
+          "n_bins": 8,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.7,
+          "n_bins": 10,
+          "discretization_method": "quantile"
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.0,
+          "n_bins": 2,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.0,
+          "n_bins": 4,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.0,
+          "n_bins": 6,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.0,
+          "n_bins": 8,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.0,
+          "n_bins": 10,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.1,
+          "n_bins": 2,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 25.0,
+          "F1-Score": 0.2857142857142857,
+          "TPR": 0.4166666666666667
+        },
+        "scores_skeleton": {
+          "SHD": 17.0,
+          "F1-Score": 0.7755102040816326,
+          "TPR": 0.7307692307692307
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.1,
+          "n_bins": 4,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 24.0,
+          "F1-Score": 0.29411764705882354,
+          "TPR": 0.2777777777777778
+        },
+        "scores_skeleton": {
+          "SHD": 24.0,
+          "F1-Score": 0.6190476190476191,
+          "TPR": 0.5
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.1,
+          "n_bins": 6,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 24.0,
+          "F1-Score": 0.19999999999999998,
+          "TPR": 0.1875
+        },
+        "scores_skeleton": {
+          "SHD": 19.0,
+          "F1-Score": 0.65,
+          "TPR": 0.5
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.1,
+          "n_bins": 8,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 22.0,
+          "F1-Score": 0.26666666666666666,
+          "TPR": 0.26666666666666666
+        },
+        "scores_skeleton": {
+          "SHD": 18.0,
+          "F1-Score": 0.7317073170731707,
+          "TPR": 0.5769230769230769
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.1,
+          "n_bins": 10,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 25.0,
+          "F1-Score": 0.2424242424242424,
+          "TPR": 0.26666666666666666
+        },
+        "scores_skeleton": {
+          "SHD": 19.0,
+          "F1-Score": 0.6818181818181818,
+          "TPR": 0.5769230769230769
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.3,
+          "n_bins": 2,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 25.0,
+          "F1-Score": 0.07407407407407407,
+          "TPR": 0.041666666666666664
+        },
+        "scores_skeleton": {
+          "SHD": 24.0,
+          "F1-Score": 0.20689655172413793,
+          "TPR": 0.11538461538461539
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.3,
+          "n_bins": 4,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 25.0,
+          "F1-Score": 0.07407407407407407,
+          "TPR": 0.038461538461538464
+        },
+        "scores_skeleton": {
+          "SHD": 25.0,
+          "F1-Score": 0.07407407407407407,
+          "TPR": 0.038461538461538464
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.3,
+          "n_bins": 6,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 25.0,
+          "F1-Score": 0.07407407407407407,
+          "TPR": 0.04
+        },
+        "scores_skeleton": {
+          "SHD": 24.0,
+          "F1-Score": 0.14285714285714288,
+          "TPR": 0.07692307692307693
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.3,
+          "n_bins": 8,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 24.0,
+          "F1-Score": 0.14285714285714288,
+          "TPR": 0.07692307692307693
+        },
+        "scores_skeleton": {
+          "SHD": 24.0,
+          "F1-Score": 0.14285714285714288,
+          "TPR": 0.07692307692307693
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.3,
+          "n_bins": 10,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 25.0,
+          "F1-Score": 0.07407407407407407,
+          "TPR": 0.04
+        },
+        "scores_skeleton": {
+          "SHD": 24.0,
+          "F1-Score": 0.14285714285714288,
+          "TPR": 0.07692307692307693
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.5,
+          "n_bins": 2,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.5,
+          "n_bins": 4,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.5,
+          "n_bins": 6,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.5,
+          "n_bins": 8,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.5,
+          "n_bins": 10,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.7,
+          "n_bins": 2,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.7,
+          "n_bins": 4,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.7,
+          "n_bins": 6,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.7,
+          "n_bins": 8,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.0,
+          "w_threshold_notears": 0.7,
+          "n_bins": 10,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.0,
+          "n_bins": 2,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.0,
+          "n_bins": 4,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.0,
+          "n_bins": 6,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.0,
+          "n_bins": 8,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.0,
+          "n_bins": 10,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.1,
+          "n_bins": 2,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.1,
+          "n_bins": 4,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 22.0,
+          "F1-Score": 0.26666666666666666,
+          "TPR": 0.2
+        },
+        "scores_skeleton": {
+          "SHD": 19.0,
+          "F1-Score": 0.5555555555555556,
+          "TPR": 0.38461538461538464
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.1,
+          "n_bins": 6,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 23.0,
+          "F1-Score": 0.20689655172413793,
+          "TPR": 0.1875
+        },
+        "scores_skeleton": {
+          "SHD": 18.0,
+          "F1-Score": 0.6666666666666666,
+          "TPR": 0.5
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.1,
+          "n_bins": 8,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 22.0,
+          "F1-Score": 0.26666666666666666,
+          "TPR": 0.26666666666666666
+        },
+        "scores_skeleton": {
+          "SHD": 21.0,
+          "F1-Score": 0.7317073170731707,
+          "TPR": 0.5769230769230769
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.1,
+          "n_bins": 10,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 23.0,
+          "F1-Score": 0.2580645161290323,
+          "TPR": 0.23529411764705882
+        },
+        "scores_skeleton": {
+          "SHD": 19.0,
+          "F1-Score": 0.65,
+          "TPR": 0.5
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.3,
+          "n_bins": 2,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.3,
+          "n_bins": 4,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.3,
+          "n_bins": 6,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 25.0,
+          "F1-Score": 0.07407407407407407,
+          "TPR": 0.038461538461538464
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.3,
+          "n_bins": 8,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 25.0,
+          "F1-Score": 0.07407407407407407,
+          "TPR": 0.038461538461538464
+        },
+        "scores_skeleton": {
+          "SHD": 25.0,
+          "F1-Score": 0.07407407407407407,
+          "TPR": 0.038461538461538464
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.3,
+          "n_bins": 10,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 25.0,
+          "F1-Score": 0.07407407407407407,
+          "TPR": 0.04
+        },
+        "scores_skeleton": {
+          "SHD": 24.0,
+          "F1-Score": 0.14285714285714288,
+          "TPR": 0.07692307692307693
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.5,
+          "n_bins": 2,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.5,
+          "n_bins": 4,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.5,
+          "n_bins": 6,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.5,
+          "n_bins": 8,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.5,
+          "n_bins": 10,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.7,
+          "n_bins": 2,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.7,
+          "n_bins": 4,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.7,
+          "n_bins": 6,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.7,
+          "n_bins": 8,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_notears": 0.7,
+          "n_bins": 10,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.0,
+          "n_bins": 2,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.0,
+          "n_bins": 4,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.0,
+          "n_bins": 6,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.0,
+          "n_bins": 8,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.0,
+          "n_bins": 10,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.1,
+          "n_bins": 2,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.1,
+          "n_bins": 4,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 23.0,
+          "F1-Score": 0.20689655172413793,
+          "TPR": 0.12
+        },
+        "scores_skeleton": {
+          "SHD": 23.0,
+          "F1-Score": 0.2666666666666667,
+          "TPR": 0.15384615384615385
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.1,
+          "n_bins": 6,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 21.0,
+          "F1-Score": 0.3225806451612903,
+          "TPR": 0.2631578947368421
+        },
+        "scores_skeleton": {
+          "SHD": 19.0,
+          "F1-Score": 0.631578947368421,
+          "TPR": 0.46153846153846156
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.1,
+          "n_bins": 8,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 24.0,
+          "F1-Score": 0.14285714285714288,
+          "TPR": 0.13333333333333333
+        },
+        "scores_skeleton": {
+          "SHD": 19.0,
+          "F1-Score": 0.6666666666666666,
+          "TPR": 0.5
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.1,
+          "n_bins": 10,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 22.0,
+          "F1-Score": 0.26666666666666666,
+          "TPR": 0.2222222222222222
+        },
+        "scores_skeleton": {
+          "SHD": 19.0,
+          "F1-Score": 0.631578947368421,
+          "TPR": 0.46153846153846156
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.3,
+          "n_bins": 2,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.3,
+          "n_bins": 4,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.3,
+          "n_bins": 6,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 25.0,
+          "F1-Score": 0.07407407407407407,
+          "TPR": 0.038461538461538464
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.3,
+          "n_bins": 8,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 25.0,
+          "F1-Score": 0.07407407407407407,
+          "TPR": 0.038461538461538464
+        },
+        "scores_skeleton": {
+          "SHD": 25.0,
+          "F1-Score": 0.07407407407407407,
+          "TPR": 0.038461538461538464
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.3,
+          "n_bins": 10,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.5,
+          "n_bins": 2,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.5,
+          "n_bins": 4,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.5,
+          "n_bins": 6,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.5,
+          "n_bins": 8,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.5,
+          "n_bins": 10,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.7,
+          "n_bins": 2,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.7,
+          "n_bins": 4,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.7,
+          "n_bins": 6,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.7,
+          "n_bins": 8,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_notears": 0.7,
+          "n_bins": 10,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.0,
+          "n_bins": 2,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.0,
+          "n_bins": 4,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.0,
+          "n_bins": 6,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.0,
+          "n_bins": 8,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.0,
+          "n_bins": 10,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.1,
+          "n_bins": 2,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.1,
+          "n_bins": 4,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.1,
+          "n_bins": 6,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 22.0,
+          "F1-Score": 0.26666666666666666,
+          "TPR": 0.16
+        },
+        "scores_skeleton": {
+          "SHD": 23.0,
+          "F1-Score": 0.32258064516129037,
+          "TPR": 0.19230769230769232
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.1,
+          "n_bins": 8,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 22.0,
+          "F1-Score": 0.26666666666666666,
+          "TPR": 0.2222222222222222
+        },
+        "scores_skeleton": {
+          "SHD": 19.0,
+          "F1-Score": 0.631578947368421,
+          "TPR": 0.46153846153846156
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.1,
+          "n_bins": 10,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 22.0,
+          "F1-Score": 0.26666666666666666,
+          "TPR": 0.2222222222222222
+        },
+        "scores_skeleton": {
+          "SHD": 19.0,
+          "F1-Score": 0.631578947368421,
+          "TPR": 0.46153846153846156
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.3,
+          "n_bins": 2,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.3,
+          "n_bins": 4,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.3,
+          "n_bins": 6,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.3,
+          "n_bins": 8,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.3,
+          "n_bins": 10,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.5,
+          "n_bins": 2,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.5,
+          "n_bins": 4,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.5,
+          "n_bins": 6,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.5,
+          "n_bins": 8,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.5,
+          "n_bins": 10,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.7,
+          "n_bins": 2,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.7,
+          "n_bins": 4,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.7,
+          "n_bins": 6,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.7,
+          "n_bins": 8,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.3,
+          "w_threshold_notears": 0.7,
+          "n_bins": 10,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.0,
+          "n_bins": 2,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.0,
+          "n_bins": 4,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.0,
+          "n_bins": 6,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.0,
+          "n_bins": 8,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.0,
+          "n_bins": 10,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.1,
+          "n_bins": 2,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.1,
+          "n_bins": 4,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.1,
+          "n_bins": 6,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.1,
+          "n_bins": 8,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 21.0,
+          "F1-Score": 0.3225806451612903,
+          "TPR": 0.21739130434782608
+        },
+        "scores_skeleton": {
+          "SHD": 20.0,
+          "F1-Score": 0.47058823529411764,
+          "TPR": 0.3076923076923077
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.1,
+          "n_bins": 10,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 22.0,
+          "F1-Score": 0.26666666666666666,
+          "TPR": 0.21052631578947367
+        },
+        "scores_skeleton": {
+          "SHD": 20.0,
+          "F1-Score": 0.5945945945945945,
+          "TPR": 0.4230769230769231
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.3,
+          "n_bins": 2,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.3,
+          "n_bins": 4,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.3,
+          "n_bins": 6,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.3,
+          "n_bins": 8,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.3,
+          "n_bins": 10,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.5,
+          "n_bins": 2,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.5,
+          "n_bins": 4,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.5,
+          "n_bins": 6,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.5,
+          "n_bins": 8,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.5,
+          "n_bins": 10,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.7,
+          "n_bins": 2,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.7,
+          "n_bins": 4,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.7,
+          "n_bins": 6,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.7,
+          "n_bins": 8,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.5,
+          "w_threshold_notears": 0.7,
+          "n_bins": 10,
+          "discretization_method": "hartemink",
+          "initial_bins": 20
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 26.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      }
+    ],
+    "LiNGAM": [
+      {
+        "params": {
+          "threshold_lingam": 0.01
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.18749999999999997,
+          "TPR": 0.2727272727272727
+        },
+        "scores_skeleton": {
+          "SHD": 20.0,
+          "F1-Score": 0.7659574468085107,
+          "TPR": 0.6923076923076923
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "threshold_lingam": 0.025
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.18749999999999997,
+          "TPR": 0.2727272727272727
+        },
+        "scores_skeleton": {
+          "SHD": 20.0,
+          "F1-Score": 0.7659574468085107,
+          "TPR": 0.6923076923076923
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "threshold_lingam": 0.05
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.18749999999999997,
+          "TPR": 0.2727272727272727
+        },
+        "scores_skeleton": {
+          "SHD": 20.0,
+          "F1-Score": 0.7659574468085107,
+          "TPR": 0.6923076923076923
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "threshold_lingam": 0.075
+        },
+        "scores": {
+          "SHD": 26.0,
+          "F1-Score": 0.18749999999999997,
+          "TPR": 0.2727272727272727
+        },
+        "scores_skeleton": {
+          "SHD": 20.0,
+          "F1-Score": 0.7659574468085107,
+          "TPR": 0.6923076923076923
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "threshold_lingam": 0.1
+        },
+        "scores": {
+          "SHD": 25.0,
+          "F1-Score": 0.13793103448275862,
+          "TPR": 0.15384615384615385
+        },
+        "scores_skeleton": {
+          "SHD": 21.0,
+          "F1-Score": 0.7142857142857143,
+          "TPR": 0.5769230769230769
+        },
+        "error": null
+      }
+    ]
+  },
+  "grid_search_configs": [
+    {
+      "name": "CPC",
+      "param_grid": {
+        "alpha": [
+          0.01,
+          0.05,
+          0.1
+        ],
+        "max_conditioning_set_size": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ]
+      },
+      "random_seeds": null
+    },
+    {
+      "name": "CMIIC",
+      "param_grid": {
+        "alpha": [
+          0.01,
+          0.05,
+          0.1
+        ]
+      },
+      "random_seeds": null
+    },
+    {
+      "name": "MIIC",
+      "param_grid": [
+        {
+          "n_bins": [
+            2,
+            4,
+            6,
+            8,
+            10
+          ],
+          "discretization_method": [
+            "quantile"
+          ]
+        },
+        {
+          "n_bins": [
+            2,
+            4,
+            6,
+            8,
+            10
+          ],
+          "discretization_method": [
+            "hartemink"
+          ],
+          "initial_bins": [
+            20
+          ]
+        }
+      ],
+      "random_seeds": null
+    },
+    {
+      "name": "GHC+BDeu",
+      "param_grid": [
+        {
+          "n_bins": [
+            2,
+            4,
+            6,
+            8,
+            10
+          ],
+          "discretization_method": [
+            "quantile"
+          ]
+        },
+        {
+          "n_bins": [
+            2,
+            4,
+            6,
+            8,
+            10
+          ],
+          "discretization_method": [
+            "hartemink"
+          ],
+          "initial_bins": [
+            20
+          ]
+        }
+      ],
+      "random_seeds": null
+    },
+    {
+      "name": "NOTEARS",
+      "param_grid": {
+        "lambda1": [
+          0.0,
+          0.05,
+          0.1,
+          0.3,
+          0.5
+        ],
+        "w_threshold_notears": [
+          0.0,
+          0.1,
+          0.3,
+          0.5,
+          0.7
+        ]
+      },
+      "random_seeds": null
+    },
+    {
+      "name": "NOTEARS Disc.",
+      "param_grid": [
+        {
+          "lambda1": [
+            0.0,
+            0.05,
+            0.1,
+            0.3,
+            0.5
+          ],
+          "w_threshold_notears": [
+            0.0,
+            0.1,
+            0.3,
+            0.5,
+            0.7
+          ],
+          "n_bins": [
+            2,
+            4,
+            6,
+            8,
+            10
+          ],
+          "discretization_method": [
+            "quantile"
+          ]
+        },
+        {
+          "lambda1": [
+            0.0,
+            0.05,
+            0.1,
+            0.3,
+            0.5
+          ],
+          "w_threshold_notears": [
+            0.0,
+            0.1,
+            0.3,
+            0.5,
+            0.7
+          ],
+          "n_bins": [
+            2,
+            4,
+            6,
+            8,
+            10
+          ],
+          "discretization_method": [
+            "hartemink"
+          ],
+          "initial_bins": [
+            20
+          ]
+        }
+      ],
+      "random_seeds": null
+    },
+    {
+      "name": "LiNGAM",
+      "param_grid": {
+        "threshold_lingam": [
+          0.01,
+          0.025,
+          0.05,
+          0.075,
+          0.1
+        ]
+      },
+      "random_seeds": [
+        42
+      ]
+    }
+  ]
+}
