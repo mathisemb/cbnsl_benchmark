@@ -1,18 +1,21 @@
 """
 High-level benchmark facade for structure learning algorithm comparison.
 
-Usage in notebooks::
+Usage::
 
-    from pipeline.Benchmark import Benchmark
     bench = Benchmark.sachs()
-    bench.run()
-    bench.summary()
+    bench.run()                         # runs grid search, saves to results/
     bench.plot_grid_search()
     bench.plot_best_scores()
     bench.plot_structures()
     bench.plot_pairwise_heatmaps()
+
+    # Or reload from disk:
+    bench = Benchmark.load("results/sachs_raw__11vars_853s__2026-03-17_15h42")
 """
 
+import json
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -24,7 +27,8 @@ from algorithms import ALL_ALGORITHMS
 from metrics import ALL_METRICS, OBJECTIVES
 from pipeline.Dataset import Dataset
 from pipeline.Structure import Structure
-from pipeline.GridSearch import GridSearch
+from pipeline.GridSearch import GridSearch, GridSearchResult
+from scaling.io import save_structure, load_structure
 
 
 class Benchmark:
@@ -33,15 +37,13 @@ class Benchmark:
     Supports two modes:
 
     - **Grid search** (``run()``): finds the best hyperparameters for every
-      registered algorithm, selects Pareto-optimal profiles, and re-runs
-      them to obtain the learned structures.
+      registered algorithm and selects Pareto-optimal profiles.
     - **Fixed params** (``run_fixed(configs)``): runs algorithms with
       user-specified hyperparameters (no search).
 
-    After either mode, call ``summary()``, ``plot_*()`` to analyse results.
+    After either mode, call ``plot_*()`` to analyse results.
+    Results are saved automatically and can be reloaded with ``Benchmark.load()``.
     """
-
-    PARETO_OBJECTIVES = {"SHD": True, "F1-Score": False}
 
     def __init__(
         self,
@@ -112,9 +114,12 @@ class Benchmark:
         if repetition_nb > 1:
             data = np.tile(data, (repetition_nb, 1))
 
+        n_samples = data.shape[0]
+        n_vars = data.shape[1]
+        rep_tag = f"_x{repetition_nb}" if repetition_nb > 1 else ""
         dataset = Dataset(
             data,
-            name=f"sachs_{variant}",
+            name=f"sachs_{variant}{rep_tag}__{n_vars}vars_{n_samples}s",
             feature_names=list(sachs_data.columns),
         )
 
@@ -122,11 +127,7 @@ class Benchmark:
         bench._register_all_algorithms()
         return bench
 
-    # Aliases for backward compatibility with existing notebooks
-    @classmethod
-    def log_sachs(cls, **kw) -> "Benchmark":
-        return cls.sachs(variant="log", **kw)
-
+    # Alias (used in report_comparison.ipynb)
     @classmethod
     def preprocessed_sachs(cls, **kw) -> "Benchmark":
         return cls.sachs(variant="preprocessed", **kw)
@@ -163,7 +164,7 @@ class Benchmark:
                                  marginal_type=marginal_type, lcc_types=lcc_types)
         dataset, golden = generate_from_cbn(cbn, n_samples=n_samples, seed=seed)
         dataset = Dataset(dataset.data,
-                          name=f"synthetic_cbn_{dag.size()}nodes",
+                          name=f"cbn_{marginal_type}_{lcc_types}__{dag.size()}vars_{n_samples}s",
                           feature_names=var_names)
 
         bench = cls(dataset, golden, rank_by=rank_by)
@@ -197,31 +198,13 @@ class Benchmark:
             dag, n_samples=n_samples, seed=seed,
             noise_type=noise_type, weight_range=weight_range,
         )
+        dataset = Dataset(dataset.data,
+                          name=f"sem_{noise_type}__{dag.size()}vars_{n_samples}s",
+                          feature_names=[f"X{i}" for i in range(dag.size())])
 
         bench = cls(dataset, golden, rank_by=rank_by)
         bench._register_all_algorithms()
         return bench
-
-    # Aliases for backward compatibility with existing notebooks
-    @classmethod
-    def synthetic_cbn_unif_gauss(cls, dag, **kw) -> "Benchmark":
-        return cls.synthetic_cbn(dag, marginal_type="Uniform", lcc_types="NormalCopula", **kw)
-
-    @classmethod
-    def synthetic_cbn_exp_clayton(cls, dag, **kw) -> "Benchmark":
-        return cls.synthetic_cbn(dag, marginal_type="Exponential", lcc_types="ClaytonCopula", **kw)
-
-    @classmethod
-    def synthetic_cbn_mixture(cls, dag, marginal_type="Uniform", **kw) -> "Benchmark":
-        return cls.synthetic_cbn(dag, marginal_type=marginal_type, lcc_types="MixtureCopula", **kw)
-
-    @classmethod
-    def synthetic_gausslinSEM(cls, dag, **kw) -> "Benchmark":
-        return cls.synthetic_sem(dag, noise_type="gaussian", **kw)
-
-    @classmethod
-    def synthetic_nongausslinSEM(cls, dag, noise_type="uniform", **kw) -> "Benchmark":
-        return cls.synthetic_sem(dag, noise_type=noise_type, **kw)
 
     # ------------------------------------------------------------------
     # Algorithm registration
@@ -247,8 +230,9 @@ class Benchmark:
         """Run grid search for all registered algorithms.
 
         After completion, the best Pareto-optimal profiles are selected
-        (according to ``rank_by``) and re-run to obtain learned structures.
-        Both cpdag and skeleton scores are stored.
+        (according to ``rank_by``). Structures are now kept in the grid
+        search results, so no re-run is needed. Results are saved to disk
+        automatically.
         """
         if self._gs is None:
             self._register_all_algorithms()
@@ -257,13 +241,8 @@ class Benchmark:
         self._selection_cpdag = self._gs.select_best(self.rank_by, compare_mode="cpdag")
         self._selection_skeleton = self._gs.select_best(self.rank_by, compare_mode="skeleton")
 
-        # The grid search stores params and scores but not the learned Structure
-        # objects, to save memory across all combinations. Re-run the selected
-        # Pareto-optimal profiles to obtain structures needed for visualization.
-        # Use cpdag selection for structures (skeleton selection may pick different
-        # hyperparams but the structures section is shared).
-        print(f"\nRe-running best profiles (rank_by={self.rank_by})...")
-        self._structures = self._gs.rerun_best(self.rank_by)
+        # Extract best structures directly from grid search results
+        self._structures = self._extract_best_structures()
 
         # Build scores and params dicts from both selections
         self._scores_cpdag = {}
@@ -283,8 +262,39 @@ class Benchmark:
             if seeds is not None:
                 self._seed_counts[n] = len(seeds)
 
-        print("Done.\n")
+        save_dir = self.save()
+        print(f"Results saved to {save_dir}\n")
         return self
+
+    def _extract_best_structures(self) -> Dict[str, Any]:
+        """Extract structures for the best cpdag profiles from grid search results.
+
+        For stochastic algorithms (with random_seeds), returns a list of
+        structures (one per seed matching the best params).
+        """
+        configs_map = {name: seeds for name, _, _, _, seeds in self._gs._configs}
+        structures = {}
+
+        for name, best_r in self._selection_cpdag.items():
+            if best_r is None:
+                continue
+            seeds = configs_map.get(name)
+            if seeds is not None:
+                # Stochastic: collect all structures with matching params
+                seed_structures = [
+                    r.structure for r in self._gs.results[name]
+                    if r.structure is not None and r.params == best_r.params
+                ]
+                if seed_structures:
+                    structures[name] = seed_structures
+            else:
+                # Deterministic: find the structure matching best params
+                for r in self._gs.results[name]:
+                    if r.params == best_r.params and r.structure is not None:
+                        structures[name] = r.structure
+                        break
+
+        return structures
 
     def run_fixed(self, configs: Dict[str, Dict[str, Any]]) -> "Benchmark":
         """Run algorithms with fixed hyperparameters (no grid search).
@@ -342,8 +352,149 @@ class Benchmark:
         return self
 
     # ------------------------------------------------------------------
-    # Queries
+    # Save / Load
     # ------------------------------------------------------------------
+
+    def save(self, path: Optional[str | Path] = None) -> Path:
+        """Save all results (scores, structures, grid search) to disk.
+
+        Args:
+            path: Directory to save to. Auto-generated if None.
+
+        Returns:
+            The directory where results were saved.
+        """
+        if path is None:
+            timestamp = datetime.now().strftime("%Y-%m-%d_%Hh%M")
+            path = Path(__file__).parent.parent / "views" / "results" / f"{self.dataset.name}__{timestamp}"
+        path = Path(path)
+
+        # Save golden structure
+        save_structure(self.golden_structure, path / "golden.json")
+
+        # Save best structures
+        if self._structures:
+            for name, s in self._structures.items():
+                if isinstance(s, list):
+                    for i, si in enumerate(s):
+                        save_structure(si, path / "structures" / f"{name}_seed{i}.json")
+                else:
+                    save_structure(s, path / "structures" / f"{name}.json")
+
+        # Save ALL grid search structures
+        if self._gs is not None:
+            for algo_name, results_list in self._gs.results.items():
+                for idx, r in enumerate(results_list):
+                    if r.structure is not None:
+                        save_structure(
+                            r.structure,
+                            path / "grid_structures" / f"{algo_name}_{idx}.json",
+                        )
+
+        # Build manifest
+        manifest = {
+            "dataset_name": self.dataset.name,
+            "feature_names": self.dataset.feature_names,
+            "rank_by": self.rank_by,
+            "scores_cpdag": self._scores_cpdag,
+            "scores_skeleton": self._scores_skeleton,
+            "params_cpdag": self._params_cpdag,
+            "params_skeleton": self._params_skeleton,
+            "seed_counts": self._seed_counts,
+        }
+
+        # Save grid search results (scores + params, no structures)
+        if self._gs is not None:
+            gs_results = {}
+            for algo_name, results_list in self._gs.results.items():
+                gs_results[algo_name] = [
+                    {"params": r.params, "scores": r.scores,
+                     "scores_skeleton": r.scores_skeleton, "error": r.error}
+                    for r in results_list
+                ]
+            manifest["grid_search_results"] = gs_results
+            manifest["grid_search_configs"] = [
+                {"name": n, "param_grid": pg, "random_seeds": rs}
+                for n, _, pg, _, rs in self._gs._configs
+            ]
+
+        path.mkdir(parents=True, exist_ok=True)
+        with open(path / "manifest.json", "w") as f:
+            json.dump(manifest, f, indent=2, default=str)
+
+        return path
+
+    @classmethod
+    def load(cls, path: str | Path) -> "Benchmark":
+        """Load a Benchmark from a saved results directory.
+
+        The loaded Benchmark supports all ``plot_*`` methods but cannot
+        ``run()`` again (no dataset).
+
+        Args:
+            path: Directory containing ``manifest.json``.
+        """
+        path = Path(path)
+        with open(path / "manifest.json") as f:
+            manifest = json.load(f)
+
+        # Reconstruct golden structure
+        golden = load_structure(path / "golden.json")
+
+        # Reconstruct a minimal Dataset (no data, just metadata for plotting)
+        dataset = Dataset(
+            np.empty((0, len(manifest["feature_names"]))),
+            name=manifest["dataset_name"],
+            feature_names=manifest["feature_names"],
+        )
+
+        bench = cls(dataset, golden, rank_by=manifest["rank_by"])
+        bench._scores_cpdag = manifest["scores_cpdag"]
+        bench._scores_skeleton = manifest["scores_skeleton"]
+        bench._params_cpdag = manifest["params_cpdag"]
+        bench._params_skeleton = manifest["params_skeleton"]
+        bench._seed_counts = {k: int(v) for k, v in manifest.get("seed_counts", {}).items()}
+
+        # Load best structures
+        structures_dir = path / "structures"
+        if structures_dir.exists():
+            bench._structures = {}
+            for algo_name in manifest["scores_cpdag"]:
+                single = structures_dir / f"{algo_name}.json"
+                if single.exists():
+                    bench._structures[algo_name] = load_structure(single)
+                else:
+                    # Stochastic: load all seed files
+                    seed_files = sorted(structures_dir.glob(f"{algo_name}_seed*.json"))
+                    if seed_files:
+                        bench._structures[algo_name] = [load_structure(f) for f in seed_files]
+
+        # Reconstruct GridSearch stub for plot_grid_search()
+        if "grid_search_results" in manifest:
+            bench._gs = GridSearch(
+                dataset=dataset,
+                golden_structure=golden,
+                metrics=list(ALL_METRICS),
+                objectives=dict(OBJECTIVES),
+            )
+            # Populate results
+            for algo_name, results_data in manifest["grid_search_results"].items():
+                bench._gs.results[algo_name] = [
+                    GridSearchResult(
+                        params=r["params"],
+                        scores=r["scores"],
+                        scores_skeleton=r["scores_skeleton"],
+                        error=r.get("error"),
+                    )
+                    for r in results_data
+                ]
+            # Populate _configs (algo_class=None since we never re-run)
+            bench._gs._configs = [
+                (c["name"], None, c["param_grid"], {}, c["random_seeds"])
+                for c in manifest["grid_search_configs"]
+            ]
+
+        return bench
 
     # ------------------------------------------------------------------
     # Display
@@ -352,7 +503,7 @@ class Benchmark:
     def show_golden(self) -> None:
         """Display the golden CPDAG in the notebook."""
         import pyagrum.lib.notebook as gnb
-        from notebooks.plotting import cpdag_to_dot
+        from views.plotting import cpdag_to_dot
 
         s = self.golden_structure
         print(
@@ -374,7 +525,7 @@ class Benchmark:
         params = self._params_cpdag if compare_mode == "cpdag" else self._params_skeleton
         if scores is None:
             raise RuntimeError("Call run() or run_fixed() first.")
-        from notebooks.plotting import plot_best_scores
+        from views.plotting import plot_best_scores
 
         plot_best_scores(scores, params, seed_counts=self._seed_counts)
 
@@ -385,7 +536,7 @@ class Benchmark:
         """
         if self._structures is None:
             raise RuntimeError("Call run() or run_fixed() first.")
-        from notebooks.plotting import plot_cpdags
+        from views.plotting import plot_cpdags
 
         plot_cpdags(
             self._structures, self._params_cpdag, self.dataset.feature_names,
@@ -396,11 +547,11 @@ class Benchmark:
         """Plot pairwise metric heatmaps between all learned structures."""
         if self._structures is None:
             raise RuntimeError("Call run() or run_fixed() first.")
-        from notebooks.plotting import plot_pairwise_heatmaps
+        from views.plotting import plot_pairwise_heatmaps
 
         title = (
             f"Best profiles (rank_by={self.rank_by})"
-            if self._selection_cpdag
+            if self._gs is not None
             else "Fixed hyperparameters"
         )
         plot_pairwise_heatmaps(

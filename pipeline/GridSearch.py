@@ -37,6 +37,7 @@ class GridSearchResult:
     scores: Dict[str, float] = field(default_factory=dict)
     scores_skeleton: Dict[str, float] = field(default_factory=dict)
     error: Optional[str] = None
+    structure: Optional[Structure] = None
 
 
 # ---------------------------------------------------------------------------
@@ -261,6 +262,7 @@ class GridSearch:
                     results.append(GridSearchResult(
                         params=params, scores=scores_cpdag,
                         scores_skeleton=scores_skel,
+                        structure=learned,
                     ))
 
                     if pbar is not None:
@@ -379,58 +381,10 @@ class GridSearch:
 
         return selection
 
-    # ----- re-run best profiles ---------------------------------------------
-
-    def rerun_best(self, rank_by: str = "SHD"):
-        """Re-run best profiles to obtain Structure objects for visualisation.
-
-        For stochastic algorithms (with random_seeds), returns a *list* of
-        structures (one per seed).  For deterministic algorithms, returns a
-        single Structure.
-
-        Returns:
-            ``{algo_name: Structure | List[Structure]}``
-        """
-        selection = self.select_best(rank_by)
-        hartemink_cache = self._precompute_hartemink()
-        configs_map = {name: (cls, fp, rs) for name, cls, _, fp, rs in self._configs}
-        structures = {}
-
-        for name, r in selection.items():
-            if r is None:
-                continue
-            algo_class, fixed_params, random_seeds = configs_map[name]
-
-            if random_seeds is not None:
-                # Re-run for every seed to collect all learned structures
-                seed_structures = []
-                for seed in random_seeds:
-                    all_params = {**fixed_params, **r.params, "random_state": seed}
-                    if hartemink_cache and all_params.get("discretization_method") == "hartemink":
-                        key = (all_params.get("n_bins"), all_params.get("initial_bins"))
-                        if key in hartemink_cache:
-                            all_params["discretized_df"] = hartemink_cache[key]
-                    algo = algo_class(**all_params)
-                    result_obj = getattr(algo, self.learn_method)(self.dataset)
-                    s = dag_as_a_structure(result_obj) if self.learn_method == "learn_dag" else result_obj
-                    seed_structures.append(s)
-                structures[name] = seed_structures
-            else:
-                all_params = {**fixed_params, **r.params}
-                if hartemink_cache and all_params.get("discretization_method") == "hartemink":
-                    key = (all_params.get("n_bins"), all_params.get("initial_bins"))
-                    if key in hartemink_cache:
-                        all_params["discretized_df"] = hartemink_cache[key]
-                algo = algo_class(**all_params)
-                result_obj = getattr(algo, self.learn_method)(self.dataset)
-                structures[name] = dag_as_a_structure(result_obj) if self.learn_method == "learn_dag" else result_obj
-
-        return structures
-
-    # ----- plotting (delegates to notebooks.plotting) -----------------------
+    # ----- plotting (delegates to views.plotting) ---------------------------
 
     def plot(self, compare_mode: str = "cpdag") -> None:
-        from notebooks.plotting import plot_grid_search_results
+        from views.plotting import plot_grid_search_results
         metric_names = [m.name() for m in self.metrics]
         pareto_obj = {k: v for k, v in self.objectives.items() if k in ("SHD", "F1-Score")}
         for name, _, param_grid, _, random_seeds in self._configs:
@@ -438,7 +392,7 @@ class GridSearch:
                                      random_seeds=random_seeds, compare_mode=compare_mode)
 
     def plot_comparison(self, rank_by: str = "SHD", compare_mode: str = "cpdag") -> None:
-        from notebooks.plotting import plot_best_scores
+        from views.plotting import plot_best_scores
         selection = self.select_best(rank_by, compare_mode=compare_mode)
         scores_by_algo = {
             name: self._get_scores(r, compare_mode)

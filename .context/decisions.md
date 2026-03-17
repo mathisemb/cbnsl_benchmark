@@ -68,26 +68,33 @@ cbnsl_benchmark/
 │   ├── AlgorithmAdapter.py    # Classe abstraite de base
 │   ├── CPCAdapter.py          # Un adapter par algorithme
 │   └── ...
-├── analysis/                  # Analyse et visualisation des résultats
-│   ├── BenchmarkAnalyzer.py   # Heatmaps, comparaisons vs golden
-│   ├── GridSearch.py          # Grid search sur paramètres (n_bins, etc.)
-│   └── ParetoSelector.py      # Sélection Pareto-optimale
-├── data/                      # Datasets
+├── data/                      # Datasets et générateurs de données synthétiques
+│   └── generators.py          # Génération CBN (otagrum) et SEM (linéaire)
 ├── metrics/                   # Métriques de comparaison de structures
 │   ├── MetricAdapter.py       # Classe abstraite de base
 │   ├── F1ScoreMetric.py       # Une métrique par fichier
 │   └── ...
-├── notebooks/                 # Expérimentations
-│   └── benchmark_sachs.ipynb  # Benchmark principal sur données Sachs
+├── views/                     # Scripts de lancement et visualisation
+│   ├── run_all_benchmarks.py  # Lance toutes les grid searches
+│   ├── visualize_gridsearch.ipynb  # Notebook de visualisation des résultats
+│   ├── plotting.py            # Utilitaires de plot (seaborn, pyAgrum)
+│   └── report_comparison.ipynb
+├── scaling/                   # Étude de scaling (temps et métriques vs n_samples)
+│   ├── runner.py              # ScalingRunner
+│   ├── plot.py                # Courbes seaborn
+│   ├── io.py                  # Sérialisation structures JSON + CSV
+│   ├── random_dag.py          # Génération de DAGs aléatoires (gum.BNGenerator)
+│   └── scaling_study.ipynb    # Notebook de scaling
+├── results/                   # Résultats sauvegardés (gitignored)
+│   └── {config}__{timestamp}/ # Un dossier par run
 ├── pipeline/                  # Composants core de la pipeline
+│   ├── Benchmark.py           # Facade principale (factory, run, save/load, plot)
+│   ├── GridSearch.py          # Grid search + Pareto
 │   ├── Dataset.py             # Wrapper de données
-│   ├── Pipeline.py            # Orchestration principale
-│   ├── Result.py              # Stockage des résultats
 │   └── Structure.py           # Représentation du CPDAG (MixedGraph)
 ├── preprocessing/             # Prétraitement des données
 │   └── hartemink.py           # Discrétisation Hartemink
 ├── tests/                     # Tests
-│   ├── test_cpc_shd.py        # Un test par scénario
 │   └── ...
 ├── install.sh                 # Script d'installation automatique
 ├── pyproject.toml             # Configuration du package
@@ -100,7 +107,7 @@ cbnsl_benchmark/
 
 **tests/** : tous les tests mélangés.
 
-**Séparation notebooks/ et tests/** : Distinction claire entre exemples dans des notebooks et les tests. Les exemples montrent comment utiliser la lib, les tests vérifient la correction.
+**Séparation views/ et tests/** : `views/` contient les scripts de lancement (`run_all_benchmarks.py`) et de visualisation (`visualize_gridsearch.ipynb`). `tests/` contient les tests unitaires.
 
 **data/ pour datasets** : Gitignoré pour éviter de versionner de gros fichiers.
 
@@ -245,30 +252,34 @@ Auparavant, chaque dataset avait deux notebooks : un `*_cpdag.ipynb` et un `*_sk
 - `Benchmark` supprime le paramètre `compare_mode` de son constructeur et des factory methods. `run()` fait `select_best` pour les deux modes et stocke `_scores_cpdag`, `_scores_skeleton`, `_params_cpdag`, `_params_skeleton`
 - `plot_grid_search(compare_mode)`, `plot_best_scores(compare_mode)`, `plot_pairwise_heatmaps(compare_mode)` acceptent le mode en paramètre (défaut : `"cpdag"`)
 
-Les notebooks fusionnés font une seule grid search puis affichent les résultats pour les deux modes. Structure :
-1. Golden structure
-2. Grid search (unique)
-3. Résultats par algorithme (CPDAG)
-4. Meilleurs profils (CPDAG)
-5. Résultats par algorithme (Skeleton)
-6. Meilleurs profils (Skeleton)
-7. Structures apprises (communes)
-8. Comparaisons pairwise (CPDAG)
-9. Comparaisons pairwise (Skeleton)
+### Persistance des résultats et workflow calcul/visualisation
 
-**Exécution batch des notebooks** :
+Les grid searches sont coûteuses. On sépare le calcul de la visualisation :
+
+- **`views/run_all_benchmarks.py`** : définit toutes les configurations (sachs, CBN, SEM × n_vars × n_samples) et les exécute en batch. Chaque `Benchmark.run()` sauvegarde automatiquement dans `results/`.
+- **`views/visualize_gridsearch.ipynb`** : unique notebook de visualisation. Charge les résultats via `Benchmark.load("results/<dossier>")` sans relancer les calculs.
+
+**Nommage des dossiers de résultats** : `{modèle}__{n_vars}vars_{n_samples}s__{timestamp}` (ex. `sem_laplace__5vars_200s__2026-03-17_15h42`). Le modèle et les paramètres sont en premier pour faciliter `ls results/sem_*`, le timestamp à la fin évite les collisions.
+
+**Contenu d'un dossier de résultats** :
+- `manifest.json` : scores, params, résultats complets de la grid search
+- `golden.json` : structure golden (CPDAG sérialisé en JSON)
+- `structures/` : meilleures structures apprises (une par algo)
+- `grid_structures/` : toutes les structures apprises pendant la grid search
+
+**`Benchmark.save()`** est appelé automatiquement à la fin de `run()`. **`Benchmark.load(path)`** reconstruit un objet `Benchmark` complet (avec un stub `GridSearch`) supportant tous les `plot_*()`.
+
+**Exécution batch** :
 ```bash
 source venv/bin/activate
-for nb in notebooks/synthetic/*/5vars/*.ipynb notebooks/synthetic/*/20vars/*.ipynb notebooks/sachs/*/*/*.ipynb; do
-  echo "=== Running: $nb ==="
-  jupyter nbconvert --execute --inplace --ExecutePreprocessor.timeout=3600 "$nb"
-done
+python views/run_all_benchmarks.py
 ```
 
 ## Fonctionnalités à implémenter
 - [ ] Faire des tests unitaires propres ?
-- [ ] Export des résultats (CSV, JSON) ?
-- [ ] Mesure du temps d'exécution ?
+- [x] Export des résultats (CSV, JSON) → `Benchmark.save()` / `Benchmark.load()`
+- [x] Mesure du temps d'exécution → géré par `scaling/` (temps + métriques vs n_samples)
+- [ ] Interface Streamlit pour naviguer dans les résultats ?
 
 ## Commandes utiles
 
