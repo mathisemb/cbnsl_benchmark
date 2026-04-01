@@ -301,11 +301,10 @@ def plot_best_scores(scores_by_algo, params_by_algo, seed_counts=None):
         scores = scores_by_algo[name]
         params = params_by_algo.get(name, {})
         params_str = ", ".join(f"{k}={v}" for k, v in params.items())
-        label = f"{name} ({params_str})"
-        if name in seed_counts:
-            label += f" [moy. {seed_counts[name]} seeds]"
+        x, y = scores["SHD"], scores["F1-Score"]
+        label = f"{name} ({params_str}) | SHD={x}, F1={y:.2f}"
         ax.scatter(
-            scores["SHD"], scores["F1-Score"],
+            x, y,
             color=palette[idx], s=150, edgecolors="black", linewidths=1.5,
             label=label, zorder=5,
         )

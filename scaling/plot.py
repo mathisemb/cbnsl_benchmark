@@ -52,11 +52,11 @@ def plot_metric(
     n_graphs = df["graph_idx"].nunique()
     g = sns.relplot(
         data=df, x=x, y=y, hue="algo",
-        kind="line", errorbar="sd", marker="o",
+        kind="line", errorbar="se", marker="o",
         **kwargs,
     )
     g.figure.subplots_adjust(top=0.9)
-    g.figure.suptitle(f"{y} vs. {x} (mean +/- std over {n_graphs} graphs)")
+    g.figure.suptitle(f"{y} vs. {x} (mean +/- se over {n_graphs} graphs)")
     g._legend.set_title(None)
     return g
 
@@ -84,10 +84,10 @@ def plot_facet(
     n_graphs = df["graph_idx"].nunique()
     g = sns.relplot(
         data=df, x=x, y=y, hue="algo", col=col,
-        kind="line", errorbar="sd", marker="o",
+        kind="line", errorbar="se", marker="o",
         **kwargs,
     )
     g.figure.subplots_adjust(top=0.85)
-    g.figure.suptitle(f"{y} vs. {x} (mean +/- std over {n_graphs} graphs)")
+    g.figure.suptitle(f"{y} vs. {x} (mean +/- se over {n_graphs} graphs)")
     g._legend.set_title(None)
     return g

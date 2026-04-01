@@ -27,6 +27,15 @@ def dag_5vars():
         dag.addArc(t, h)
     return dag
 
+def dag_10vars():
+    dag = gum.DAG()
+    dag.addNodes(10)
+    for t, h in [
+        (1, 0), (0, 2), (2, 3), (3, 4), (3, 5), (4, 5), (4, 6), (5, 7),
+        (6, 7), (6, 8), (7, 8), (9, 8), (2, 9), (9, 7)
+    ]:
+        dag.addArc(t, h)
+    return dag
 
 def dag_20vars():
     dag = gum.DAG()
@@ -45,6 +54,7 @@ def dag_20vars():
 # Configurations: (factory_method, kwargs)
 # ---------------------------------------------------------------------------
 
+"""
 CONFIGS = [
     # --- Sachs (real data) ---
     ("sachs", {"variant": "raw"}),
@@ -82,7 +92,24 @@ CONFIGS = [
     # ("synthetic_sem", {"dag": dag_20vars(), "n_samples": 1000, "noise_type": "laplace"}),
     # ("synthetic_sem", {"dag": dag_20vars(), "n_samples": 5000, "noise_type": "laplace"}),
 ]
+"""
 
+CONFIGS = [
+    # --- CBN Gaussian (Uniform + NormalCopula) ---
+    ("synthetic_cbn", {"dag": dag_10vars(), "n_samples": 2000, "marginal_type": "Uniform", "lcc_types": "NormalCopula"}),
+  
+    # --- CBN Non-Gaussian (Exponential + ClaytonCopula) ---
+    ("synthetic_cbn", {"dag": dag_10vars(), "n_samples": 2000, "marginal_type": "Exponential", "lcc_types": "ClaytonCopula"}),
+
+    # --- CBN Non-Gaussian (Uniform + MixtureCopula) ---
+    ("synthetic_cbn", {"dag": dag_10vars(), "n_samples": 2000, "marginal_type": "Uniform", "lcc_types": "MixtureCopula"}),
+
+    # --- SEM Gaussian ---
+    ("synthetic_sem", {"dag": dag_10vars(), "n_samples": 2000, "noise_type": "gaussian"}),
+
+    # --- SEM Non-Gaussian (laplace) ---
+    ("synthetic_sem", {"dag": dag_10vars(), "n_samples": 2000, "noise_type": "laplace"}),
+]
 
 # ---------------------------------------------------------------------------
 # Main
