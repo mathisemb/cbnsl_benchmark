@@ -91,7 +91,8 @@ class ScalingRunner:
         """
         Run the scaling experiment.
 
-        Results are saved to ``{results_dir}/results.csv`` at the end.
+        Results are saved incrementally to ``{results_dir}/results.csv``
+        (one row appended after each algorithm run).
 
         Returns
         -------
@@ -101,6 +102,7 @@ class ScalingRunner:
         metrics = list(ALL_METRICS)
         metric_names = [m.name() for m in metrics]
         records: List[Dict[str, Any]] = []
+        csv_path = self.results_dir / "results.csv"
 
         var_arc_pairs = sorted({(nv, na) for nv, na, _ in self.grid})
         n_samples_for = {
@@ -182,9 +184,16 @@ class ScalingRunner:
 
                         records.append(row)
 
+                        # Incremental save: append this row to CSV immediately
+                        row_df = pd.DataFrame([row])
+                        header = not csv_path.exists()
+                        csv_path.parent.mkdir(parents=True, exist_ok=True)
+                        row_df.to_csv(
+                            csv_path, mode="a", index=False, header=header,
+                        )
+
         print()
         self._results = pd.DataFrame(records)
-        save_results(self._results, self.results_dir / "results.csv")
         return self._results
 
     @property
