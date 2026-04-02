@@ -284,7 +284,8 @@ def plot_grid_search_results(name, gs, param_grid, metric_names, pareto_objectiv
 # Best scores comparison scatter
 # ---------------------------------------------------------------------------
 
-def plot_best_scores(scores_by_algo, params_by_algo, seed_counts=None):
+def plot_best_scores(scores_by_algo, params_by_algo, seed_counts=None,
+                     compare_mode="cpdag"):
     """Scatter plot comparing all algos (one point per algo) on SHD vs F1-Score.
 
     Args:
@@ -292,25 +293,74 @@ def plot_best_scores(scores_by_algo, params_by_algo, seed_counts=None):
         params_by_algo: {algo_name: {param_name: value}}.
         seed_counts: {algo_name: n_seeds} for stochastic algorithms.
     """
+    from collections import defaultdict
+
     seed_counts = seed_counts or {}
     algo_names = list(scores_by_algo.keys())
     palette = sns.color_palette("tab10", len(algo_names))
 
+    sns.set_theme(style="whitegrid", font_scale=1.1)
     fig, ax = plt.subplots(figsize=(10, 7))
+
+    # Group algos by (x, y) position to detect overlaps.
+    # Round to avoid floating-point mismatches.
+    groups = defaultdict(list)
     for idx, name in enumerate(algo_names):
+        scores = scores_by_algo[name]
+        x, y = scores["SHD"], scores["F1-Score"]
+        key = (round(float(x), 6), round(float(y), 6))
+        groups[key].append((idx, name))
+
+    # Compute marker sizes: overlapping points are drawn as concentric
+    # circles (largest first) so every colour is visible.
+    marker_sizes = {}
+    for (x, y), members in groups.items():
+        n = len(members)
+        if n == 1:
+            marker_sizes[members[0][0]] = 150
+        else:
+            for rank, (idx, _name) in enumerate(members):
+                marker_sizes[idx] = 150 + (n - 1 - rank) * 80
+
+    # Draw in decreasing size order so smaller circles appear on top.
+    draw_order = sorted(range(len(algo_names)),
+                        key=lambda i: -marker_sizes[i])
+    for idx in draw_order:
+        name = algo_names[idx]
         scores = scores_by_algo[name]
         params = params_by_algo.get(name, {})
         params_str = ", ".join(f"{k}={v}" for k, v in params.items())
         x, y = scores["SHD"], scores["F1-Score"]
-        label = f"{name} ({params_str}) | SHD={x}, F1={y:.2f}"
+        label = f"{name} ({params_str})"
         ax.scatter(
             x, y,
-            color=palette[idx], s=150, edgecolors="black", linewidths=1.5,
-            label=label, zorder=5,
+            color=palette[idx], s=marker_sizes[idx],
+            edgecolors="none",
+            label=label, zorder=5, alpha=0.85,
         )
-    ax.set_xlabel("SHD (lower is better)")
-    ax.set_ylabel("F1-Score (higher is better)")
-    ax.set_title("Best profiles : SHD vs F1-Score")
+
+    # Annotate: single points get a simple label, overlapping points get a
+    # grouped text block listing all algo names line by line.
+    for (x, y), members in groups.items():
+        if len(members) == 1:
+            ax.annotate(
+                members[0][1], (x, y), fontsize=7,
+                textcoords="offset points", xytext=(8, 8), zorder=6,
+            )
+        else:
+            block = "\n".join(name for _, name in members)
+            ax.annotate(
+                block, (x, y), fontsize=7,
+                textcoords="offset points", xytext=(12, 12), zorder=6,
+                bbox=dict(boxstyle="round,pad=0.3", fc="white",
+                          ec="gray", alpha=0.85),
+                arrowprops=dict(arrowstyle="-", color="gray", lw=0.8),
+            )
+
+    ax.set_xlabel("SHD")
+    ax.set_ylabel("F1-Score")
+    mode_label = "CPDAGs" if compare_mode == "cpdag" else "Skeletons"
+    ax.set_title(f"SHD vs F1-Score ({mode_label})")
     ax.legend(
         fontsize=8, bbox_to_anchor=(0.5, -0.15), loc="upper center",
         ncol=1,

@@ -527,7 +527,8 @@ class Benchmark:
             raise RuntimeError("Call run() or run_fixed() first.")
         from views.plotting import plot_best_scores
 
-        plot_best_scores(scores, params, seed_counts=self._seed_counts)
+        plot_best_scores(scores, params, seed_counts=self._seed_counts,
+                         compare_mode=compare_mode)
 
     def plot_structures(self) -> None:
         """Display learned CPDAGs for each algorithm alongside the golden BN and a diff.

@@ -4,11 +4,10 @@
 # Results are saved incrementally to scaling/results/ (crash-safe).
 # Executed notebooks (with outputs) are saved as *_executed.ipynb.
 #
-# Usage:  cd scaling && bash run_all.sh
-#    or:  bash scaling/run_all.sh
+# Usage, dans scaling/:  bash run_all.sh
 #
-# En arriere-plan:  cd scaling && nohup bash run_all.sh > run_all.log 2>&1 &
-#          Suivre:  tail -f scaling/run_all.log
+# En arriere-plan, dans scaling/:  nohup bash run_all.sh > run_all.log 2>&1 &
+#          Suivre, dans scaling/:  tail -f run_all.log
 
 cd "$(dirname "$0")"
 
