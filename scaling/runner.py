@@ -35,8 +35,6 @@ from pipeline.Structure import dag_as_a_structure
 from .io import save_results, save_structure
 from .random_dag import random_dag
 
-AlgoConfig = Tuple[str, Type[AlgorithmAdapter], Dict[str, Any]]
-
 
 class ScalingRunner:
     """
