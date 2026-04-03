@@ -530,10 +530,14 @@ class Benchmark:
         plot_best_scores(scores, params, seed_counts=self._seed_counts,
                          compare_mode=compare_mode)
 
-    def plot_structures(self) -> None:
+    def plot_structures(self, save_dir=None) -> None:
         """Display learned CPDAGs for each algorithm alongside the golden BN and a diff.
 
         For stochastic algorithms (e.g. LiNGAM), all seed structures are shown.
+
+        Args:
+            save_dir: If given, save each graph as PDF in this directory
+                instead of displaying inline.
         """
         if self._structures is None:
             raise RuntimeError("Call run() or run_fixed() first.")
@@ -542,6 +546,7 @@ class Benchmark:
         plot_cpdags(
             self._structures, self._params_cpdag, self.dataset.feature_names,
             golden_structure=self.golden_structure,
+            save_dir=save_dir,
         )
 
     def plot_pairwise_heatmaps(self, compare_mode: str = "cpdag") -> None:

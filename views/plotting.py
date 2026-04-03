@@ -299,8 +299,14 @@ def plot_best_scores(scores_by_algo, params_by_algo, seed_counts=None,
     algo_names = list(scores_by_algo.keys())
     palette = sns.color_palette("tab10", len(algo_names))
 
-    sns.set_theme(style="whitegrid", font_scale=1.1)
-    fig, ax = plt.subplots(figsize=(10, 7))
+    plt.rcParams.update({
+        "text.usetex": True,
+        "font.family": "serif",
+        "font.serif": ["Computer Modern Roman"],
+    })
+    sns.set_theme(style="whitegrid", font_scale=1.6,
+                  rc={"text.usetex": True, "font.family": "serif"})
+    fig, ax = plt.subplots(figsize=(7, 5))
 
     # Group algos by (x, y) position to detect overlaps.
     # Round to avoid floating-point mismatches.
@@ -344,27 +350,22 @@ def plot_best_scores(scores_by_algo, params_by_algo, seed_counts=None,
     for (x, y), members in groups.items():
         if len(members) == 1:
             ax.annotate(
-                members[0][1], (x, y), fontsize=7,
+                members[0][1], (x, y), fontsize=11,
                 textcoords="offset points", xytext=(8, 8), zorder=6,
             )
         else:
             block = "\n".join(name for _, name in members)
             ax.annotate(
-                block, (x, y), fontsize=7,
+                block, (x, y), fontsize=11,
                 textcoords="offset points", xytext=(12, 12), zorder=6,
                 bbox=dict(boxstyle="round,pad=0.3", fc="white",
                           ec="gray", alpha=0.85),
                 arrowprops=dict(arrowstyle="-", color="gray", lw=0.8),
             )
 
-    ax.set_xlabel("SHD")
-    ax.set_ylabel("F1-Score")
-    mode_label = "CPDAGs" if compare_mode == "cpdag" else "Skeletons"
-    ax.set_title(f"SHD vs F1-Score ({mode_label})")
-    ax.legend(
-        fontsize=8, bbox_to_anchor=(0.5, -0.15), loc="upper center",
-        ncol=1,
-    )
+    mode_label = "CPDAGs" if compare_mode == "cpdag" else "skeletons"
+    ax.set_xlabel(f"SHD (on {mode_label})")
+    ax.set_ylabel(f"F1 (on {mode_label})")
     plt.tight_layout()
     plt.show()
 
@@ -373,8 +374,19 @@ def plot_best_scores(scores_by_algo, params_by_algo, seed_counts=None,
 # CPDAG display
 # ---------------------------------------------------------------------------
 
+def _save_dot(dot_string, filepath):
+    """Render a DOT string to a file (PDF/PNG/SVG based on extension)."""
+    import graphviz
+    from pathlib import Path
+
+    p = Path(filepath)
+    fmt = p.suffix.lstrip(".")
+    src = graphviz.Source(dot_string)
+    src.render(outfile=str(p), format=fmt, cleanup=True)
+
+
 def plot_cpdags(structures, params_by_algo, feature_names,
-                golden_structure=None):
+                golden_structure=None, save_dir=None):
     """Display the learned CPDAG for each algorithm, optionally with golden BN and diff.
 
     For stochastic algorithms, ``structures[name]`` is a list of Structures
@@ -389,14 +401,28 @@ def plot_cpdags(structures, params_by_algo, feature_names,
         params_by_algo: {algo_name: {param_name: value}}.
         feature_names: List of variable names.
         golden_structure: Optional golden Structure for comparison.
+        save_dir: If given, save each graph as PDF in this directory
+            instead of displaying inline.
     """
     import pyagrum.lib.notebook as gnb
+    from pathlib import Path
+
+    if save_dir is not None:
+        save_path = Path(save_dir)
+        save_path.mkdir(parents=True, exist_ok=True)
 
     golden_dot = (cpdag_to_dot(golden_structure, feature_names)
                   if golden_structure is not None else None)
 
-    def _show_structure(structure, title):
-        if golden_structure is not None:
+    def _show_structure(structure, title, file_prefix=None):
+        if save_dir is not None:
+            learned_dot = cpdag_to_dot(structure, feature_names)
+            _save_dot(learned_dot, save_path / f"{file_prefix}_learned.pdf")
+            if golden_structure is not None:
+                diff_dot = cpdag_diff_dot(golden_structure, structure, feature_names)
+                _save_dot(diff_dot, save_path / f"{file_prefix}_diff.pdf")
+            print(f"  Saved {file_prefix}")
+        elif golden_structure is not None:
             diff_dot = cpdag_diff_dot(golden_structure, structure, feature_names)
             gnb.sideBySide(
                 gnb.getDot(cpdag_to_dot(structure, feature_names)),
@@ -407,6 +433,10 @@ def plot_cpdags(structures, params_by_algo, feature_names,
         else:
             print(title)
             gnb.showDot(cpdag_to_dot(structure, feature_names))
+
+    if save_dir is not None and golden_structure is not None:
+        _save_dot(golden_dot, Path(save_dir) / "golden.pdf")
+        print("  Saved golden")
 
     for name, struct_or_list in structures.items():
         params = params_by_algo.get(name, {})
@@ -419,7 +449,9 @@ def plot_cpdags(structures, params_by_algo, feature_names,
                     f"{structure.cpdag.sizeArcs()} arcs, "
                     f"{structure.cpdag.sizeEdges()} edges"
                 )
-                _show_structure(structure, title)
+                safe_name = name.replace(" ", "_").replace("+", "_")
+                _show_structure(structure, title,
+                                file_prefix=f"{safe_name}_seed{i}")
         else:
             structure = struct_or_list
             title = (
@@ -427,7 +459,8 @@ def plot_cpdags(structures, params_by_algo, feature_names,
                 f"{structure.cpdag.sizeArcs()} arcs, "
                 f"{structure.cpdag.sizeEdges()} edges"
             )
-            _show_structure(structure, title)
+            safe_name = name.replace(" ", "_").replace("+", "_")
+            _show_structure(structure, title, file_prefix=safe_name)
 
 
 # ---------------------------------------------------------------------------
