@@ -10,7 +10,8 @@ This repository benchmarks structure learning algorithms for Bayesian networks i
 | ContinuousMIIC | otagrum |
 | MIIC | pyAgrum |
 | GHC+BDeu | pyAgrum |
-| NOTEARS | notears |
+| NOTEARS (linear & nonlinear) | notears |
+| DAGMA (linear & nonlinear) | dagma |
 | DirectLiNGAM | lingam |
 
 ## Installation
@@ -28,9 +29,10 @@ conda activate cbnsl
 conda install otagrum
 pip install -e .
 pip install git+https://github.com/xunzheng/notears.git
+pip install dagma
 ```
 
-`conda install otagrum` installs otagrum along with its dependencies (pyAgrum, OpenTURNS). The remaining packages (lingam, notears) are installed via pip.
+`conda install otagrum` installs otagrum along with its dependencies (pyAgrum, OpenTURNS). The remaining packages (lingam, notears, dagma) are installed via pip.
 
 > **Note:** The conda version of otagrum is not yet up to date with the [GitHub repository](https://github.com/openturns/otagrum). The latest version integrates aGrUM's Meek rules into ContinuousPC and ContinuousMIIC. The conda package will be updated soon.
 

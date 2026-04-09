@@ -26,6 +26,10 @@ This file contains links to external code, documentation, and papers that are re
   - [Repository](https://github.com/cdt15/lingam)
   - [Paper](https://www.jmlr.org/papers/volume7/shimizu06a/shimizu06a.pdf)
 
+- **DAGMA**
+  - [Repository](https://github.com/kevinsbello/dagma)
+  - [Paper](https://arxiv.org/pdf/2209.08037)
+
 - **Discrétisation + MIIC** (aGrUM, pyAgrum)
   - [Documentation discrétisation](https://pyagrum.gitlab.io/reference/6_pyagrumlib_modules/2_libdiscretetypeprocessor/)
   - [Code discrétisation](https://gitlab.com/agrumery/aGrUM/-/blob/master/wrappers/pyagrum/pyLibs/lib/discreteTypeProcessor.py)

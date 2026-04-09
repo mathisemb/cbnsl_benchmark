@@ -16,6 +16,7 @@ dependencies = [
     "pyAgrum",
     "openturns",
     "lingam",
+    "dagma",
     "tqdm",
     "adjustText",
 ]

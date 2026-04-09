@@ -10,7 +10,10 @@ from algorithms.CMIICAdapter import CMIICAdapter
 from algorithms.MIICAdapter import MIICAdapter
 from algorithms.GHCBDeuAdapter import GHCBDeuAdapter
 from algorithms.NOTEARSAdapter import NOTEARSAdapter
+from algorithms.NOTEARSNonlinearAdapter import NOTEARSNonlinearAdapter
 from algorithms.NOTEARSDiscreteAdapter import NOTEARSDiscreteAdapter
+from algorithms.DAGMAAdapter import DAGMAAdapter
+from algorithms.DAGMANonlinearAdapter import DAGMANonlinearAdapter
 from algorithms.LiNGAMAdapter import LiNGAMAdapter
 
 # Each entry: (adapter_class, fixed_params, random_seeds)
@@ -21,7 +24,10 @@ ALL_ALGORITHMS = {
     "MIIC":          (MIICAdapter, {}, None),
     "GHC+BDeu":      (GHCBDeuAdapter, {}, None),
     "NOTEARS":       (NOTEARSAdapter, {}, None),
+    "NOTEARS NL":    (NOTEARSNonlinearAdapter, {}, None),
     "NOTEARS Disc.": (NOTEARSDiscreteAdapter, {}, None),
+    "DAGMA":         (DAGMAAdapter, {}, None),
+    "DAGMA NL":      (DAGMANonlinearAdapter, {}, None),
     #"LiNGAM":        (LiNGAMAdapter, {}, list(range(10))),
     "LiNGAM":        (LiNGAMAdapter, {}, [42]),
 }

@@ -169,7 +169,7 @@ class GridSearch:
     # core optimisation.  When any of these varies in the grid, the raw weight
     # matrix is cached and reused so the expensive fit runs only once per
     # unique set of non-threshold params.
-    _THRESHOLD_PARAMS = ("w_threshold_notears", "threshold_lingam")
+    _THRESHOLD_PARAMS = ("w_threshold_notears", "threshold_lingam", "w_threshold_dagma")
 
     def _run_grid(self, algo_class, param_grid, fixed_params,
                   hartemink_cache, pbar, random_seeds=None):

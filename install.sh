@@ -39,6 +39,7 @@ echo "Installing Python dependencies..."
 echo "============================================"
 pip install -e .
 pip install git+https://github.com/xunzheng/notears.git
+pip install dagma
 echo "[OK] Python dependencies installed"
 echo ""
 
