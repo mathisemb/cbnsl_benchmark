@@ -1,0 +1,1357 @@
+{
+  "dataset_name": "cbn_Uniform_MixtureCopula__10vars_2000s",
+  "feature_names": [
+    "X0",
+    "X1",
+    "X2",
+    "X3",
+    "X4",
+    "X5",
+    "X6",
+    "X7",
+    "X8",
+    "X9"
+  ],
+  "rank_by": "F1-Score",
+  "scores_cpdag": {
+    "DAGMA": {
+      "SHD": 7.0,
+      "F1-Score": 0.7200000000000001,
+      "TPR": 0.6428571428571429
+    }
+  },
+  "scores_skeleton": {
+    "DAGMA": {
+      "SHD": 13.0,
+      "F1-Score": 0.7692307692307692,
+      "TPR": 0.7142857142857143
+    }
+  },
+  "params_cpdag": {
+    "DAGMA": {
+      "lambda1": 0.005,
+      "w_threshold_dagma": 0.005
+    }
+  },
+  "params_skeleton": {
+    "DAGMA": {
+      "lambda1": 0.001,
+      "w_threshold_dagma": 0.05
+    }
+  },
+  "seed_counts": {},
+  "grid_search_results": {
+    "DAGMA": [
+      {
+        "params": {
+          "lambda1": 0.001,
+          "w_threshold_dagma": 0.0
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a mono-cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.001,
+          "w_threshold_dagma": 0.005
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.001,
+          "w_threshold_dagma": 0.01
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a directed cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.001,
+          "w_threshold_dagma": 0.05
+        },
+        "scores": {
+          "SHD": 8.0,
+          "F1-Score": 0.6666666666666666,
+          "TPR": 0.6666666666666666
+        },
+        "scores_skeleton": {
+          "SHD": 13.0,
+          "F1-Score": 0.7692307692307692,
+          "TPR": 0.7142857142857143
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.001,
+          "w_threshold_dagma": 0.1
+        },
+        "scores": {
+          "SHD": 7.0,
+          "F1-Score": 0.6956521739130435,
+          "TPR": 0.5714285714285714
+        },
+        "scores_skeleton": {
+          "SHD": 13.0,
+          "F1-Score": 0.6956521739130435,
+          "TPR": 0.5714285714285714
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.001,
+          "w_threshold_dagma": 0.15
+        },
+        "scores": {
+          "SHD": 8.0,
+          "F1-Score": 0.6363636363636364,
+          "TPR": 0.5
+        },
+        "scores_skeleton": {
+          "SHD": 13.0,
+          "F1-Score": 0.6363636363636364,
+          "TPR": 0.5
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.001,
+          "w_threshold_dagma": 0.2
+        },
+        "scores": {
+          "SHD": 8.0,
+          "F1-Score": 0.6363636363636364,
+          "TPR": 0.5
+        },
+        "scores_skeleton": {
+          "SHD": 13.0,
+          "F1-Score": 0.6363636363636364,
+          "TPR": 0.5
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.001,
+          "w_threshold_dagma": 0.3
+        },
+        "scores": {
+          "SHD": 15.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 15.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.001,
+          "w_threshold_dagma": 0.4
+        },
+        "scores": {
+          "SHD": 15.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 15.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.001,
+          "w_threshold_dagma": 0.5
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.005,
+          "w_threshold_dagma": 0.0
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a mono-cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.005,
+          "w_threshold_dagma": 0.005
+        },
+        "scores": {
+          "SHD": 7.0,
+          "F1-Score": 0.7200000000000001,
+          "TPR": 0.6428571428571429
+        },
+        "scores_skeleton": {
+          "SHD": 13.0,
+          "F1-Score": 0.7200000000000001,
+          "TPR": 0.6428571428571429
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.005,
+          "w_threshold_dagma": 0.01
+        },
+        "scores": {
+          "SHD": 7.0,
+          "F1-Score": 0.7200000000000001,
+          "TPR": 0.6428571428571429
+        },
+        "scores_skeleton": {
+          "SHD": 13.0,
+          "F1-Score": 0.7200000000000001,
+          "TPR": 0.6428571428571429
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.005,
+          "w_threshold_dagma": 0.05
+        },
+        "scores": {
+          "SHD": 7.0,
+          "F1-Score": 0.6956521739130435,
+          "TPR": 0.5714285714285714
+        },
+        "scores_skeleton": {
+          "SHD": 13.0,
+          "F1-Score": 0.6956521739130435,
+          "TPR": 0.5714285714285714
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.005,
+          "w_threshold_dagma": 0.1
+        },
+        "scores": {
+          "SHD": 7.0,
+          "F1-Score": 0.6956521739130435,
+          "TPR": 0.5714285714285714
+        },
+        "scores_skeleton": {
+          "SHD": 13.0,
+          "F1-Score": 0.6956521739130435,
+          "TPR": 0.5714285714285714
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.005,
+          "w_threshold_dagma": 0.15
+        },
+        "scores": {
+          "SHD": 8.0,
+          "F1-Score": 0.6363636363636364,
+          "TPR": 0.5
+        },
+        "scores_skeleton": {
+          "SHD": 13.0,
+          "F1-Score": 0.6363636363636364,
+          "TPR": 0.5
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.005,
+          "w_threshold_dagma": 0.2
+        },
+        "scores": {
+          "SHD": 13.0,
+          "F1-Score": 0.23529411764705882,
+          "TPR": 0.14285714285714285
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.23529411764705882,
+          "TPR": 0.14285714285714285
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.005,
+          "w_threshold_dagma": 0.3
+        },
+        "scores": {
+          "SHD": 15.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 15.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.005,
+          "w_threshold_dagma": 0.4
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.005,
+          "w_threshold_dagma": 0.5
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.01,
+          "w_threshold_dagma": 0.0
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a mono-cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.01,
+          "w_threshold_dagma": 0.005
+        },
+        "scores": {
+          "SHD": 12.0,
+          "F1-Score": 0.3333333333333333,
+          "TPR": 0.3333333333333333
+        },
+        "scores_skeleton": {
+          "SHD": 13.0,
+          "F1-Score": 0.6956521739130435,
+          "TPR": 0.5714285714285714
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.01,
+          "w_threshold_dagma": 0.01
+        },
+        "scores": {
+          "SHD": 12.0,
+          "F1-Score": 0.3333333333333333,
+          "TPR": 0.3333333333333333
+        },
+        "scores_skeleton": {
+          "SHD": 13.0,
+          "F1-Score": 0.6956521739130435,
+          "TPR": 0.5714285714285714
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.01,
+          "w_threshold_dagma": 0.05
+        },
+        "scores": {
+          "SHD": 12.0,
+          "F1-Score": 0.3333333333333333,
+          "TPR": 0.3333333333333333
+        },
+        "scores_skeleton": {
+          "SHD": 13.0,
+          "F1-Score": 0.6956521739130435,
+          "TPR": 0.5714285714285714
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.01,
+          "w_threshold_dagma": 0.1
+        },
+        "scores": {
+          "SHD": 12.0,
+          "F1-Score": 0.33333333333333326,
+          "TPR": 0.3
+        },
+        "scores_skeleton": {
+          "SHD": 13.0,
+          "F1-Score": 0.6363636363636364,
+          "TPR": 0.5
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.01,
+          "w_threshold_dagma": 0.15
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.125,
+          "TPR": 0.07142857142857142
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.125,
+          "TPR": 0.07142857142857142
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.01,
+          "w_threshold_dagma": 0.2
+        },
+        "scores": {
+          "SHD": 15.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 15.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.01,
+          "w_threshold_dagma": 0.3
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.01,
+          "w_threshold_dagma": 0.4
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.01,
+          "w_threshold_dagma": 0.5
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.02,
+          "w_threshold_dagma": 0.0
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a mono-cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.02,
+          "w_threshold_dagma": 0.005
+        },
+        "scores": {
+          "SHD": 10.0,
+          "F1-Score": 0.5,
+          "TPR": 0.35714285714285715
+        },
+        "scores_skeleton": {
+          "SHD": 13.0,
+          "F1-Score": 0.5,
+          "TPR": 0.35714285714285715
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.02,
+          "w_threshold_dagma": 0.01
+        },
+        "scores": {
+          "SHD": 10.0,
+          "F1-Score": 0.5,
+          "TPR": 0.35714285714285715
+        },
+        "scores_skeleton": {
+          "SHD": 13.0,
+          "F1-Score": 0.5,
+          "TPR": 0.35714285714285715
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.02,
+          "w_threshold_dagma": 0.05
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.125,
+          "TPR": 0.07142857142857142
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.125,
+          "TPR": 0.07142857142857142
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.02,
+          "w_threshold_dagma": 0.1
+        },
+        "scores": {
+          "SHD": 15.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 15.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.02,
+          "w_threshold_dagma": 0.15
+        },
+        "scores": {
+          "SHD": 15.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 15.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.02,
+          "w_threshold_dagma": 0.2
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.02,
+          "w_threshold_dagma": 0.3
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.02,
+          "w_threshold_dagma": 0.4
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.02,
+          "w_threshold_dagma": 0.5
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.03,
+          "w_threshold_dagma": 0.0
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a mono-cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.03,
+          "w_threshold_dagma": 0.005
+        },
+        "scores": {
+          "SHD": 15.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 15.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.03,
+          "w_threshold_dagma": 0.01
+        },
+        "scores": {
+          "SHD": 15.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 15.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.03,
+          "w_threshold_dagma": 0.05
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.03,
+          "w_threshold_dagma": 0.1
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.03,
+          "w_threshold_dagma": 0.15
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.03,
+          "w_threshold_dagma": 0.2
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.03,
+          "w_threshold_dagma": 0.3
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.03,
+          "w_threshold_dagma": 0.4
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.03,
+          "w_threshold_dagma": 0.5
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_dagma": 0.0
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a mono-cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_dagma": 0.005
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_dagma": 0.01
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_dagma": 0.05
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_dagma": 0.1
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_dagma": 0.15
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_dagma": 0.2
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_dagma": 0.3
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_dagma": 0.4
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.05,
+          "w_threshold_dagma": 0.5
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_dagma": 0.0
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a mono-cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_dagma": 0.005
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_dagma": 0.01
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_dagma": 0.05
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_dagma": 0.1
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_dagma": 0.15
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_dagma": 0.2
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_dagma": 0.3
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_dagma": 0.4
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.1,
+          "w_threshold_dagma": 0.5
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.2,
+          "w_threshold_dagma": 0.0
+        },
+        "scores": {},
+        "scores_skeleton": {},
+        "error": "[pyAgrum] Directed cycle detected: Add a mono-cycle in a dag !"
+      },
+      {
+        "params": {
+          "lambda1": 0.2,
+          "w_threshold_dagma": 0.005
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.2,
+          "w_threshold_dagma": 0.01
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.2,
+          "w_threshold_dagma": 0.05
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.2,
+          "w_threshold_dagma": 0.1
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.2,
+          "w_threshold_dagma": 0.15
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.2,
+          "w_threshold_dagma": 0.2
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.2,
+          "w_threshold_dagma": 0.3
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.2,
+          "w_threshold_dagma": 0.4
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      },
+      {
+        "params": {
+          "lambda1": 0.2,
+          "w_threshold_dagma": 0.5
+        },
+        "scores": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "scores_skeleton": {
+          "SHD": 14.0,
+          "F1-Score": 0.0,
+          "TPR": 0.0
+        },
+        "error": null
+      }
+    ]
+  },
+  "grid_search_configs": [
+    {
+      "name": "DAGMA",
+      "param_grid": {
+        "lambda1": [
+          0.001,
+          0.005,
+          0.01,
+          0.02,
+          0.03,
+          0.05,
+          0.1,
+          0.2
+        ],
+        "w_threshold_dagma": [
+          0.0,
+          0.005,
+          0.01,
+          0.05,
+          0.1,
+          0.15,
+          0.2,
+          0.3,
+          0.4,
+          0.5
+        ]
+      },
+      "random_seeds": null
+    }
+  ]
+}

@@ -314,7 +314,7 @@ class GridSearch:
             return result.scores_skeleton
         return result.scores
 
-    def select_best(self, rank_by: str = "SHD", compare_mode: str = "cpdag") -> Dict[str, Optional[GridSearchResult]]:
+    def select_best(self, rank_by: str = "F1-Score", compare_mode: str = "cpdag") -> Dict[str, Optional[GridSearchResult]]:
         """Select one Pareto-optimal profile per algorithm.
 
         For stochastic algorithms (with random_seeds), scores are first
@@ -391,7 +391,7 @@ class GridSearch:
             plot_grid_search_results(name, self, param_grid, metric_names, pareto_obj,
                                      random_seeds=random_seeds, compare_mode=compare_mode)
 
-    def plot_comparison(self, rank_by: str = "SHD", compare_mode: str = "cpdag") -> None:
+    def plot_comparison(self, rank_by: str = "F1-Score", compare_mode: str = "cpdag") -> None:
         from views.plotting import plot_best_scores
         selection = self.select_best(rank_by, compare_mode=compare_mode)
         scores_by_algo = {

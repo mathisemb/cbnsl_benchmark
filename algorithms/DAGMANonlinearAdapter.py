@@ -39,6 +39,7 @@ class DAGMANonlinearAdapter(AlgorithmAdapter):
                  warm_iter: int = 50000,
                  max_iter: int = 80000,
                  lr: float = 0.0002,
+                 verbose: bool = False,
                  W_est: np.ndarray | None = None):
         """
         Initialize the DAGMA nonlinear adapter.
@@ -82,6 +83,7 @@ class DAGMANonlinearAdapter(AlgorithmAdapter):
         self.warm_iter = warm_iter
         self.max_iter = max_iter
         self.lr = lr
+        self.verbose = verbose
         self._W_est_precomputed = W_est
 
     def learn_dag(self, dataset: Dataset) -> gum.DAG:
@@ -110,7 +112,7 @@ class DAGMANonlinearAdapter(AlgorithmAdapter):
             d = X.shape[1]
             eq_model = DagmaMLP(dims=[d, self.hidden_units, 1], bias=True,
                                 dtype=torch.double)
-            model = DagmaNonlinear(eq_model, dtype=torch.double)
+            model = DagmaNonlinear(eq_model, dtype=torch.double, verbose=self.verbose)
             W_est = model.fit(X,
                               lambda1=self.lambda1,
                               lambda2=self.lambda2,

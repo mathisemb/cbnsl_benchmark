@@ -1,0 +1,13 @@
+cbn exp clayton
+      "lambda1": 0.01,
+      "w_threshold_dagma": 0.3
+
+cbn unif mixture
+      "lambda1": 0.01,
+      "w_threshold_dagma": 0.1
+
+cbn unif gauss
+      "lambda1": 0.02,
+      "w_threshold_dagma": 0.1
+
+cbn

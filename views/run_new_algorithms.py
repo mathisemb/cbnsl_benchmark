@@ -16,6 +16,7 @@ from tqdm.auto import tqdm
 from pipeline.Benchmark import Benchmark
 from pipeline.GridSearch import GridSearch
 from algorithms.NOTEARSNonlinearAdapter import NOTEARSNonlinearAdapter
+from algorithms.NOTEARSSobolevAdapter import NOTEARSSobolevAdapter
 from algorithms.DAGMAAdapter import DAGMAAdapter
 from algorithms.DAGMANonlinearAdapter import DAGMANonlinearAdapter
 from metrics import ALL_METRICS, OBJECTIVES
@@ -31,11 +32,15 @@ def dag_10vars():
         dag.addArc(t, h)
     return dag
 
-
+"""
 NEW_ALGORITHMS = {
     "NOTEARS NL": (NOTEARSNonlinearAdapter, {}, None),
     "DAGMA":      (DAGMAAdapter, {}, None),
     "DAGMA NL":   (DAGMANonlinearAdapter, {}, None),
+}
+"""
+NEW_ALGORITHMS = {
+    "NOTEARS Sob": (NOTEARSSobolevAdapter, {}, None),
 }
 
 CONFIGS = [
