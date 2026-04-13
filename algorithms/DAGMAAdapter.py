@@ -23,8 +23,8 @@ class DAGMAAdapter(AlgorithmAdapter):
     """
 
     DEFAULT_PARAM_GRID = {
-        "lambda1": [0.001, 0.005, 0.01, 0.02, 0.03, 0.05, 0.1, 0.2],
-        "w_threshold_dagma": [0.0, 0.005, 0.01, 0.05, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5],
+        "lambda1": [0.001, 0.005, 0.01, 0.02, 0.03, 0.05, 0.1, 0.2, 0.3],
+        "w_threshold_dagma": [0.0, 0.005, 0.01, 0.05, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.7],
     }
 
     def __init__(self, lambda1: float = 0.03,

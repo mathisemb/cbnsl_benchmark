@@ -40,10 +40,12 @@ NEW_ALGORITHMS = {
 }
 """
 NEW_ALGORITHMS = {
-    "NOTEARS Sob": (NOTEARSSobolevAdapter, {}, None),
+    "DAGMA":      (DAGMAAdapter, {}, None),
 }
 
 CONFIGS = [
+    ("sachs", {"variant": "raw"}),
+    """
     # --- CBN Gaussian (Uniform + NormalCopula) ---
     ("synthetic_cbn", {"dag": dag_10vars(), "n_samples": 2000, "marginal_type": "Uniform", "lcc_types": "NormalCopula"}),
 
@@ -58,6 +60,7 @@ CONFIGS = [
 
     # --- SEM Non-Gaussian (laplace) ---
     ("synthetic_sem", {"dag": dag_10vars(), "n_samples": 2000, "noise_type": "laplace"}),
+    """
 ]
 
 
