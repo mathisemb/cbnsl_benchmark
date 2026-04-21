@@ -44,25 +44,24 @@ NEW_ALGORITHMS = {
 }
 
 CONFIGS = [
-    ("sachs", {"variant": "raw"}),
-    """
-    # --- CBN Gaussian (Uniform + NormalCopula) ---
-    ("synthetic_cbn", {"dag": dag_10vars(), "n_samples": 2000, "marginal_type": "Uniform", "lcc_types": "NormalCopula"}),
-
-    # --- CBN Non-Gaussian (Exponential + ClaytonCopula) ---
-    ("synthetic_cbn", {"dag": dag_10vars(), "n_samples": 2000, "marginal_type": "Exponential", "lcc_types": "ClaytonCopula"}),
-
-    # --- CBN Non-Gaussian (Uniform + MixtureCopula) ---
-    ("synthetic_cbn", {"dag": dag_10vars(), "n_samples": 2000, "marginal_type": "Uniform", "lcc_types": "MixtureCopula"}),
-
-    # --- SEM Gaussian ---
-    ("synthetic_sem", {"dag": dag_10vars(), "n_samples": 2000, "noise_type": "gaussian"}),
-
-    # --- SEM Non-Gaussian (laplace) ---
-    ("synthetic_sem", {"dag": dag_10vars(), "n_samples": 2000, "noise_type": "laplace"}),
-    """
+    ("sachs", {"variant": "preprocessed"})
 ]
+"""
+# --- CBN Gaussian (Uniform + NormalCopula) ---
+("synthetic_cbn", {"dag": dag_10vars(), "n_samples": 2000, "marginal_type": "Uniform", "lcc_types": "NormalCopula"}),
 
+# --- CBN Non-Gaussian (Exponential + ClaytonCopula) ---
+("synthetic_cbn", {"dag": dag_10vars(), "n_samples": 2000, "marginal_type": "Exponential", "lcc_types": "ClaytonCopula"}),
+
+# --- CBN Non-Gaussian (Uniform + MixtureCopula) ---
+("synthetic_cbn", {"dag": dag_10vars(), "n_samples": 2000, "marginal_type": "Uniform", "lcc_types": "MixtureCopula"}),
+
+# --- SEM Gaussian ---
+("synthetic_sem", {"dag": dag_10vars(), "n_samples": 2000, "noise_type": "gaussian"}),
+
+# --- SEM Non-Gaussian (laplace) ---
+("synthetic_sem", {"dag": dag_10vars(), "n_samples": 2000, "noise_type": "laplace"}),
+"""
 
 def main():
     for method, kwargs in tqdm(CONFIGS, desc="Benchmarks"):
