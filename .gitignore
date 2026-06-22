@@ -6,6 +6,10 @@
 results/*
 !results/.gitkeep
 
+# Plotting / figures / old runs (kept locally, not versioned)
+scaling/results_plotting/
+views/results_plotting/
+
 # Datasets: version Python code, ignore downloaded data
 data/sachs/
 
