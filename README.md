@@ -34,25 +34,40 @@ pip install dagma
 
 `conda install otagrum` installs otagrum along with its dependencies (pyAgrum, OpenTURNS). The remaining packages (lingam, notears, dagma) are installed via pip.
 
-> **Note:** The conda version of otagrum is not yet up to date with the [GitHub repository](https://github.com/openturns/otagrum). The latest version integrates aGrUM's Meek rules into ContinuousPC and ContinuousMIIC. The conda package will be updated soon.
-
 ## Usage
 
-### Run benchmarks
+The repository contains **two independent experiments**, each in its own directory.
 
-Edit the configurations in `views/run_all_benchmarks.py`, then:
+### 1. Grid-search benchmark (`views/`)
+
+Runs every algorithm with a full hyperparameter grid search on fixed datasets (the Sachs network and fixed synthetic graphs), and keeps the best configuration per algorithm.
+
+**Run** — edit the configurations at the top of `views/run_all_benchmarks.py`, then:
 
 ```bash
 conda activate cbnsl
 python views/run_all_benchmarks.py
 ```
 
-Results are saved in `views/results/`.
+Results are saved under `views/results/`.
 
-### Visualize results
+**Visualize** — open `views/visualize_gridsearch.ipynb`.
 
-Open `views/visualize_gridsearch.ipynb` to explore and compare the results.
+### 2. Scaling study (`scaling/`)
 
-### Scaling study
+Measures how the algorithms scale with the number of variables and samples, averaged over many random graphs.
 
-The `scaling/` directory measures how algorithms scale with graph size (number of nodes and samples). See `scaling/run_scaling.py`.
+**Run** — the shell scripts execute the `scaling_study_*.ipynb` notebooks and write results incrementally to `scaling/results/`:
+
+```bash
+conda activate cbnsl
+cd scaling
+bash run_all.sh        # all algorithms except DAGMA
+bash run_all_dagma.sh  # DAGMA runs
+```
+
+**Visualize** — the results are explored with dedicated notebooks:
+
+- `scaling/ranking.ipynb` — overall ranking of the algorithms;
+- `scaling/latex_report_plots.ipynb` — per-dataset scaling curves (SHD, F1, TPR vs. samples);
+- `scaling/error_analysis.ipynb` — how often each algorithm fails to return a DAG.

@@ -6,6 +6,9 @@
 results/*
 !results/.gitkeep
 
+# Local context (not versioned)
+.context/
+
 # Plotting / figures / old runs (kept locally, not versioned)
 scaling/results_plotting/
 views/results_plotting/
