@@ -1,36 +1,29 @@
-# ===== Required section: Build system =====
-# Tells Python how to build/install your package
 [build-system]
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
-# ===== Project information =====
 [project]
-name = "cbnsl-benchmark"  # Package name (for pip install)
-version = "0.1.0"  # Current version
+name = "cbnsl-benchmark"
+version = "0.1.0"
 description = "Benchmark for Continuous Bayesian Network Structure Learning"
-requires-python = ">=3.8"  # Minimum Python version
+requires-python = ">=3.10"
 
-# Dependencies required to use your package
+# Only pure-Python dependencies are declared here, so `pip install -e .` is safe.
+# The C++-backed stack (pyAgrum, OpenTURNS, otagrum) comes from conda / source —
+# see README. Extra algorithms live in the optional groups below.
 dependencies = [
-    "pyAgrum",
-    "openturns",
-    "lingam",
-    "dagma",
+    "numpy",
+    "pandas",
+    "matplotlib",
+    "seaborn",
     "tqdm",
-    "adjustText",
 ]
 
-# ===== Optional dependencies =====
-# Install with: pip install -e ".[dev]"
 [project.optional-dependencies]
-dev = [
-    "pytest",  # For testing
-    "black",   # For code formatting
-]
+# Extra structure-learning methods. notears is git-only; torch comes from conda.
+algos = ["lingam", "dagma"]
+dev = ["pytest", "black"]
 
-# ===== Setuptools configuration =====
-# Specifies which folders to include in the package
 [tool.setuptools.packages.find]
-include = ["pipeline*", "algorithms*", "metrics*", "analysis*"]
-exclude = ["tests*", "examples*", "references*", "data*", "results*", "__pycache__*"]
+include = ["pipeline*", "algorithms*", "metrics*", "data*", "experiments*"]
+exclude = ["experiments.tests*", "__pycache__*"]
