@@ -42,4 +42,12 @@ def random_dag(
     gum.initRandom(seed)
     generator = gum.BNGenerator()
     bn = generator.generate(n_nodes=n_vars, n_arcs=n_arcs)
-    return bn.dag()
+
+    # Need to remove the node names since agrum3 (otherwise, conflict with NamedDAG) ===============
+    result = gum.DAG()
+    result.addNodes(n_vars)
+    for arc in bn.dag().arcs():
+        result.addArc(*arc)
+    # ==============================================================================================
+
+    return result
