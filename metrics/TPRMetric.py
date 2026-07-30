@@ -32,3 +32,18 @@ class TPRMetric(MetricAdapter):
         sc.compare(ref.cpdag, test.cpdag)
         recall = sc.recall()
         return 0.0 if recall != recall else recall  # NaN guard
+
+    def compute_skeleton(self, ref: Structure, test: Structure) -> float:
+        """Compute True Positive Rate between the skeletons of two CPDAG structures.
+
+        Args:
+            ref: Reference structure (ground truth).
+            test: Test structure (learned).
+
+        Returns:
+            Skeleton TPR in [0, 1]. Returns 0.0 if there are no positives in ref.
+        """
+        sc = gum.StructuralMetrics()
+        sc.compare(ref.cpdag, test.cpdag)
+        recall = sc.recall_skeleton()
+        return 0.0 if recall != recall else recall  # NaN guard

@@ -52,3 +52,30 @@ class MetricAdapter(ABC):
             If the metric cannot be computed with the provided structures
         """
         pass
+
+    @abstractmethod
+    def compute_skeleton(self, ref: "Structure", test: "Structure") -> float:
+        """
+        Compute the skeleton version of the metric by comparing two structures
+
+        The structures are passed as CPDAGs; the skeleton comparison
+        (orientation-blind) is delegated to pyAgrum's StructuralMetrics.
+
+        Parameters
+        ----------
+        ref : Structure
+            Reference structure (typically ground truth)
+        test : Structure
+            Test structure to compare (typically learned structure)
+
+        Returns
+        -------
+        float
+            The computed metric value
+
+        Raises
+        ------
+        ValueError
+            If the metric cannot be computed with the provided structures
+        """
+        pass

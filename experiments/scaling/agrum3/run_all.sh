@@ -12,6 +12,9 @@
 cd "$(dirname "$0")"
 
 NOTEBOOKS=(
+    scaling_study_sem_gaussian.ipynb
+    scaling_study_sem_laplace.ipynb
+    scaling_study_cbn_unif_gauss.ipynb
     scaling_study_cbn_exp_clayton.ipynb
     scaling_study_cbn_unif_mixture.ipynb
 )

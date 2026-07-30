@@ -256,8 +256,8 @@ class GridSearch:
                     # Always compute both cpdag and skeleton scores.
                     scores_cpdag = {m.name(): m.compute(ref=self.golden_structure, test=learned)
                                     for m in self.metrics}
-                    scores_skel = {m.name(): m.compute(ref=self.golden_structure.skeleton(),
-                                                        test=learned.skeleton())
+                    scores_skel = {m.name(): m.compute_skeleton(ref=self.golden_structure,
+                                                                test=learned)
                                    for m in self.metrics}
                     results.append(GridSearchResult(
                         params=params, scores=scores_cpdag,

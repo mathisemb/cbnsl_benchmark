@@ -32,3 +32,18 @@ class F1ScoreMetric(MetricAdapter):
         sc.compare(ref.cpdag, test.cpdag)
         f1 = sc.f_score()
         return 0.0 if f1 != f1 else f1  # NaN guard (StructuralMetrics returns NaN when TP+FP=0)
+
+    def compute_skeleton(self, ref: Structure, test: Structure) -> float:
+        """Compute F1-Score between the skeletons of two CPDAG structures.
+
+        Args:
+            ref: Reference structure (ground truth).
+            test: Test structure (learned).
+
+        Returns:
+            Skeleton F1-Score in [0, 1]. Returns 0.0 if both precision and recall are 0.
+        """
+        sc = gum.StructuralMetrics()
+        sc.compare(ref.cpdag, test.cpdag)
+        f1 = sc.f_score_skeleton()
+        return 0.0 if f1 != f1 else f1  # NaN guard

@@ -60,6 +60,12 @@ class CPCAdapter(AlgorithmAdapter):
         """
         Learn Bayesian Network structure using CPC algorithm.
 
+        The CPDAG is the Meek closure (propagateToCPDAG) of the raw pattern
+        returned by learnPDAG (skeleton + v-structures). The closure only
+        orients compelled arcs: unlike the former learnDAG + EssentialGraph
+        chain, it never invents arbitrary orientations. The raw pattern is
+        kept in the Structure so post-processing can be replayed offline.
+
         Parameters
         ----------
         dataset : Dataset
@@ -68,19 +74,19 @@ class CPCAdapter(AlgorithmAdapter):
         Returns
         -------
         Structure
-            The learned structure (CPDAG)
+            The learned structure (CPDAG + raw pattern)
         """
-        dag = self.learn_dag(dataset)
+        max_cond_set = self.max_conditioning_set_size
+        if max_cond_set is None:
+            max_cond_set = dataset.data.shape[1] - 2
 
-        # Convert DAG to BayesNet (needed by EssentialGraph)
-        bn = gum.BayesNet()
-        bn.addVariables([str(node) for node in dag.nodes()], 2)
-        for tail, head in dag.arcs():
-            bn.addArc(tail, head)
+        learner = otagrum.ContinuousPC(dataset.data, max_cond_set, self.alpha)
 
-        # Convert DAG to CPDAG via EssentialGraph
-        pdag = gum.EssentialGraph(bn).pdag()
-        return Structure(pdag)
+        learner.setVerbosity(False)
+        mixed = learner.learnPDAG()
+
+        cpdag = gum.MeekRules().propagateToCPDAG(mixed)
+        return Structure(cpdag, pdag=mixed)
     
     def name(self) -> str:
         """

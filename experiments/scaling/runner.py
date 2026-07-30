@@ -32,8 +32,7 @@ import pyagrum
 
 from algorithms.AlgorithmAdapter import AlgorithmAdapter
 from metrics import ALL_METRICS
-from pipeline.Structure import dag_as_a_structure
-from .io import save_results, save_structure
+from .io import save_structure
 from .random_dag import random_dag
 
 # (display_name, AdapterClass, fixed_params_dict)
@@ -122,21 +121,29 @@ class ScalingRunner:
         )
         done = 0
 
+        # Loop 1: one problem size at a time
         for n_vars, n_arcs in var_arc_pairs:
+            # Loop 2: n_graphs independent random DAGs per size
             for graph_idx in range(self.n_graphs):
                 graph_seed = self.seed + graph_idx # so we sample different graphs
                 dag = random_dag(n_vars, n_arcs, seed=graph_seed)
-                golden = dag_as_a_structure(dag)
 
                 golden_path = (
                     self.results_dir / "graphs"
                     / f"golden__v{n_vars}_a{n_arcs}_g{graph_idx}.json"
                 )
-                save_structure(golden, golden_path)
 
-                for n_samples in n_samples_for[(n_vars, n_arcs)]:
-                    dataset, _ = self.generator(dag, n_samples, seed=self.seed)
+                # Loop 3: one dataset per sample size, generated from the DAG
+                for i, n_samples in enumerate(n_samples_for[(n_vars, n_arcs)]):
+                    # The generator also returns the golden CPDAG of the DAG
+                    # (the reference for the metrics). It is identical for
+                    # every n_samples, so it is saved once per graph, along
+                    # with the true DAG (dag_arcs key).
+                    dataset, golden = self.generator(dag, n_samples, seed=self.seed)
+                    if i == 0:
+                        save_structure(golden, golden_path, dag=dag)
 
+                    # Loop 4: every algorithm learns on the same dataset
                     for algo_name, algo_cls, algo_params in self.algo_configs:
                         done += 1
                         print(
@@ -174,8 +181,8 @@ class ScalingRunner:
 
                             for metric in metrics:
                                 row[metric.name()] = metric.compute(golden, learned)
-                                row[f"{metric.name()}_skeleton"] = metric.compute(
-                                    golden.skeleton(), learned.skeleton()
+                                row[f"{metric.name()}_skeleton"] = metric.compute_skeleton(
+                                    golden, learned
                                 )
 
                         except Exception as e:

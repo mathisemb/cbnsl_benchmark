@@ -27,7 +27,8 @@ class Structure:
 
     def __init__(
         self,
-        cpdag: gum.PDAG
+        cpdag: gum.PDAG,
+        pdag: gum.MixedGraph = None
     ):
         """
         Initialize a structure
@@ -36,8 +37,15 @@ class Structure:
         ----------
         cpdag : gum.PDAG
             The learned CPDAG.
+        pdag : gum.MixedGraph, optional
+            The raw pattern learned by the algorithm (skeleton + v-structures,
+            before Meek closure), when the algorithm exposes it. Stored so that
+            any future post-processing can be recomputed offline without
+            re-learning. Kept as a MixedGraph: a raw pattern may contain
+            partially directed cycles, which gum.PDAG rejects.
         """
         self.cpdag = cpdag
+        self.pdag = pdag
 
     def __str__(self):
         return str(self.cpdag)

@@ -340,8 +340,8 @@ class Benchmark:
                 for metric in self.metrics:
                     scores_cpdag[metric.name()] = metric.compute(
                         ref=self.golden_structure, test=structure)
-                    scores_skel[metric.name()] = metric.compute(
-                        ref=self.golden_structure.skeleton(), test=structure.skeleton())
+                    scores_skel[metric.name()] = metric.compute_skeleton(
+                        ref=self.golden_structure, test=structure)
                 self._scores_cpdag[name] = scores_cpdag
                 self._scores_skeleton[name] = scores_skel
                 print(f"  {name}: OK")

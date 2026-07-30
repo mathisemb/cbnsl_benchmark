@@ -61,6 +61,12 @@ class CMIICAdapter(AlgorithmAdapter):
         """
         Learn Bayesian Network structure using CMIIC algorithm.
 
+        The CPDAG is the Meek closure (propagateToCPDAG) of the raw pattern
+        returned by learnPDAG (skeleton + v-structures). The closure only
+        orients compelled arcs: unlike the former learnDAG + EssentialGraph
+        chain, it never invents arbitrary orientations. The raw pattern is
+        kept in the Structure so post-processing can be replayed offline.
+
         Parameters
         ----------
         dataset : Dataset
@@ -69,19 +75,17 @@ class CMIICAdapter(AlgorithmAdapter):
         Returns
         -------
         Structure
-            The learned structure (CPDAG)
+            The learned structure (CPDAG + raw pattern)
         """
-        dag = self.learn_dag(dataset)
+        learner = otagrum.ContinuousMIIC(dataset.data)
 
-        # Convert DAG to BayesNet (needed by EssentialGraph)
-        bn = gum.BayesNet()
-        bn.addVariables([str(node) for node in dag.nodes()], 2)
-        for tail, head in dag.arcs():
-            bn.addArc(tail, head)
+        # Configure alpha via setter (CMIIC uses setter, not constructor parameter)
+        learner.setAlpha(self.alpha)
+        learner.setVerbosity(False)
+        mixed = learner.learnPDAG()
 
-        # Convert DAG to CPDAG via EssentialGraph
-        pdag = gum.EssentialGraph(bn).pdag()
-        return Structure(pdag)
+        cpdag = gum.MeekRules().propagateToCPDAG(mixed)
+        return Structure(cpdag, pdag=mixed)
 
     def name(self) -> str:
         """
