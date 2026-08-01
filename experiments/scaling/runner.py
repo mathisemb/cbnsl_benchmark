@@ -179,11 +179,24 @@ class ScalingRunner:
                             save_structure(learned, learned_path)
                             row["learned_path"] = str(learned_path)
 
-                            for metric in metrics:
-                                row[metric.name()] = metric.compute(golden, learned)
-                                row[f"{metric.name()}_skeleton"] = metric.compute_skeleton(
-                                    golden, learned
+                            # Echec des metriques seules (ex. run sous agrum2, sans
+                            # StructuralMetrics) : structures et temps restent valides,
+                            # les metriques se recalculent offline depuis les JSON.
+                            try:
+                                for metric in metrics:
+                                    row[metric.name()] = metric.compute(golden, learned)
+                                    row[f"{metric.name()}_skeleton"] = metric.compute_skeleton(
+                                        golden, learned
+                                    )
+                            except Exception as e:
+                                print(
+                                    f"\n  [{algo_name}] v={n_vars} a={n_arcs} "
+                                    f"g={graph_idx} s={n_samples}: metrics FAILED ({e})"
                                 )
+                                row["error_msg"] = f"metrics: {e}"
+                                for name in metric_names:
+                                    row[name] = float("nan")
+                                    row[f"{name}_skeleton"] = float("nan")
 
                         except Exception as e:
                             print(

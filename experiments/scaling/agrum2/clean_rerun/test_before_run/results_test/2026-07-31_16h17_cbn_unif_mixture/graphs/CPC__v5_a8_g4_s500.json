@@ -1,0 +1,1 @@
+{"nodes": [0, 1, 2, 3, 4], "cpdag_arcs": [[3, 1], [4, 1]], "cpdag_edges": [[0, 2]], "pdag_arcs": [[3, 1], [4, 1]], "pdag_edges": [[0, 2]]}
