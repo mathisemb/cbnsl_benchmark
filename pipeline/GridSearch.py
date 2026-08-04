@@ -384,15 +384,16 @@ class GridSearch:
     # ----- plotting (delegates to views.plotting) ---------------------------
 
     def plot(self, compare_mode: str = "cpdag") -> None:
-        from views.plotting import plot_grid_search_results
+        from experiments.gridsearch.plotting import plot_grid_search_results
         metric_names = [m.name() for m in self.metrics]
         pareto_obj = {k: v for k, v in self.objectives.items() if k in ("SHD", "F1-Score")}
         for name, _, param_grid, _, random_seeds in self._configs:
             plot_grid_search_results(name, self, param_grid, metric_names, pareto_obj,
                                      random_seeds=random_seeds, compare_mode=compare_mode)
 
-    def plot_comparison(self, rank_by: str = "F1-Score", compare_mode: str = "cpdag") -> None:
-        from views.plotting import plot_best_scores
+    def plot_comparison(self, rank_by: str = "F1-Score", compare_mode: str = "cpdag"):
+        """Returns the matplotlib Figure so it can be saved (``fig.savefig(...)``)."""
+        from experiments.gridsearch.plotting import plot_best_scores
         selection = self.select_best(rank_by, compare_mode=compare_mode)
         scores_by_algo = {
             name: self._get_scores(r, compare_mode)
@@ -403,7 +404,7 @@ class GridSearch:
             n: len(rs) for n, _, _, _, rs in self._configs
             if rs is not None and n in scores_by_algo
         }
-        plot_best_scores(scores_by_algo, params_by_algo, seed_counts=seed_counts)
+        return plot_best_scores(scores_by_algo, params_by_algo, seed_counts=seed_counts)
 
     # ----- Hartemink precomputation -----------------------------------------
 

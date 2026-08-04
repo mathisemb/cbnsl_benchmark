@@ -28,7 +28,7 @@ from metrics import ALL_METRICS, OBJECTIVES
 from pipeline.Dataset import Dataset
 from pipeline.Structure import Structure
 from pipeline.GridSearch import GridSearch, GridSearchResult
-from scaling.io import save_structure, load_structure
+from experiments.scaling.io import save_structure, load_structure
 
 
 class Benchmark:
@@ -503,7 +503,7 @@ class Benchmark:
     def show_golden(self) -> None:
         """Display the golden CPDAG in the notebook."""
         import pyagrum.lib.notebook as gnb
-        from views.plotting import cpdag_to_dot
+        from experiments.gridsearch.plotting import cpdag_to_dot
 
         s = self.golden_structure
         print(
@@ -519,16 +519,19 @@ class Benchmark:
             return
         self._gs.plot(compare_mode=compare_mode)
 
-    def plot_best_scores(self, compare_mode: str = "cpdag") -> None:
-        """Scatter plot comparing best scores of each algorithm (SHD vs F1)."""
+    def plot_best_scores(self, compare_mode: str = "cpdag"):
+        """Scatter plot comparing best scores of each algorithm (SHD vs F1).
+
+        Returns the matplotlib Figure so it can be saved (``fig.savefig(...)``).
+        """
         scores = self._scores_cpdag if compare_mode == "cpdag" else self._scores_skeleton
         params = self._params_cpdag if compare_mode == "cpdag" else self._params_skeleton
         if scores is None:
             raise RuntimeError("Call run() or run_fixed() first.")
-        from views.plotting import plot_best_scores
+        from experiments.gridsearch.plotting import plot_best_scores
 
-        plot_best_scores(scores, params, seed_counts=self._seed_counts,
-                         compare_mode=compare_mode)
+        return plot_best_scores(scores, params, seed_counts=self._seed_counts,
+                                compare_mode=compare_mode)
 
     def plot_structures(self, save_dir=None) -> None:
         """Display learned CPDAGs for each algorithm alongside the golden BN and a diff.
@@ -541,7 +544,7 @@ class Benchmark:
         """
         if self._structures is None:
             raise RuntimeError("Call run() or run_fixed() first.")
-        from views.plotting import plot_cpdags
+        from experiments.gridsearch.plotting import plot_cpdags
 
         plot_cpdags(
             self._structures, self._params_cpdag, self.dataset.feature_names,
@@ -553,7 +556,7 @@ class Benchmark:
         """Plot pairwise metric heatmaps between all learned structures."""
         if self._structures is None:
             raise RuntimeError("Call run() or run_fixed() first.")
-        from views.plotting import plot_pairwise_heatmaps
+        from experiments.gridsearch.plotting import plot_pairwise_heatmaps
 
         title = (
             f"Best profiles (rank_by={self.rank_by})"

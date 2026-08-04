@@ -368,6 +368,7 @@ def plot_best_scores(scores_by_algo, params_by_algo, seed_counts=None,
     ax.set_ylabel(f"F1 (on {mode_label})")
     plt.tight_layout()
     plt.show()
+    return fig  # pour pouvoir la sauvegarder (fig.savefig(...))
 
 
 # ---------------------------------------------------------------------------
