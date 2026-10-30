@@ -17,7 +17,13 @@ class CMIICAdapter(AlgorithmAdapter):
         "alpha": [0.01, 0.05, 0.10],
     }
 
-    def __init__(self, alpha: float = 0.05):
+    KMODES = {
+        "NoCorr": otagrum.CorrectedMutualInformation.KModeTypes_NoCorr,
+        "Naive": otagrum.CorrectedMutualInformation.KModeTypes_Naive,
+        "Analytic": otagrum.CorrectedMutualInformation.KModeTypes_Analytic,
+    }
+
+    def __init__(self, alpha: float = 0.05, kmode: str = "Naive"):
         """
         Initialize the CMIIC adapter
 
@@ -27,13 +33,22 @@ class CMIICAdapter(AlgorithmAdapter):
             Significance level for independence tests (default: 0.05).
             Note: CMIIC's internal default is 0.01 (see CorrectedMutualInformation.hxx),
             but we use 0.05 for consistency with CPC and standard statistical practice.
+        kmode : str, optional
+            Threshold mode of the conditional independence test (default: "Naive").
+            "Naive" : constant penalty alpha, the historical CMIIC.
+            "Analytic" : sample split and the analytic threshold mu_n + z_{1-alpha} sigma_tot,
+            alpha being then the level of the test (otagrum branch seuil_analytique).
+            "NoCorr" : no penalty.
 
         Note
         ----
         CMIIC does not use max_conditioning_set_size (unlike CPC).
-        Alpha is configured via setAlpha() after construction, not in the constructor.
+        Alpha and kmode are configured via setters after construction.
         """
+        if kmode not in self.KMODES:
+            raise ValueError(f"kmode must be one of {sorted(self.KMODES)}, got {kmode!r}")
         self.alpha = alpha
+        self.kmode = kmode
 
     def learn_dag(self, dataset: Dataset) -> gum.DAG:
         """
@@ -51,7 +66,8 @@ class CMIICAdapter(AlgorithmAdapter):
         """
         learner = otagrum.ContinuousMIIC(dataset.data)
 
-        # Configure alpha via setter (CMIIC uses setter, not constructor parameter)
+        # Configure alpha and kmode via setters (CMIIC uses setters, not constructor parameters)
+        learner.setKMode(self.KMODES[self.kmode])
         learner.setAlpha(self.alpha)
         learner.setVerbosity(False)
         named_dag = learner.learnDAG()
@@ -79,7 +95,8 @@ class CMIICAdapter(AlgorithmAdapter):
         """
         learner = otagrum.ContinuousMIIC(dataset.data)
 
-        # Configure alpha via setter (CMIIC uses setter, not constructor parameter)
+        # Configure alpha and kmode via setters (CMIIC uses setters, not constructor parameters)
+        learner.setKMode(self.KMODES[self.kmode])
         learner.setAlpha(self.alpha)
         learner.setVerbosity(False)
         mixed = learner.learnPDAG()
