@@ -31,8 +31,14 @@ GENERATORS = {
     "cbn_unif_mixture": partial(generate_from_cbn_dag, marginal_type="Uniform", lcc_types="MixtureCopula"),
 }
 
+# One run = one cell of the 2 x 2 grid (two-point threshold x orientation offset).
+# Done on 2026-10-29, folders suffixed _3pt_sans_penalite :
+#   ("CMIIC_analytic", CMIICAdapter, {"alpha": 0.05, "kmode": "Analytic"}),  offset 0 by default
+# The historical CMIIC of July is Naive with offset alpha = 0.05 by default.
+SUFFIX = "orient005"
 ALGO_CONFIGS = [
-    ("CMIIC_analytic", CMIICAdapter, {"alpha": 0.05, "kmode": "Analytic"}),
+    ("CMIIC_analytic_orient005", CMIICAdapter,
+     {"alpha": 0.05, "kmode": "Analytic", "orientation_offset": 0.05}),
 ]
 
 
@@ -47,6 +53,7 @@ def run(generator_name):
         n_graphs=30,
         seed=42,
     )
+    runner.results_dir = runner.results_dir.with_name(f"{runner.results_dir.name}_{SUFFIX}")
     print(f"=== {generator_name} -> {runner.results_dir}", flush=True)
     runner.run()
     print(f"=== done {generator_name}", flush=True)

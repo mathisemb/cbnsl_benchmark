@@ -23,7 +23,7 @@ class CMIICAdapter(AlgorithmAdapter):
         "Analytic": otagrum.CorrectedMutualInformation.KModeTypes_Analytic,
     }
 
-    def __init__(self, alpha: float = 0.05, kmode: str = "Naive"):
+    def __init__(self, alpha: float = 0.05, kmode: str = "Naive", orientation_offset: float = None):
         """
         Initialize the CMIIC adapter
 
@@ -39,6 +39,11 @@ class CMIICAdapter(AlgorithmAdapter):
             "Analytic" : sample split and the analytic threshold mu_n + z_{1-alpha} sigma_tot,
             alpha being then the level of the test (otagrum branch seuil_analytique).
             "NoCorr" : no penalty.
+        orientation_offset : float, optional
+            Offset added to the three-point information before MIIC reads its sign
+            to declare a v-structure. None (default) keeps otagrum's behaviour,
+            alpha in "Naive" mode, 0 otherwise. Set it to decouple the orientation
+            from the two-point test, e.g. 0.05 with kmode="Analytic".
 
         Note
         ----
@@ -49,6 +54,15 @@ class CMIICAdapter(AlgorithmAdapter):
             raise ValueError(f"kmode must be one of {sorted(self.KMODES)}, got {kmode!r}")
         self.alpha = alpha
         self.kmode = kmode
+        self.orientation_offset = orientation_offset
+
+    def _configure(self, learner):
+        """Settings shared by learn_dag and learn_structure (CMIIC uses setters, not constructor parameters)."""
+        learner.setKMode(self.KMODES[self.kmode])
+        learner.setAlpha(self.alpha)
+        if self.orientation_offset is not None:
+            learner.setOrientationOffset(self.orientation_offset)
+        learner.setVerbosity(False)
 
     def learn_dag(self, dataset: Dataset) -> gum.DAG:
         """
@@ -65,11 +79,7 @@ class CMIICAdapter(AlgorithmAdapter):
             The learned DAG
         """
         learner = otagrum.ContinuousMIIC(dataset.data)
-
-        # Configure alpha and kmode via setters (CMIIC uses setters, not constructor parameters)
-        learner.setKMode(self.KMODES[self.kmode])
-        learner.setAlpha(self.alpha)
-        learner.setVerbosity(False)
+        self._configure(learner)
         named_dag = learner.learnDAG()
         return named_dag.getDAG()
 
@@ -94,11 +104,7 @@ class CMIICAdapter(AlgorithmAdapter):
             The learned structure (CPDAG + raw pattern)
         """
         learner = otagrum.ContinuousMIIC(dataset.data)
-
-        # Configure alpha and kmode via setters (CMIIC uses setters, not constructor parameters)
-        learner.setKMode(self.KMODES[self.kmode])
-        learner.setAlpha(self.alpha)
-        learner.setVerbosity(False)
+        self._configure(learner)
         mixed = learner.learnPDAG()
 
         cpdag = gum.MeekRules().propagateToCPDAG(mixed)
