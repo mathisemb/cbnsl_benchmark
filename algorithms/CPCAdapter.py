@@ -18,7 +18,13 @@ class CPCAdapter(AlgorithmAdapter):
         "max_conditioning_set_size": list(range(2, 9)),
     }
 
-    def __init__(self, alpha: float = 0.05, max_conditioning_set_size: int = None):
+    TESTS = {
+        "hellinger": otagrum.ContinuousPC.TestTypes_Hellinger,
+        "kullback_leibler": otagrum.ContinuousPC.TestTypes_KullbackLeibler,
+    }
+
+    def __init__(self, alpha: float = 0.05, max_conditioning_set_size: int = None,
+                 test: str = "hellinger"):
         """
         Initialize the CPC adapter
 
@@ -28,9 +34,24 @@ class CPCAdapter(AlgorithmAdapter):
             Significance level for independence tests (default: 0.05)
         max_conditioning_set_size : int, optional
             Maximum size of conditioning sets. If None, uses data dimension - 1
+        test : str, optional
+            Conditional independence test (default: "hellinger").
+            "hellinger" : the Hellinger test of Bouezmarni, Rombouts and Taamouti,
+            the historical CPC.
+            "kullback_leibler" : the conditional information with sample split and
+            the analytic threshold mu_n + z_{1-alpha} sigma_tot (otagrum branch
+            pc_entropie). Only the test changes, PC is the same.
         """
+        if test not in self.TESTS:
+            raise ValueError(f"test must be one of {sorted(self.TESTS)}, got {test!r}")
         self.alpha = alpha
         self.max_conditioning_set_size = max_conditioning_set_size
+        self.test = test
+
+    def _configure(self, learner):
+        """Settings shared by learn_dag and learn_structure."""
+        learner.setTestType(self.TESTS[self.test])
+        learner.setVerbosity(False)
 
     def learn_dag(self, dataset: Dataset) -> gum.DAG:
         """
@@ -51,8 +72,7 @@ class CPCAdapter(AlgorithmAdapter):
             max_cond_set = dataset.data.shape[1] - 2
 
         learner = otagrum.ContinuousPC(dataset.data, max_cond_set, self.alpha)
-
-        learner.setVerbosity(False)
+        self._configure(learner)
         named_dag = learner.learnDAG()
         return named_dag.getDAG()
 
@@ -81,8 +101,7 @@ class CPCAdapter(AlgorithmAdapter):
             max_cond_set = dataset.data.shape[1] - 2
 
         learner = otagrum.ContinuousPC(dataset.data, max_cond_set, self.alpha)
-
-        learner.setVerbosity(False)
+        self._configure(learner)
         mixed = learner.learnPDAG()
 
         cpdag = gum.MeekRules().propagateToCPDAG(mixed)
